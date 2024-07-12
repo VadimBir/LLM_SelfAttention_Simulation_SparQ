@@ -1,0 +1,59 @@
+#include "cache.h"
+#include <iostream>
+
+#include <fstream>
+#include <iomanip>
+
+std::ofstream addressFile;
+
+std::string addressFilePath = "/home/ubuntu/Directory/SparQ/addresses-allscriptTTT_V4.txt"; // addresses-<TRACE_NAME>.txt
+void CACHE::l2c_prefetcher_initialize()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+    addressFile.open(addressFilePath, std::ios::app);
+    if (!addressFile.is_open()) {
+        cout << "Failed to open file for writing addresses." << endl;
+    }
+}
+
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+    addressFile.open(addressFilePath, std::ios::app);
+    if (addressFile.is_open()) {
+        addressFile << std::hex << std::setw(12) << std::setfill('0') << (addr >> LOG2_BLOCK_SIZE) << std::dec << std::endl;
+    }
+    uint64_t pf_addr = ((addr>>LOG2_BLOCK_SIZE)+1) << LOG2_BLOCK_SIZE;
+
+    addressFile.close();
+    // Always printing out access details
+    cout << "[" << NAME << "] " << __func__ << " base_cl: " << hex << (addr>>LOG2_BLOCK_SIZE);
+    cout << " pf_cl: " << (pf_addr>>LOG2_BLOCK_SIZE) << " ip: " << ip << " cache_hit: " << dec << +cache_hit << " type: " << +type << endl;
+
+    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+
+    return metadata_in;
+}
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+    // Outputting detailed fill information
+    cout << "[" << NAME << "] " << __func__ << " addr: " << hex << addr << " set: " << dec << set;
+    cout << " way: " << way << " prefetch: " << +prefetch << " evicted_addr: " << hex << evicted_addr << dec <<endl;
+
+
+    if (addressFile.is_open()) {
+        addressFile << std::hex << addr << std::dec << std::endl;
+    }
+
+    return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher final stats" << endl;
+    if (addressFile.is_open()) {
+        addressFile.close();
+    } else {
+        cout << "File was never opened for writing." << endl;
+    }
+}

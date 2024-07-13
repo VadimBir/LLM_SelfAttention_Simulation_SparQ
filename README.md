@@ -7,13 +7,16 @@
 ```
 
 <h4 style="text-indent:20px;">Attention Example:</h4>
+
 ```bash
 ./champsim/pin-3.17-98314-g0c048d619-gcc-linux/pin -t ./champsim/tracer/obj-intel64/champsim_tracer.so -o ./LLM_Traces/attentionTTT.champsim -s 1000000000 -t 8446744073709551600 -- python llm-inference-research-benchmarks/src/sparq_benchmark.py
 ```
+
 ```bash
 ./pin_champsim/pin-3.17-98314-g0c048d619-gcc-linux/pin -t ./pin_champsim/tracer/obj-intel64/champsim_tracer.so -o ./LLM_Traces/attentionSim-TestConf-B2-H8-S128-Dim64-Layer4--07-10-0815.champsim -s 4312000 -t 8446744073709551600 -- python llm-inference-research-benchmarks/src/sparq_benchmark.py
 ```
 <h4 style="text-indent:20px;">Compress:</h4>
+
 ```bash
 xz champsim/traces/ls_trace.champsim
 xz   -3  --verbose     -k   attention_testConf_2357-07-07.champsim
@@ -21,6 +24,7 @@ xz   -3  --verbose     -k   attention_testConf_2357-07-07.champsim
 ```
 
 <h4 style="text-indent:20px;">Build Prefetcher:</h4>
+
 ```bash
 ./build_champsim.sh no
 ./build_champsim.sh next_line // l2 prefetcher specification
@@ -30,6 +34,7 @@ NOTE:   L1: no
         replacement LLC: use the LRU
 ```
 <h4 style="text-indent:20px;">Simulate:</h4>
+
 ```bash
 ./champsim/bin/perceptron-no-no-no-lru-4core -warmup_instructions 1000000 -simulation_instructions 10000000 -traces ./champsim/traces/ls_trace.champsim.xz
 ```
@@ -38,11 +43,13 @@ NOTE:   L1: no
 ## CHAMPSIM PREFETCHER MAKE && USE EXAMPLE:
 
 <h4 style="text-indent:20px;">Compile <i>champsim_tracer.cpp</i> </h4>
+
 ```bash
 cd pin_champsim/ && ./build_champsim.sh debugger  && cd ..
 ```
 
 <h4 style="text-indent:20px;">SIMULATION:</h4>
+
 ```bash
 ./pin_champsim/bin/perceptron-no-debugger-no-lru-1core -warmup 1000000 -simulation_instructions 1000000 -traces ./LLM_Traces/pySharedTraced.champsim.xz
 ```

@@ -1,3 +1,39 @@
+# REQUIREMENTS
+
+```bash
+sudo apt-get update
+sudo apt-get install libxkbcommon-x11-0
+sudo apt-get install pkg-config
+sudo apt-get install curl zip unzip tar
+sudo apt-get install libegl1
+sudo apt-get install libxcb-1-0 libxcb-render0 libxcb-xinerama0 libxcb-cursor0 libxcb-xfixes0
+sudo apt-get install libwayland-client0 libwayland-cursor0 libwayland-egl1
+sudo apt-get update
+sudo apt-get upgrade -y
+```
+- QT might have an error playing around and reinstalling could help, likewise, have to create a new terminal session
+> (venv) ubuntu@RVLSU108-09457:~/Directory/SparQ$ python 000-custom_scripts/visPy_TracesHistoryGraph_GPU.py 
+Traceback (most recent call last):
+  File "/home/ubuntu/Directory/SparQ/000-custom_scripts/visPy_TracesHistoryGraph_GPU.py", line 1, in <module>
+    from PyQt5.QtWidgets import QApplication, QMainWindow
+ImportError: /usr/lib/x86_64-linux-gnu/libQt5Core.so.5: version `Qt_5.15' not found (required by /home/ubuntu/Directory/SparQ/venv/lib/python3.9/site-packages/PyQt5/QtWidgets.abi3.so)
+
+
+- QT Does not work on WSL
+- so moved to pyglet
+```bash
+sudo apt install freeglut3-dev -y
+sudo add-apt-repository ppa:kisak/kisak-mesa
+sudo apt update
+sudo apt upgrade
+```
+> FAILED
+
+- MOVE TO GLFW
+```bash
+pip install glfw
+```
+
 # QUICK COMMAND NAVIGATION: 
 <h2 style="text-indent:10px;">Traces:</h2>
 <h4 style="text-indent:20px;">Capture:</h4>

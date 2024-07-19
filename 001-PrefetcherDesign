@@ -1,0 +1,23 @@
+1) Locality based Prefetcher
+    Some addresses are repeating but a few of them
+        Have a prefetching where repeated addresses in N distance is stored
+
+2) Incremental Stride
+    For address A, A+1 access may occure not right after but after B (len N)
+    A -> B -> A+1 -> B+1 -> A+2 -> B+2
+
+    B can be len 4 with sequential len 4 access
+
+3)
+   USE THIS FOR NEXT 50K Adresses
+   If A -> B -> A+1 this would trigger some attempt to prefetch to keep in mind
+   ONLY IF there is A+1 and repeated B+1 and after A+1 there is some B+2 then do NEXT LINE STRIDE PREFETCHING
+
+   USE THIS FOR NEXT 50K Adresses
+   IF Sequentially A -> A -> A them A must me Locality based prefetcher
+
+^^^^^^^ MANUALLY
+
+FUTURE EXTENSIONS would to to APPLY MACHINE LEARNING?
+
+3 by 10 NN with 1byte L2 Memory to store some Data for a "Memory Neuron"

@@ -6,7 +6,7 @@
 
 std::ofstream addressFile;
 
-std::string addressFilePath = "/home/ubuntu/Directory/SparQ/addresses-allscriptTTT_V4.txt"; // addresses-<TRACE_NAME>.txt
+std::string addressFilePath = "/home/ubuntu/Directory/SparQ/002-addressesHistory/addresses-FULL_Phythia-70M_S1_07-15-1050.txt"; // addresses-<TRACE_NAME>.txt
 void CACHE::l2c_prefetcher_initialize()
 {
     cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
@@ -26,8 +26,8 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
     addressFile.close();
     // Always printing out access details
-    cout << "[" << NAME << "] " << __func__ << " base_cl: " << hex << (addr>>LOG2_BLOCK_SIZE);
-    cout << " pf_cl: " << (pf_addr>>LOG2_BLOCK_SIZE) << " ip: " << ip << " cache_hit: " << dec << +cache_hit << " type: " << +type << endl;
+    //cout << "[" << NAME << "] " << __func__ << " base_cl: " << hex << (addr>>LOG2_BLOCK_SIZE);
+    //cout << " pf_cl: " << (pf_addr>>LOG2_BLOCK_SIZE) << " ip: " << ip << " cache_hit: " << dec << +cache_hit << " type: " << +type << endl;
 
     prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
 
@@ -37,8 +37,8 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
 {
     // Outputting detailed fill information
-    cout << "[" << NAME << "] " << __func__ << " addr: " << hex << addr << " set: " << dec << set;
-    cout << " way: " << way << " prefetch: " << +prefetch << " evicted_addr: " << hex << evicted_addr << dec <<endl;
+    //cout << "[" << NAME << "] " << __func__ << " addr: " << hex << addr << " set: " << dec << set;
+    //cout << " way: " << way << " prefetch: " << +prefetch << " evicted_addr: " << hex << evicted_addr << dec <<endl;
 
 
     if (addressFile.is_open()) {

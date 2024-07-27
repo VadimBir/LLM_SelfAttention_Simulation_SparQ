@@ -257,12 +257,12 @@ for i in theFile:
     #print(f"Accessed: {i}, Prediction: {result['current_prediction']}, Effectiveness: {result['effectiveness']}% Successfully: {result['successful_predictions']}")
 
     # NEXT LINE
-    #result = nxtLinePref.simulate_next_line_prefetching(i)
-    #print(f"Accessed: {i}, Prediction: {result} Effectiveness: {nxtLinePref.get_effectiveness()}%")
+    result = nxtLinePref.simulate_next_line_prefetching(i)
+    print(f"Accessed: {i}, Prediction: {result} Effectiveness: {nxtLinePref.get_effectiveness()}%")
 
     # LOCALITY
-    result = localityPref.simulate_next_line_prefetching(i)
-    print(f"Accessed: {i}, Prediction: {result}, Effectiveness: {localityPref.get_effectiveness()}%")
+    #result = localityPref.simulate_next_line_prefetching(i)
+    #print(f"Accessed: {i}, Prediction: {result}, Effectiveness: {localityPref.get_effectiveness()}%")
 print("Processing file...")
 #
 # print("Linear Increments:", find_linear_increments(theFile))

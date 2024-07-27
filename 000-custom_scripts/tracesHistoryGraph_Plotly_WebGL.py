@@ -104,11 +104,11 @@ htmlName = baseName+".html"
 svgName = baseName+".svg"
 pngName = baseName+".png"
 print("FLAG1")
-fig.write_image(pngName)
+fig.write_html(htmlName)
 print("FLAG2")
 fig.write_image(svgName)
 exit()
-fig.write_html(htmlName)
+fig.write_image(pngName)
 print("FLAG3")
 print("DONE!!!")
 

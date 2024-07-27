@@ -1,3 +1,7 @@
+## ./000-custom_scripts/cPrefetcher_Simulation_runner.sh
+Script that executes the [c_pseudo_prefetcher_simulation.cpp](c_pseudo_prefetcher_simulation.cpp) that may take addresses-<NAME>.txt argument. 
+Otherwise, would run BK history traces.
+
 
 ## **python pinBench_makePrefetcher_Simulate_buildGraph.py**
 

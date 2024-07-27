@@ -14,6 +14,14 @@ from vispy.scene import SceneCanvas, LinePlot, Text, GridLines, Markers
 from vispy.io import write_png
 
 
+FILE_CHUNK_SIZE = 2000000
+CONTACT_CHUNK_SIZE = 100
+
+MOVEMENT_STEP_DISTANCE = 50
+MOVING_STEP = 3000
+NUM_STEPS = 2
+
+
 def process_chunk(chunk):
 
     chunk['address_int'] = chunk['address'].apply(lambda x: int(x, 16))
@@ -33,8 +41,7 @@ app_qt = QApplication.instance()
 
 
 print("pd lambda x: int(x, 16)")
-FILE_CHUNK_SIZE = 2000000
-CONTACT_CHUNK_SIZE = 100
+
 
 # X AXIS
 all_unique_ints = np.array([])
@@ -162,9 +169,7 @@ pngName = baseName+".png"
 
 
 # Save the canvas as an image
-MOVEMENT_STEP_DISTANCE = 2000
-MOVING_STEP = 3000
-NUM_STEPS = 2
+
 
 def save_frame_and_pan(step_size, num_steps):
     for i in range(num_steps):

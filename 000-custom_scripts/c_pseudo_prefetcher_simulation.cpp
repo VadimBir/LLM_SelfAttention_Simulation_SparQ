@@ -7,8 +7,160 @@
 #include <iomanip>
 #include <algorithm>
 
+// MARKOV PREFETCHER LIBS
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+
 using namespace std;
 
+// Markov Table
+static std::unordered_map<uint64_t, std::unordered_map<uint64_t, int>> markov_table;
+const int MARKOV_LRU_SIZE = 4096;
+using IteratorType = std::unordered_map<uint64_t, std::unordered_map<uint64_t, int>>::iterator;
+std::array<std::unordered_map<uint64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};  // Used for LRU
+int markov_LRU_front = 0;
+const int MAX_PREDICTIONS = 2;
+
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+uint64_t pf_addr = 0;
+
+std::unordered_map<uint64_t, int>::iterator markov_evict_lru(){
+    cout << "Evicting LRU" << endl;
+    std::unordered_map<uint64_t, int>::iterator  val_it = markov_LRU[0];
+    // swap the -1 to the right side shifting everything else to the left
+    for (size_t i = 1; i < markov_LRU_front; i++) {
+        markov_LRU[i-1] = markov_LRU[i];
+        //markov_LRU[i] = markov_table.end();
+//            cout << endl;
+//            for (size_t i = 0; i < markov_LRU.size(); i++) {
+//                cout << markov_LRU[i] << " ";
+//            }
+    }
+    //markov_LRU[markov_LRU.size() - 1] = markov_table.end();
+
+    // print the key it
+
+    //cout << "DONE Evicting LRU" << endl;
+
+    return val_it;
+}
+
+void markov_update_lru(int index) {
+    auto tmpVal = markov_LRU[index];
+    for (size_t i = 0; i < markov_LRU_front; i++) {
+        if (i<index){
+            continue;
+        }
+        markov_LRU[i] = markov_LRU[i+1];
+    }
+
+//        for (size_t i = index; i < markov_LRU.size(); i++) {
+//            //cout << endl;
+//            markov_LRU[i-1] = markov_LRU[i];
+//        }
+    markov_LRU[markov_LRU_front - 1] = tmpVal;
+
+}
+// CREATE A MARKOVE THAT PREDICTS A FUTURE DELTA BASED ON PAST DELTA
+std::vector<uint64_t> markov_prefetcher(std::unordered_map<uint64_t, std::unordered_map<uint64_t, int>>& mkv_table, uint64_t addr, IteratorType& key_it, std::unordered_map<uint64_t, int>::iterator& val_it) {
+    std::unordered_map<uint64_t, std::unordered_map<uint64_t, int>>& markov_table = mkv_table;
+    std::vector<uint64_t> top_predictions;
+    std::array<std::unordered_map<uint64_t, int>::iterator, MARKOV_LRU_SIZE>& markov_LRU_ref = markov_LRU;  // Used for LRU
+    //uint64_t best_prediction = -1; // Default to -1, indicating no prediction found
+
+
+    //print_markov_table();
+    //cout << "Bool: " << (it != markov_table.end()) << endl;
+    // If the previous address is in the table
+//        if (std::find(markov_LRU.begin(), markov_LRU.end(), previous_addr) != markov_LRU.end()) {
+//            int index = std::find(markov_LRU.begin(), markov_LRU.end(), previous_addr) - markov_LRU.begin();
+//            markov_update_lru(index);
+//        } else {
+//            markov_evict_lru();
+//            markov_LRU[markov_LRU.size() - 1] = previous_addr;
+//        }
+
+    // the it for prediction
+    auto it = markov_table.find(previous_addr-addr);
+
+    if (it != markov_table.end()) {
+        // Get the map of next likely blocks
+        auto& next_blocks = it->second;
+
+        //cout << "Next Blocks: " << next_blocks.size() << endl;
+        // Create a vector and sort the predictions based on their hit counts
+        std::vector<std::pair<uint64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        // vector
+        std::sort(predictions.begin(), predictions.end(),
+                  [](const std::pair<uint64_t, int>& a, const std::pair<uint64_t, int>& b) {
+                      return a.second > b.second;  // Sort by descending hit count
+                  });
+
+
+        // Prefetch the top predictions
+        for (auto& prediction : predictions) {
+            if (top_predictions.size() >= MAX_PREDICTIONS) break; // Stop if we have enough predictions
+            uint64_t pf_addr = prediction.first; //<< LOG2_BLOCK_SIZE;
+
+            top_predictions.push_back(pf_addr); // Store the prediction in the vector
+        }
+    }
+    auto lru_it = std::find(markov_LRU_ref.begin(), markov_LRU_ref.end(), val_it);
+    int foo = 0;
+    if (lru_it != markov_LRU_ref.end()) { // if exists
+        int index = lru_it - markov_LRU_ref.begin();
+        markov_update_lru(index);
+
+    } else { // if not exists
+
+        if (markov_LRU_front != MARKOV_LRU_SIZE - 1) { // If RLU has a spot yet
+            markov_LRU_ref[markov_LRU_front] = val_it; // since the LRU is not full add the new element to the front index
+            markov_LRU_front++; // increment the front index
+        } else { // if the LRU is full
+            auto toDel = markov_evict_lru(); // get the iterator to the element to delete
+            //cout << "AFTER Evicting LRU" << endl;
+            //cout << "KEY: " << key_it->first << " VAL: " << val_it->first << " toDel: " << toDel->first << endl;
+            // find toDel in the inneter hash table and delete it
+            // delete the toDel from the inner hash table
+            for (auto& outer_pair : markov_table) {
+                auto& inner_map = outer_pair.second;
+
+                // Instead of trying to compare iterators directly, we compare the key-value pairs they point to
+                for (auto it = inner_map.begin(); it != inner_map.end();) {
+                    if (it == toDel) {
+                        // Output debug information before erasing
+                        std::cout << "Entry from inner map under outer key: it:" << it->first << " toDel:" << toDel->first << std::endl;
+
+                        // Erase the element and get the next iterator in one safe operation
+                        it = inner_map.erase(it);
+
+                        // Optional: break if you only need to erase this one element and are done
+                        break;
+                    } else {
+                        // Increment the iterator only if not erasing
+                        ++it;
+                    }
+                }
+            }
+            //key_it->second.erase(toDel); // delete the element from the table
+            //cout << "AFTER Evicting LRU F1" << endl;
+            markov_LRU_ref[markov_LRU_front - 1] = val_it; // add the new element to the end of LRU arr
+            //cout << "AFTER Evicting LRU F2" << endl;
+        }
+//        } else {
+//            markov_LRU[markov_LRU.size() - 1] = it; // if the LRU is not full add the new element to the end
+//
+//        }
+    }
+
+
+
+    return top_predictions;
+}
 // Assuming 256KB L2 cache assuming Block Size 64B
 class L2_Cache {
 private:
@@ -328,20 +480,54 @@ int main(int argc, char* argv[]) {
     StridePrefetcher stridePref;
     NextLine_Prefetcher nxtLinePref;
     LocalityPrefetcher localityPref;
-
+    L2_Cache cache;
+    std::unordered_map<uint64_t, std::unordered_map<uint64_t, int>>& mkv_table = markov_table;
     // EMULATION OF ADDRESS HISTORY WITH PREFETCHING
     for (const auto& address_int : theFile) {
-        //std::cout << address_int << std::endl;
-        nxtLinePref.simulate_LRU_NextLine_prefetching(address_int);
-//        if (nxtLinePref.subseq_Hits == 0){
-//            //cout << "NxtLine: "<<nxtLinePref<<endl;
-//        }
-        if (nxtLinePref.total_predictions % 50000 ==0){
-            cout << "NxtLine: "<<nxtLinePref<<endl;
+
+// USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV
+        int64_t key_delta = 0;
+        int64_t val_delta = 0;
+        if (pre_previous_addr !=0){
+            key_delta = (pre_previous_addr) - (previous_addr);
+            val_delta = (previous_addr) - (address_int);
+
         }
+        IteratorType key_it;
+        std::unordered_map<uint64_t, int>::iterator val_it;
+        if (pre_previous_addr != 0) {
+            mkv_table[key_delta][val_delta]++;
+            // find the iterator of the key:value pair, which is an iterator inside the hash table that is inside a hash table
+            key_it = mkv_table.find(key_delta);
+            val_it = key_it->second.find(val_delta);
+        }
+        // PROCESS THE CURRENT ADDR
+        std::vector<uint64_t> pf_topP = markov_prefetcher(mkv_table,address_int, key_it, val_it);
+        for (uint64_t pf_offset : pf_topP) {
+            pf_addr = ((address_int) + pf_offset);
+            cache.prefetch(pf_addr);
+        }
+        size_t totalCount = 0;
+        for (const auto& pair : mkv_table) {
+            totalCount += pair.second.size();
+        }
+        // print mk table size and LRU size
+        cout << "MkT_size: " << totalCount << "Mk_LRU_size: " << markov_LRU_front << endl;
+
+        pre_previous_addr = previous_addr;
+        previous_addr = address_int;
+
+        //std::cout << address_int << std::endl;
+//        nxtLinePref.simulate_LRU_NextLine_prefetching(address_int);
+////        if (nxtLinePref.subseq_Hits == 0){
+////            //cout << "NxtLine: "<<nxtLinePref<<endl;
+////        }
+//        if (nxtLinePref.total_predictions % 50000 ==0){
+//            cout << "NxtLine: "<<nxtLinePref<<endl;
+//        }
         //cout << nxtLinePref.cache.print_cache() << endl;
     }
-    cout << "NxtLine: " << nxtLinePref << endl;
+//    cout << "NxtLine: " << nxtLinePref << endl;
 
     return 0;
 }

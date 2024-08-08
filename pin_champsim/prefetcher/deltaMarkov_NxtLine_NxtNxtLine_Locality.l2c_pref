@@ -443,6 +443,16 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     //uint32_t l2_cache_occupancy = get_l2_cache_occupancy();
     //std::cout << "L2 Cache Occupancy: " << l2_cache_occupancy << std::endl;
 
+    bool is_hit = CACHE.check_hit(addr);
+
+    if (is_hit) {
+        printf("Prefetch address %lx: HIT\n", addr);
+    } else {
+        printf("Prefetch address %lx: MISS\n", addr);
+        // Optionally, issue a prefetch request if it's a miss
+
+    }
+
     pre_previous_addr = previous_addr;
     previous_addr = addr;
     cnt++;

@@ -130,11 +130,14 @@ min_RLE = math.inf
 
 #<inRowHit:MissDelta>
 inRow = []
-BRUTE_FORCE_RLE = 32
+BRUTE_FORCE_RLE = 2
+
+i = 0
+
 for b in range(1, BRUTE_FORCE_RLE):
 
     for i in range(len(int_addresses)):
-        #print("\ncurr:", hex(int_addresses[i]), end="-> ")
+        #print("\ncurr:", int_addresses[i], end="-> ")
         try:
             # #if int(int_addresses[i] - int_addresses[i + 1]) == -1 or int(int_addresses[i] - int_addresses[i + 1]) == -2 or int(int_addresses[i] - int_addresses[i + 1]) == -3 or int(int_addresses[i] - int_addresses[i + 1]) == -4 or int(int_addresses[i] - int_addresses[i + 1]) == -64 or int(int_addresses[i] - int_addresses[i + 1]) == -63 or int(int_addresses[i] - int_addresses[i + 1]) == -62 or int(int_addresses[i] - int_addresses[i + 1]) == -17:
             # if int(int_addresses[i] - int_addresses[i + 1]) == -1 or int(int_addresses[i] - int_addresses[i + 2]) == -2 or int(int_addresses[i] - int_addresses[i + 3]) == -3:
@@ -142,9 +145,14 @@ for b in range(1, BRUTE_FORCE_RLE):
             # else:
             #     #delta_histroy.append({nxtLine_inRow: int(int_addresses[i] - int_addresses[i + 4])})
             #     nxtLine_inRow = 0
+            if (int((int_addresses[i])) - (((int_addresses[i]) +1)))==-1:
+                i+=1
+            else:
+                #print(f"{i}")
+                print(f"{int((int_addresses[i]))}>>{(((int_addresses[i]) +1))}", end="\n")
+            #print("I:",i )
             dist = 5
-            if (int(int_addresses[i] - int_addresses[i + b])) == -b or (int(int_addresses[i] - int_addresses[
-                i + b])) == -b - 1:  #or (int(int_addresses[i] - int_addresses[i + 1])) == -2 or (int(int_addresses[i] - int_addresses[i + 1])) == -3:
+            if (int((int_addresses[i] >> LOG2_BLOCK_SIZE) - (((int_addresses[i] >> LOG2_BLOCK_SIZE) +1)))) == -2: #or (int(int_addresses[i] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE - int_addresses[i + b] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)) == 1:  #or (int(int_addresses[i] - int_addresses[i + 1])) == -2 or (int(int_addresses[i] - int_addresses[i + 1])) == -3:
                 delta_histroy.append(-b)
             else:
                 delta_histroy.append(int(int_addresses[i] - int_addresses[i + b]))
@@ -226,11 +234,24 @@ for b in range(1, BRUTE_FORCE_RLE):
     #     pass
     # print()
     #if len(RLE_Delta) < min_RLE: min_RLE = len(RLE_Delta)
-
+    repeatedBool = False
     #print("\n\n\n",delta_histroy,"\n\n\n")
     print("RLE:", b, "Delta Len: ", len(delta_histroy), " RLE Len:", len(RLE_Delta), " \t \t MIN RLE: ", min_RLE)
-    for rle in RLE_Delta[:20]:
-        print(rle, end=" ")
+    try:
+
+        for i, rle in enumerate(RLE_Delta):
+            if type(rle)!=str:
+                print(f'{rle}', end=" ")
+
+                if type(RLE_Delta[i+1])==str:
+                    print(f"({RLE_Delta[i+1]})", end= " ")
+                else: print(" ",end=" ")
+            pass
+            # if not repeatedBool:
+            #     print(end="\n")
+            #     repeatedBool = False
+    except:
+        pass
     print()
     mapping = defaultdict(lambda: 0)
     for val in delta_histroy:

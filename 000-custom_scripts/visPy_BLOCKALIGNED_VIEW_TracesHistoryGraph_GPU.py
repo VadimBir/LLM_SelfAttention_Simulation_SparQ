@@ -17,14 +17,14 @@ from vispy.io import write_png
 FILE_CHUNK_SIZE = 2000000
 CONTACT_CHUNK_SIZE = 100000
 
-MOVEMENT_STEP_DISTANCE = 18000
+MOVEMENT_STEP_DISTANCE = 2000 # for small graph 20 is fine LEFT RIGHT UP DOWN DISTANCE
 MOVING_STEP = 3000
 NUM_STEPS = 2
 
-
+LOG2_BLOCK_SIZE = 6
 def process_chunk(chunk):
 
-    chunk['address_int'] = chunk['address'].apply(lambda x: int(x, 16))
+    chunk['address_int'] = chunk['address'].apply(lambda x: (int(x, 16) >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE)
     #print(chunk['address_int'])
     return chunk['address'].apply(lambda x: int(x, 16)).unique()
 
@@ -55,7 +55,9 @@ for chunk in pd.read_csv(addresses, header=None, names=['address'], dtype=str, c
 
     all_unique_ints = np.unique(np.concatenate([all_unique_ints, unique_ints])).astype(np.int64)
 print("Done chunking!")
-unique_sorted_ints = np.sort(all_unique_ints)
+unique_sorted_ints = np.unique(np.concatenate([all_unique_ints, (unique_ints >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE])).astype(np.int64)
+#unique_sorted_ints = np.sort(all_unique_ints)
+
 del all_unique_ints
 hex_width = 12
 unique_sorted_hex = [f"{x:0{hex_width}X}" for x in unique_sorted_ints]
@@ -69,7 +71,7 @@ print("Chunking Y:")
 for chunk in pd.read_csv(addresses, header=None, names=['address'], dtype=str, chunksize=FILE_CHUNK_SIZE):
     print("\tChunk:", i)
     i += 1
-    chunk['address_int'] = chunk['address'].apply(lambda x: int(x, 16))
+    chunk['address_int'] = chunk['address'].apply(lambda x: (int(x, 16) >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE)
     chunk['y_value_int'] = chunk['address_int'].map(address_to_index)
 
     df_list.append(chunk)
@@ -173,7 +175,7 @@ xmin = min(df['x_value'])
 xmax = max(df['x_value'])/2
 ymin = min(df['y_value_int'])
 ymax = max(df['y_value_int'])
-padding = 5  # Adjust padding to increase the initial view area
+padding = 10  # Adjust padding to increase the initial view area
 rect = (xmin - padding, ymin - padding, xmax - xmin + 2*padding, ymax - ymin + 2*padding)
 camera = PanZoomCamera(rect=rect)
 view.camera = camera
@@ -341,14 +343,14 @@ def handle_user_input():
     terminalShift = 1000
     while True:
         user_input = input("Enter command: ").split(" ")
-        if user_input[0] == 'l':
+        if user_input[0] == 'r':
             try:
                 #for i in range(int(user_input[1])):
                 view.camera.pan((terminalShift*int(user_input[1]), 0))
             except:
                 view.camera.pan((terminalShift, 0))
             #view.camera.pan((terminalShift, 0))  # Move left
-        elif user_input[0] == 'r':
+        elif user_input[0] == 'l':
             try:
                 #for i in range(user_input[1]):
                 view.camera.pan((-terminalShift*int(user_input[1]), 0))

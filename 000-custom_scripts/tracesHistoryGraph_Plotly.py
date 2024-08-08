@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
+LOG2_BLOCK_SIZE = 6
 def process_chunk(chunk):
     # Convert hex addresses to integers
-    chunk['address_int'] = chunk['address'].apply(lambda x: int(x, 16))
+    chunk['address_int'] = chunk['address'].apply(lambda x: (int(x, 16) >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE)
     return chunk['address'].apply(lambda x: int(x, 16)).unique()
 
 if len(sys.argv) < 2:
@@ -33,8 +34,9 @@ for chunk in pd.read_csv(addresses, header=None, names=['address'], dtype=str, c
     #unique_ints = unique_ints.astype(np.int64)
     all_unique_ints = np.unique(np.concatenate([all_unique_ints, unique_ints])).astype(np.int64)
 print("Done chunking!")
-unique_sorted_ints = np.sort(all_unique_ints)
-del all_unique_ints
+unique_sorted_ints = np.unique(np.concatenate([all_unique_ints, (unique_ints >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE])).astype(np.int64)
+#unique_sorted_ints = np.sort(all_unique_ints)
+
 #x_values_pd = pd.RangeIndex(start=0, stop=len(unique_sorted_ints))
 hex_width = 12  # Define the hex width based on your data characteristics
 unique_sorted_hex = [f"{x:0{hex_width}X}" for x in unique_sorted_ints]
@@ -50,7 +52,7 @@ print("Chunking Y:")
 for chunk in pd.read_csv(addresses, header=None, names=['address'], dtype=str, chunksize=FILE_CHUNK_SIZE):
     print("\tChunk:", i)
     i += 1
-    chunk['address_int'] = chunk['address'].apply(lambda x: int(x, 16))
+    chunk['address_int'] = chunk['address'].apply(lambda x: (int(x, 16) >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE)
     chunk['y_value_int'] = chunk['address_int'].map(address_to_index)
     #chunk['y_value_hex'] = chunk['y_value_int'].apply(lambda x: f"{x:012X}")
     df_list.append(chunk)
@@ -180,7 +182,7 @@ fig.update_layout(
 # Show figure
 print("SAVING")
 # Save as HTML file, optional
-baseName = "./003-addressesAnalysis/history-plotly-"
+baseName = "./003-addressesAnalysis/history-plotly_V3_BLOCKALIGNED-"
 baseName += sys.argv[1]
 
 htmlName = baseName+".html"
@@ -190,7 +192,6 @@ print("FLAG1")
 # Save as static image, requires Kaleido
 fig.write_html(htmlName)
 print("FLAG2")
-exit()
 fig.write_image(svgName)
 print("FLAG3")
 fig.write_image(pngName) # ERRORS OUT DUE TO LARGE FIGURE SIZE

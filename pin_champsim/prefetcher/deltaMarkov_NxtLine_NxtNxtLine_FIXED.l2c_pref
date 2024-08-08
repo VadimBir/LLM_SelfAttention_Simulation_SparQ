@@ -57,11 +57,11 @@ int switchInt = 0;
 
 // Markov Table
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1+ 4096;
+const int MARKOV_LRU_SIZE = 1+ 8192;
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};  // Used for LRU
 int markov_LRU_front = 0;
-const int MAX_PREDICTIONS = 10;
+const int MAX_PREDICTIONS = 2;
 const int MARKOV_PREDICTION_THRESHOLD = 16;
 
 //uint64_t pf_addr = ((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
@@ -302,94 +302,94 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     }
 // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
 // USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
-    int64_t key_delta = 0;
-    int64_t val_delta = 0;
-    //cout << "Current: " << addr << endl;
-
-    addr = addr >> LOG2_BLOCK_SIZE;
-    addr = addr << LOG2_BLOCK_SIZE;
-    //cout << "PrevAddr: "<<previous_addr<<" Aligned Current: " << addr << endl;
-    if (pre_previous_addr !=0){
-        key_delta = (pre_previous_addr) - (previous_addr);
-        val_delta = (previous_addr) - (addr);
-        //cout << pre_previous_addr << " d: " << key_delta << " >" << previous_addr << " d: " << val_delta << " > " << addr << endl;
-        if (DBGER == 5) {
-            std::cout << pre_previous_addr << " d: "
-                      << std::setw(16) << key_delta << " >"
-                      << std::setw(16) << previous_addr << " d: "
-                      << std::setw(16) << val_delta << " > "
-                      << std::setw(16) << addr << std::endl;
-        }
-    }
-    IteratorType key_it;
-    std::unordered_map<int64_t, int>::iterator val_it;
-    if (pre_previous_addr != 0) {
-        // Update the markov table
-        //cout << "Previous: " << (previous_addr >> LOG2_BLOCK_SIZE)  << " Current: " << (addr >> LOG2_BLOCK_SIZE) << endl;
-        //markov_table[previous_addr>> LOG2_BLOCK_SIZE][addr>> LOG2_BLOCK_SIZE]++;
-
-        // v2 Markov
-
-    // ADD NEW ENTRY TO MARKOV TABLE ACCORDING TO THE PREPRE_ADDR AND PRE_ADDR
-        // this way we create a key:value pair in the table and in case if it existed, it would be incremented
-        markov_table[key_delta][val_delta]++;
-        // find the iterator of the key:value pair, which is an iterator inside the hash table that is inside a hash table
-        key_it = markov_table.find(key_delta);
-        val_it = key_it->second.find(val_delta);
-
-//        if (std::find(markov_LRU.begin(), markov_LRU.end(), val_it) != markov_LRU.end()) {
-//            int index = std::find(markov_LRU.begin(), markov_LRU.end(), key_delta) - markov_LRU.begin();
-//            markov_update_lru(index);
-//            //markov_table[key_delta][val_delta]++;
-//        } else {
-//            if (markov_table.size() < MARKOV_LRU_SIZE) {
-//                markov_table[key_delta][val_delta]++;
-//                markov_LRU[front] = ;
-//            } else {
-//                auto toDel =
-//            markov_evict_lru();
-//            markov_LRU[markov_LRU.size() - 1] = key_delta;
+//    int64_t key_delta = 0;
+//    int64_t val_delta = 0;
+//    //cout << "Current: " << addr << endl;
+//
+//    addr = addr >> LOG2_BLOCK_SIZE;
+//    addr = addr << LOG2_BLOCK_SIZE;
+//    //cout << "PrevAddr: "<<previous_addr<<" Aligned Current: " << addr << endl;
+//    if (pre_previous_addr !=0){
+//        key_delta = (pre_previous_addr) - (previous_addr);
+//        val_delta = (previous_addr) - (addr);
+//        //cout << pre_previous_addr << " d: " << key_delta << " >" << previous_addr << " d: " << val_delta << " > " << addr << endl;
+//        if (DBGER == 5) {
+//            std::cout << pre_previous_addr << " d: "
+//                      << std::setw(16) << key_delta << " >"
+//                      << std::setw(16) << previous_addr << " d: "
+//                      << std::setw(16) << val_delta << " > "
+//                      << std::setw(16) << addr << std::endl;
 //        }
-
-
-        // dbg to see increment
-        if (DBGER == 3) {
-            cout << "\t Mkv: " << markov_table[key_delta][val_delta] << endl;
-        }
-        //cout << "Table: " << markov_table[previous_addr][addr] << endl;
-    }
-
-    // PROCESS THE CURRENT ADDR
-    // let markov take the aligned arrd
-    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
-
-    for (int64_t pf_offset : pf_topP) {
-
-        pf_addr = ((addr) - pf_offset )  ;
-        if (DBGER == 5) {
-            cout << addr << " offset: "<< pf_offset<<" prefetchingAddr: " << pf_addr << endl;
-        }
-        prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
-    }
-    if (DBGER == 1) {
-        size_t totalCount = 0;
-        for (const auto& pair : markov_table) {
-            totalCount += pair.second.size();
-        }
-        // print mk table size and LRU size
-        cout << "MkT_size: " << totalCount << "Mk_LRU_size: " << markov_LRU_front << endl;
-    }
-
-    prev_top_P_fetch = pf_topP;
-    // print each entry in the table
-//    for (const auto& pair : markov_table) {
-//        cout << "OuterF"<<pair.first << ":";
-//        for (const auto& inner_pair : pair.second) {
-//            cout <<"InnerF"<< inner_pair.first << ":" << "InnerS"<<inner_pair.second << " ";
-//        }
-//        cout << endl;
 //    }
-//    cout << endl;
+//    IteratorType key_it;
+//    std::unordered_map<int64_t, int>::iterator val_it;
+//    if (pre_previous_addr != 0) {
+//        // Update the markov table
+//        //cout << "Previous: " << (previous_addr >> LOG2_BLOCK_SIZE)  << " Current: " << (addr >> LOG2_BLOCK_SIZE) << endl;
+//        //markov_table[previous_addr>> LOG2_BLOCK_SIZE][addr>> LOG2_BLOCK_SIZE]++;
+//
+//        // v2 Markov
+//
+//    // ADD NEW ENTRY TO MARKOV TABLE ACCORDING TO THE PREPRE_ADDR AND PRE_ADDR
+//        // this way we create a key:value pair in the table and in case if it existed, it would be incremented
+//        markov_table[key_delta][val_delta]++;
+//        // find the iterator of the key:value pair, which is an iterator inside the hash table that is inside a hash table
+//        key_it = markov_table.find(key_delta);
+//        val_it = key_it->second.find(val_delta);
+//
+////        if (std::find(markov_LRU.begin(), markov_LRU.end(), val_it) != markov_LRU.end()) {
+////            int index = std::find(markov_LRU.begin(), markov_LRU.end(), key_delta) - markov_LRU.begin();
+////            markov_update_lru(index);
+////            //markov_table[key_delta][val_delta]++;
+////        } else {
+////            if (markov_table.size() < MARKOV_LRU_SIZE) {
+////                markov_table[key_delta][val_delta]++;
+////                markov_LRU[front] = ;
+////            } else {
+////                auto toDel =
+////            markov_evict_lru();
+////            markov_LRU[markov_LRU.size() - 1] = key_delta;
+////        }
+//
+//
+//        // dbg to see increment
+//        if (DBGER == 3) {
+//            cout << "\t Mkv: " << markov_table[key_delta][val_delta] << endl;
+//        }
+//        //cout << "Table: " << markov_table[previous_addr][addr] << endl;
+//    }
+//
+//    // PROCESS THE CURRENT ADDR
+//    // let markov take the aligned arrd
+//    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
+//
+//    for (int64_t pf_offset : pf_topP) {
+//
+//        pf_addr = ((addr) - pf_offset )  ;
+//        if (DBGER == 5) {
+//            cout << addr << " offset: "<< pf_offset<<" prefetchingAddr: " << pf_addr << endl;
+//        }
+//        prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+//    }
+//    if (DBGER == 1) {
+//        size_t totalCount = 0;
+//        for (const auto& pair : markov_table) {
+//            totalCount += pair.second.size();
+//        }
+//        // print mk table size and LRU size
+//        cout << "MkT_size: " << totalCount << "Mk_LRU_size: " << markov_LRU_front << endl;
+//    }
+//
+//    prev_top_P_fetch = pf_topP;
+//    // print each entry in the table
+////    for (const auto& pair : markov_table) {
+////        cout << "OuterF"<<pair.first << ":";
+////        for (const auto& inner_pair : pair.second) {
+////            cout <<"InnerF"<< inner_pair.first << ":" << "InnerS"<<inner_pair.second << " ";
+////        }
+////        cout << endl;
+////    }
+////    cout << endl;
 
 // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV
 

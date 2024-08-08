@@ -57,7 +57,7 @@ int switchInt = 0;
 
 // Markov Table
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1+ 4096;
+const int MARKOV_LRU_SIZE = 1+ 2048;
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};  // Used for LRU
 int markov_LRU_front = 0;
@@ -65,6 +65,7 @@ const int MAX_PREDICTIONS = 10;
 const int MARKOV_PREDICTION_THRESHOLD = 16;
 
 //uint64_t pf_addr = ((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
+uint64_t pre_pre_previous_addr = 0;
 uint64_t pre_previous_addr = 0;
 uint64_t previous_addr = 0;
 uint64_t pf_addr = 0;
@@ -310,6 +311,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     addr = addr << LOG2_BLOCK_SIZE;
     //cout << "PrevAddr: "<<previous_addr<<" Aligned Current: " << addr << endl;
     if (pre_previous_addr !=0){
+        pre_key_delta = pre_pre_previous_addr - pre_previous_addr;
         key_delta = (pre_previous_addr) - (previous_addr);
         val_delta = (previous_addr) - (addr);
         //cout << pre_previous_addr << " d: " << key_delta << " >" << previous_addr << " d: " << val_delta << " > " << addr << endl;
@@ -330,8 +332,9 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
         // v2 Markov
 
-    // ADD NEW ENTRY TO MARKOV TABLE ACCORDING TO THE PREPRE_ADDR AND PRE_ADDR
+        // ADD NEW ENTRY TO MARKOV TABLE ACCORDING TO THE PREPRE_ADDR AND PRE_ADDR
         // this way we create a key:value pair in the table and in case if it existed, it would be incremented
+        key_delta = SHA256()
         markov_table[key_delta][val_delta]++;
         // find the iterator of the key:value pair, which is an iterator inside the hash table that is inside a hash table
         key_it = markov_table.find(key_delta);
@@ -443,6 +446,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     //uint32_t l2_cache_occupancy = get_l2_cache_occupancy();
     //std::cout << "L2 Cache Occupancy: " << l2_cache_occupancy << std::endl;
 
+    pre_pre_previous_addr = pre_previous_addr;
     pre_previous_addr = previous_addr;
     previous_addr = addr;
     cnt++;

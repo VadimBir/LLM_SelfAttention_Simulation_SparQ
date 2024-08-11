@@ -3,6 +3,10 @@
 #include <fstream>
 #include <iomanip>
 
+#include <functional> // For std::hash
+#include <cstdint>
+
+
 // MARKOV PREFETCHER LIBS
 #include <map>
 #include <unordered_map>
@@ -49,6 +53,8 @@ int DBGER = 0;
  */
 
 
+int64_t toSKIP_Inst = 1000000 * 100;
+
 int popular_prefetch_offset[] = {1, 2};
 int popular_prefetch_offset_P2[] = {1, 2, 16};
 
@@ -57,12 +63,12 @@ int switchInt = 0;
 
 // Markov Table
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1+ 2048;
+const int MARKOV_LRU_SIZE = 1+ 4048;
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};  // Used for LRU
 int markov_LRU_front = 0;
-const int MAX_PREDICTIONS = 10;
-const int MARKOV_PREDICTION_THRESHOLD = 16;
+const int MAX_PREDICTIONS = 4;
+const int MARKOV_PREDICTION_THRESHOLD = 8;
 
 //uint64_t pf_addr = ((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
 uint64_t pre_pre_previous_addr = 0;
@@ -84,6 +90,15 @@ uint64_t pf_addr = 0;
 //    }
 //    std::cout << "End of Markov Table\n";
 //}
+
+int64_t combine_hashes(int64_t pre_key_delta, int64_t key_delta) {
+    std::hash<int64_t> hasher;
+    int64_t hash1 = hasher(pre_key_delta);
+    int64_t hash2 = hasher(key_delta);
+
+    // Combine two hash values
+    return hash1 ^ (hash2 << 1); // Shift and XOR for simple mixing
+}
 
 std::unordered_map<int64_t, int>::iterator markov_evict_lru(){
     //cout << "Evicting LRU" << endl;
@@ -140,7 +155,8 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
 //        }
 
     // the it for prediction
-    auto it = markov_table.find(previous_addr-addr);
+    int64_t doubleDeltaKey = combine_hashes(pre_previous_addr-previous_addr, previous_addr-addr);
+    auto it = markov_table.find(doubleDeltaKey);
 
     if (it != markov_table.end()) {
         // Get the map of next likely blocks
@@ -279,9 +295,14 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
 
 
 std::vector<int64_t> prev_top_P_fetch = {};
+
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
 {
-//    addressFile.open(addressFilePath, std::ios::app);
+
+//    if (cnt > toSKIP_Inst){
+//        return metadata_in;
+//    }
+    //    addressFile.open(addressFilePath, std::ios::app);
 //    if (addressFile.is_open()) {
 //        addressFile << std::hex << std::setw(12) << std::setfill('0') << (addr >> LOG2_BLOCK_SIZE) << std::dec << std::endl;
 //    }
@@ -296,6 +317,8 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 //        switch(switchInt-1) {
 //            case 0:
 
+
+
 // USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
     for (int offset : popular_prefetch_offset) {
         pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
@@ -303,6 +326,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     }
 // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
 // USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
+    int64_t pre_key_delta = 0;
     int64_t key_delta = 0;
     int64_t val_delta = 0;
     //cout << "Current: " << addr << endl;
@@ -310,7 +334,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     addr = addr >> LOG2_BLOCK_SIZE;
     addr = addr << LOG2_BLOCK_SIZE;
     //cout << "PrevAddr: "<<previous_addr<<" Aligned Current: " << addr << endl;
-    if (pre_previous_addr !=0){
+    if (pre_pre_previous_addr !=0){
         pre_key_delta = pre_pre_previous_addr - pre_previous_addr;
         key_delta = (pre_previous_addr) - (previous_addr);
         val_delta = (previous_addr) - (addr);
@@ -325,7 +349,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     }
     IteratorType key_it;
     std::unordered_map<int64_t, int>::iterator val_it;
-    if (pre_previous_addr != 0) {
+    if (pre_pre_previous_addr != 0) {
         // Update the markov table
         //cout << "Previous: " << (previous_addr >> LOG2_BLOCK_SIZE)  << " Current: " << (addr >> LOG2_BLOCK_SIZE) << endl;
         //markov_table[previous_addr>> LOG2_BLOCK_SIZE][addr>> LOG2_BLOCK_SIZE]++;
@@ -334,7 +358,9 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
         // ADD NEW ENTRY TO MARKOV TABLE ACCORDING TO THE PREPRE_ADDR AND PRE_ADDR
         // this way we create a key:value pair in the table and in case if it existed, it would be incremented
-        key_delta = SHA256()
+
+        int64_t final_hash_value = combine_hashes(pre_key_delta, key_delta);
+        key_delta = final_hash_value;
         markov_table[key_delta][val_delta]++;
         // find the iterator of the key:value pair, which is an iterator inside the hash table that is inside a hash table
         key_it = markov_table.find(key_delta);

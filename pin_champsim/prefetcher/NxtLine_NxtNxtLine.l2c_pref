@@ -1,0 +1,61 @@
+#include "cache.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
+// MARKOV PREFETCHER LIBS
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+
+std::ofstream addressFile;
+
+//std::string addressFilePath = "/home/ubuntu/Directory/SparQ/002-addressesHistory/addresses-CHANGENAME.txt"; // addresses-<TRACE_NAME>.txt
+void CACHE::l2c_prefetcher_initialize()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+
+}
+
+int popular_prefetch_offset[] = {1, 2};
+
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+// USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
+    uint64_t pf_addr = 0;
+    for (int offset : popular_prefetch_offset) {
+        pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
+        prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+    }
+// END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
+
+    return metadata_in;
+}
+
+
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+    // Outputting detailed fill information
+    //cout << "[" << NAME << "] " << __func__ << " addr: " << hex << addr << " set: " << dec << set;
+    //cout << " way: " << way << " prefetch: " << +prefetch << " evicted_addr: " << hex << evicted_addr << dec <<endl;
+
+
+//    if (addressFile.is_open()) {
+//        addressFile << std::hex << addr << std::dec << std::endl;
+//    }
+
+    return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher final stats" << endl;
+//    if (addressFile.is_open()) {
+//        addressFile.close();
+//    } else {
+//        cout << "File was never opened for writing." << endl;
+//    }
+}

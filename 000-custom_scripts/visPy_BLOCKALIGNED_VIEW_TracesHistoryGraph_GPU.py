@@ -247,16 +247,16 @@ def on_timer(event):
     #scale = view.camera.get_state()['scale_factor']
     #step_size = 200 / scale
 
-    if key_states['Left']:
+    if key_states['Right']:
         dx += step_size
         mouse_pos[0] += step_size
-    if key_states['Right']:
+    if key_states['Left']:
         dx -= step_size
         mouse_pos[0] -= step_size
-    if key_states['Up']:
+    if key_states['Down']:
         dy -= step_size
         mouse_pos[1] -= step_size
-    if key_states['Down']:
+    if key_states['Up']:
         dy += step_size
         mouse_pos[1] += step_size
 
@@ -298,13 +298,13 @@ def on_key(event):
     # Define how much to move with each arrow press (adjust as needed)
     step_size = MOVEMENT_STEP_DISTANCE  # This value may need to be adjusted based on your data scale
 
-    if event.key == 'Left':
+    if event.key == 'Right':
         view.camera.pan((step_size, 0))  # Move left
-    elif event.key == 'Right':
+    elif event.key == 'Left':
         view.camera.pan((-step_size, 0))  # Move right
-    elif event.key == 'Up':
-        view.camera.pan((0, -step_size))  # Move up (if necessary)
     elif event.key == 'Down':
+        view.camera.pan((0, -step_size))  # Move up (if necessary)
+    elif event.key == 'Up':
         view.camera.pan((0, step_size))  # Move down (if necessary)
     elif event.key in ('Q', 'Escape', 'Return'):
         canvas.close()  # Close the application

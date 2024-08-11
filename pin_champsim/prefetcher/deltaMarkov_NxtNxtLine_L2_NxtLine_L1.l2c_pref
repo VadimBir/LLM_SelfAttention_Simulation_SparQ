@@ -1,0 +1,480 @@
+#include "cache.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
+// MARKOV PREFETCHER LIBS
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+
+std::ofstream addressFile;
+
+//std::string addressFilePath = "/home/ubuntu/Directory/SparQ/002-addressesHistory/addresses-CHANGENAME.txt"; // addresses-<TRACE_NAME>.txt
+void CACHE::l2c_prefetcher_initialize()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+//    addressFile.open(addressFilePath, std::ios::app);
+//    if (!addressFile.is_open()) {
+//        cout << "Failed to open file for writing addresses." << endl;
+//    }
+}
+
+//uint32_t CACHE::get_l2_cache_occupancy() const {
+//    uint32_t count = 0;
+//    for (const auto& line : sets) {  // Assuming `sets` is the data structure holding cache lines
+//        for (const auto& entry : line) {
+//            if (entry.valid) {  // Assuming `valid` is a member indicating if the cache line is valid
+//                count++;
+//            }
+//        }
+//    }
+//    return count;
+//}
+
+int ADDR_TO_SKIP = 1;
+int BULK_FETCH_ADDR = 4;
+int64_t cnt = 0;
+
+int DBGER = 0;
+/*
+ * 0 no debug,
+ * 1 debug sizes,
+ * 2 debug tables and LRU,
+ * 3 debug with all details
+ * 4 only pf_Values
+ * 5 LRU_IT K:V and PREDICTIONS
+ */
+
+
+int popular_prefetch_offset[] = {1, 2};
+int popular_prefetch_offset_P2[] = {1, 2, 16};
+
+int lim_part1 = 3000000;
+int switchInt = 0;
+
+// Markov Table
+std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
+const int MARKOV_LRU_SIZE = 1+ 4096;
+using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
+std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};  // Used for LRU
+int markov_LRU_front = 0;
+const int MAX_PREDICTIONS = 100;
+const int MARKOV_PREDICTION_THRESHOLD = 16;
+
+//uint64_t pf_addr = ((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+uint64_t pf_addr = 0;
+
+//void print_markov_table() {
+//    std::cout << "Markov Table Contents:\n";
+//    for (const auto& entry : markov_table) {
+//        uint64_t previous_addr = entry.first;
+//        const auto& next_blocks = entry.second;
+//        //std::cout << "Previous Addr: " << previous_addr << "\n";
+//        for (const auto& prediction : next_blocks) {
+//            uint64_t next_addr = prediction.first;
+//            int hits = prediction.second;
+//            std::cout << "  Next Addr: " << next_addr << " - Hits: " << hits << "\n";
+//        }
+//    }
+//    std::cout << "End of Markov Table\n";
+//}
+
+std::unordered_map<int64_t, int>::iterator markov_evict_lru(){
+    //cout << "Evicting LRU" << endl;
+    std::unordered_map<int64_t, int>::iterator  val_it = markov_LRU[0];
+    // swap the -1 to the right side shifting everything else to the left
+    for (size_t i = 1; i < markov_LRU_front; i++) {
+        markov_LRU[i-1] = markov_LRU[i];
+        //markov_LRU[i] = markov_table.end();
+//            cout << endl;
+//            for (size_t i = 0; i < markov_LRU.size(); i++) {
+//                cout << markov_LRU[i] << " ";
+//            }
+    }
+    //markov_LRU[markov_LRU.size() - 1] = markov_table.end();
+
+    // print the key it
+
+    //cout << "DONE Evicting LRU" << endl;
+
+    return val_it;
+}
+
+void markov_update_lru(int index) {
+    auto tmpVal = markov_LRU[index];
+    for (size_t i = 0; i < markov_LRU_front; i++) {
+        if (i<index){
+            continue;
+        }
+        markov_LRU[i] = markov_LRU[i+1];
+    }
+
+//        for (size_t i = index; i < markov_LRU.size(); i++) {
+//            //cout << endl;
+//            markov_LRU[i-1] = markov_LRU[i];
+//        }
+    markov_LRU[markov_LRU_front - 1] = tmpVal;
+
+}
+// CREATE A MARKOVE THAT PREDICTS A FUTURE DELTA BASED ON PAST DELTA
+std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
+    std::vector<int64_t> top_predictions;
+    //uint64_t best_prediction = -1; // Default to -1, indicating no prediction found
+
+
+    //print_markov_table();
+    //cout << "Bool: " << (it != markov_table.end()) << endl;
+    // If the previous address is in the table
+//        if (std::find(markov_LRU.begin(), markov_LRU.end(), previous_addr) != markov_LRU.end()) {
+//            int index = std::find(markov_LRU.begin(), markov_LRU.end(), previous_addr) - markov_LRU.begin();
+//            markov_update_lru(index);
+//        } else {
+//            markov_evict_lru();
+//            markov_LRU[markov_LRU.size() - 1] = previous_addr;
+//        }
+
+    // the it for prediction
+    auto it = markov_table.find(previous_addr-addr);
+
+    if (it != markov_table.end()) {
+        // Get the map of next likely blocks
+        auto& next_blocks = it->second;
+
+        //cout << "Next Blocks: " << next_blocks.size() << endl;
+        // Create a vector and sort the predictions based on their hit counts
+        std::vector<std::pair<uint64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        // vector
+        if (DBGER == 5) {
+            for (auto& prediction : predictions) {
+                std::cout << "allPred:"<<prediction.first << ":" << prediction.second << "\t";
+            }
+            std::cout << std::endl;
+        }
+        std::sort(predictions.begin(), predictions.end(),
+                  [](const std::pair<uint64_t, int>& a, const std::pair<uint64_t, int>& b) {
+                      return a.second > b.second;  // Sort by descending hit count
+                  });
+
+
+        // Prefetch the top predictions
+        for (auto& prediction : predictions) {
+            //cout << "TOP_P_FLAG 1" << endl;
+            //cout << "Current: " << addr << " "<< "pfPred: " << prediction.first  << ":" << prediction.second << std::endl;
+            if (top_predictions.size() >= MAX_PREDICTIONS) break; // Stop if we have enough predictions
+            if (prediction.second > MARKOV_PREDICTION_THRESHOLD){
+                pf_addr = prediction.first; // unalign the address to get the start block address that would be returned
+                if (DBGER == 5) {
+                    std::cout << "pfPred: " << prediction.first << ":" << prediction.second << std::endl<<std::endl;
+                }
+                top_predictions.push_back(pf_addr); // Store the prediction in the vector
+            }
+        }
+    }
+    auto lru_it = std::find(markov_LRU.begin(), markov_LRU.end(), val_it);
+    int foo = 0;
+    if (lru_it != markov_LRU.end()) { // if exists
+        int index = lru_it - markov_LRU.begin();
+        markov_update_lru(index);
+        if (markov_table.size() > 60 && DBGER == 2){
+            for (size_t i = 0; i < markov_LRU_front; i++) {
+                cout << "48 "<< markov_LRU[48]->first<<" Front:"<< markov_LRU_front<< endl;
+                cout <<i<<":"<<markov_LRU[i]->first << " "<<endl;
+                cout<<  markov_table.size() << endl;
+            }
+            cout << endl;
+            cout << "if (lru_it != markov_LRU.end()) {:158 \tLRUfront " << markov_LRU_front << " Mkv_T_Size: " << markov_table.size() << endl;
+            //cin >> foo;
+        }
+    } else { // if not exists
+        if (markov_table.size() > 60 && DBGER == 2){
+            for (size_t i = 0; i < markov_LRU_front; i++) {
+                cout << "48 " << markov_LRU[48]->first<<" Front:"<< markov_LRU_front<<endl;
+                cout <<i<<":"<<markov_LRU[i]->first << " "<<endl;
+                cout<<  markov_table.size() << endl;
+            }
+            cout << endl;
+            cout << "    } else {:166 \tLRUfront " << markov_LRU_front << " Mkv_T_Size: " << markov_table.size() << endl;
+            //cin >> foo;
+        }
+        if (markov_LRU_front != MARKOV_LRU_SIZE - 1) { // If RLU has a spot yet
+            markov_LRU[markov_LRU_front] = val_it; // since the LRU is not full add the new element to the front index
+            markov_LRU_front++; // increment the front index
+        } else { // if the LRU is full
+            if (DBGER == 5) {
+                for (size_t i = 0; i < markov_LRU_front; i++) {
+                    cout <<"i:"<<i<<"K:"<<markov_LRU[i]->first << " V:" <<markov_LRU[i]->second<< " ";
+                }
+                cout << endl;
+            }
+            auto toDel = markov_evict_lru(); // get the iterator to the element to delete
+            //cout << "AFTER Evicting LRU" << endl;
+            //cout << "KEY: " << key_it->first << " VAL: " << val_it->first << " toDel: " << toDel->first << endl;
+            // find toDel in the inneter hash table and delete it
+            // delete the toDel from the inner hash table
+            for (auto& outer_pair : markov_table) {
+                auto& inner_map = outer_pair.second;
+
+                // Instead of trying to compare iterators directly, we compare the key-value pairs they point to
+                for (auto it = inner_map.begin(); it != inner_map.end();) {
+                    if (it == toDel) {
+                        // Output debug information before erasing
+                        // std::cout << "Entry from inner map under outer key: it:" << it->first << " toDel:" << toDel->first << std::endl;
+//                        for (auto i=0; i<markov_LRU.size()-1; i++) {
+//                                std::cout <<i<<": " << markov_LRU[i]->first << " f: " << markov_LRU_front<<" ";
+//                        }
+//                        cout << endl;
+                        // Erase the element and get the next iterator in one safe operation
+                        it = inner_map.erase(it);
+
+                        // Optional: break if you only need to erase this one element and are done
+                        break;
+                    } else {
+                        // Increment the iterator only if not erasing
+                        ++it;
+                    }
+                }
+            }
+            for (auto it = markov_table.begin(); it != markov_table.end(); ) {
+                if (it->second.empty()) {
+                    // Erase the current element and update the iterator to the next element
+                    it = markov_table.erase(it);
+                } else {
+                    // Only increment the iterator if you didn't erase the current element
+                    ++it;
+                }
+            }
+//                for (const auto& pair : markov_table) {
+////                    if (pair.second.empty()){
+////
+////                    }
+//                    cout << "OuterF"<<pair.first << ":";
+//                    for (const auto& inner_pair : pair.second) {
+//                        cout <<"InnerF"<< inner_pair.first << ":" << "InnerS"<<inner_pair.second << " ";
+//                    }
+//                    cout << endl;
+//                }
+//                cout << endl;
+            //key_it->second.erase(toDel); // delete the element from the table
+            //cout << "AFTER Evicting LRU F1" << endl;
+            markov_LRU[markov_LRU_front - 1] = val_it; // add the new element to the end of LRU arr
+            //cout << "AFTER Evicting LRU F2" << endl;
+        }
+//        } else {
+//            markov_LRU[markov_LRU.size() - 1] = it; // if the LRU is not full add the new element to the end
+//
+//        }
+    }
+
+
+
+    return top_predictions;
+}
+
+
+
+std::vector<int64_t> prev_top_P_fetch = {};
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+//    addressFile.open(addressFilePath, std::ios::app);
+//    if (addressFile.is_open()) {
+//        addressFile << std::hex << std::setw(12) << std::setfill('0') << (addr >> LOG2_BLOCK_SIZE) << std::dec << std::endl;
+//    }
+
+//    if (cnt % ADDR_TO_SKIP == 0) {
+//        for (int i = 0; i < BULK_FETCH_ADDR; i++) {
+//            uint64_t pf_addr = ((addr >> LOG2_BLOCK_SIZE) + i) << LOG2_BLOCK_SIZE;
+//            prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//        }
+//    }
+//    if (cnt%lim_part1 > 0 && cnt!=0) {
+//        switch(switchInt-1) {
+//            case 0:
+
+// USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
+//    //for (int offset : popular_prefetch_offset) {
+//        pf_addr = ((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
+//        prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//    //}
+//    //for (int offset : popular_prefetch_offset) {
+//        pf_addr = ((addr >> LOG2_BLOCK_SIZE) + 2) << LOG2_BLOCK_SIZE;
+//        prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//    //}
+// END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
+// USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
+    int64_t key_delta = 0;
+    int64_t val_delta = 0;
+    //cout << "Current: " << addr << endl;
+
+    addr = addr >> LOG2_BLOCK_SIZE;
+    addr = addr << LOG2_BLOCK_SIZE;
+    //cout << "PrevAddr: "<<previous_addr<<" Aligned Current: " << addr << endl;
+    if (pre_previous_addr !=0){
+        key_delta = (pre_previous_addr) - (previous_addr);
+        val_delta = (previous_addr) - (addr);
+        //cout << pre_previous_addr << " d: " << key_delta << " >" << previous_addr << " d: " << val_delta << " > " << addr << endl;
+        if (DBGER == 5) {
+            std::cout << pre_previous_addr << " d: "
+                      << std::setw(16) << key_delta << " >"
+                      << std::setw(16) << previous_addr << " d: "
+                      << std::setw(16) << val_delta << " > "
+                      << std::setw(16) << addr << std::endl;
+        }
+    }
+    IteratorType key_it;
+    std::unordered_map<int64_t, int>::iterator val_it;
+    if (pre_previous_addr != 0) {
+        // Update the markov table
+        //cout << "Previous: " << (previous_addr >> LOG2_BLOCK_SIZE)  << " Current: " << (addr >> LOG2_BLOCK_SIZE) << endl;
+        //markov_table[previous_addr>> LOG2_BLOCK_SIZE][addr>> LOG2_BLOCK_SIZE]++;
+
+        // v2 Markov
+
+    // ADD NEW ENTRY TO MARKOV TABLE ACCORDING TO THE PREPRE_ADDR AND PRE_ADDR
+        // this way we create a key:value pair in the table and in case if it existed, it would be incremented
+        markov_table[key_delta][val_delta]++;
+        // find the iterator of the key:value pair, which is an iterator inside the hash table that is inside a hash table
+        key_it = markov_table.find(key_delta);
+        val_it = key_it->second.find(val_delta);
+
+//        if (std::find(markov_LRU.begin(), markov_LRU.end(), val_it) != markov_LRU.end()) {
+//            int index = std::find(markov_LRU.begin(), markov_LRU.end(), key_delta) - markov_LRU.begin();
+//            markov_update_lru(index);
+//            //markov_table[key_delta][val_delta]++;
+//        } else {
+//            if (markov_table.size() < MARKOV_LRU_SIZE) {
+//                markov_table[key_delta][val_delta]++;
+//                markov_LRU[front] = ;
+//            } else {
+//                auto toDel =
+//            markov_evict_lru();
+//            markov_LRU[markov_LRU.size() - 1] = key_delta;
+//        }
+
+
+        // dbg to see increment
+        if (DBGER == 3) {
+            cout << "\t Mkv: " << markov_table[key_delta][val_delta] << endl;
+        }
+        //cout << "Table: " << markov_table[previous_addr][addr] << endl;
+    }
+
+    // PROCESS THE CURRENT ADDR
+    // let markov take the aligned arrd
+    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
+
+    for (int64_t pf_offset : pf_topP) {
+
+        pf_addr = ((addr) - pf_offset )  ;
+        if (DBGER == 5) {
+            cout << addr << " offset: "<< pf_offset<<" prefetchingAddr: " << pf_addr << endl;
+        }
+        prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+    }
+    if (DBGER == 1) {
+        size_t totalCount = 0;
+        for (const auto& pair : markov_table) {
+            totalCount += pair.second.size();
+        }
+        // print mk table size and LRU size
+        cout << "MkT_size: " << totalCount << "Mk_LRU_size: " << markov_LRU_front << endl;
+    }
+
+    prev_top_P_fetch = pf_topP;
+    // print each entry in the table
+//    for (const auto& pair : markov_table) {
+//        cout << "OuterF"<<pair.first << ":";
+//        for (const auto& inner_pair : pair.second) {
+//            cout <<"InnerF"<< inner_pair.first << ":" << "InnerS"<<inner_pair.second << " ";
+//        }
+//        cout << endl;
+//    }
+//    cout << endl;
+
+// DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV
+
+
+
+//                break;
+//            case 1:
+//                for (int offset : popular_prefetch_offset_P2) {
+//                    uint64_t pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
+//                    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//                }
+//                break;
+//        }
+//    } else {
+//        switchInt = 1;
+//        cout << "Switching to " << switchInt << endl;
+//    }
+
+
+// +1 +2 only 1KK 0.99992
+//    uint64_t pf_addr = ((addr>>LOG2_BLOCK_SIZE)+1) << LOG2_BLOCK_SIZE;
+//    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//
+//    pf_addr = ((addr>>LOG2_BLOCK_SIZE)+2) << LOG2_BLOCK_SIZE;
+//    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//
+
+//    pf_addr = ((addr>>LOG2_BLOCK_SIZE)+3) << LOG2_BLOCK_SIZE;
+//    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//
+//    pf_addr = ((addr>>LOG2_BLOCK_SIZE)+4) << LOG2_BLOCK_SIZE;
+//    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//
+//
+//    pf_addr = ((addr>>LOG2_BLOCK_SIZE)+8) << LOG2_BLOCK_SIZE;
+//    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//
+//
+//    pf_addr = ((addr>>LOG2_BLOCK_SIZE)+16) << LOG2_BLOCK_SIZE;
+//    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+//
+//
+//    pf_addr = ((addr>>LOG2_BLOCK_SIZE)+32) << LOG2_BLOCK_SIZE;
+//    prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+
+//    addressFile.close();
+    // Always printing out access details
+    //cout << "[" << NAME << "] " << __func__ << " base_cl: " << hex << (addr>>LOG2_BLOCK_SIZE);
+    //cout << " pf_cl: " << (pf_addr>>LOG2_BLOCK_SIZE) << " ip: " << ip << " cache_hit: " << dec << +cache_hit << " type: " << +type << endl;
+
+    //uint32_t l2_cache_occupancy = get_l2_cache_occupancy();
+    //std::cout << "L2 Cache Occupancy: " << l2_cache_occupancy << std::endl;
+
+    pre_previous_addr = previous_addr;
+    previous_addr = addr;
+    cnt++;
+    return metadata_in;
+}
+
+
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+    // Outputting detailed fill information
+    //cout << "[" << NAME << "] " << __func__ << " addr: " << hex << addr << " set: " << dec << set;
+    //cout << " way: " << way << " prefetch: " << +prefetch << " evicted_addr: " << hex << evicted_addr << dec <<endl;
+
+
+//    if (addressFile.is_open()) {
+//        addressFile << std::hex << addr << std::dec << std::endl;
+//    }
+
+    return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher final stats" << endl;
+//    if (addressFile.is_open()) {
+//        addressFile.close();
+//    } else {
+//        cout << "File was never opened for writing." << endl;
+//    }
+}

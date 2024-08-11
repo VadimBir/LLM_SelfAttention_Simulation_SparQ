@@ -130,7 +130,7 @@ min_RLE = math.inf
 
 #<inRowHit:MissDelta>
 inRow = []
-BRUTE_FORCE_RLE = 2
+BRUTE_FORCE_RLE = 128
 
 i = 0
 
@@ -152,10 +152,10 @@ for b in range(1, BRUTE_FORCE_RLE):
                 print(f"{int((int_addresses[i]))}>>{(((int_addresses[i]) +1))}", end="\n")
             #print("I:",i )
             dist = 5
-            if (int((int_addresses[i] >> LOG2_BLOCK_SIZE) - (((int_addresses[i] >> LOG2_BLOCK_SIZE) +1)))) == -2: #or (int(int_addresses[i] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE - int_addresses[i + b] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)) == 1:  #or (int(int_addresses[i] - int_addresses[i + 1])) == -2 or (int(int_addresses[i] - int_addresses[i + 1])) == -3:
-                delta_histroy.append(-b)
-            else:
-                delta_histroy.append(int(int_addresses[i] - int_addresses[i + b]))
+            # if (int((int_addresses[i] >> LOG2_BLOCK_SIZE) - (((int_addresses[i] >> LOG2_BLOCK_SIZE) - b)))) == -2: #or (int(int_addresses[i] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE - int_addresses[i + b] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)) == 1:  #or (int(int_addresses[i] - int_addresses[i + 1])) == -2 or (int(int_addresses[i] - int_addresses[i + 1])) == -3:
+            #     delta_histroy.append(-b)
+            # else:
+            delta_histroy.append(int((int_addresses[i]>> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)  - (int_addresses[i + b] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)))
             #delta_histroy.append(int(int_addresses[i] - int_addresses[i + b]))
         except:
             pass
@@ -240,12 +240,12 @@ for b in range(1, BRUTE_FORCE_RLE):
     try:
 
         for i, rle in enumerate(RLE_Delta):
-            if type(rle)!=str:
-                print(f'{rle}', end=" ")
-
-                if type(RLE_Delta[i+1])==str:
-                    print(f"({RLE_Delta[i+1]})", end= " ")
-                else: print(" ",end=" ")
+            # if type(rle)!=str:
+            #     print(f'{rle}', end=" ")
+            #
+            #     if type(RLE_Delta[i+1])==str:
+            #         print(f"({RLE_Delta[i+1]})", end= " ")
+            #     else: print(" ",end=" ")
             pass
             # if not repeatedBool:
             #     print(end="\n")

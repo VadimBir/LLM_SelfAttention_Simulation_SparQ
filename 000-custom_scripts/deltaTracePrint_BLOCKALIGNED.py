@@ -130,13 +130,13 @@ min_RLE = math.inf
 
 #<inRowHit:MissDelta>
 inRow = []
-BRUTE_FORCE_RLE = 128
+BRUTE_FORCE_RLE = 2
 
 i = 0
 
 for b in range(1, BRUTE_FORCE_RLE):
 
-    for i in range(len(int_addresses)):
+    for i in range(len(int_addresses[:100])):
         #print("\ncurr:", int_addresses[i], end="-> ")
         try:
             # #if int(int_addresses[i] - int_addresses[i + 1]) == -1 or int(int_addresses[i] - int_addresses[i + 1]) == -2 or int(int_addresses[i] - int_addresses[i + 1]) == -3 or int(int_addresses[i] - int_addresses[i + 1]) == -4 or int(int_addresses[i] - int_addresses[i + 1]) == -64 or int(int_addresses[i] - int_addresses[i + 1]) == -63 or int(int_addresses[i] - int_addresses[i + 1]) == -62 or int(int_addresses[i] - int_addresses[i + 1]) == -17:
@@ -149,13 +149,15 @@ for b in range(1, BRUTE_FORCE_RLE):
                 i+=1
             else:
                 #print(f"{i}")
-                print(f"{int((int_addresses[i]))}>>{(((int_addresses[i]) +1))}", end="\n")
+                print(f"{int((int_addresses[i]))}>>{(((int_addresses[i]) +b))}", end="\n")
             #print("I:",i )
             dist = 5
             # if (int((int_addresses[i] >> LOG2_BLOCK_SIZE) - (((int_addresses[i] >> LOG2_BLOCK_SIZE) - b)))) == -2: #or (int(int_addresses[i] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE - int_addresses[i + b] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)) == 1:  #or (int(int_addresses[i] - int_addresses[i + 1])) == -2 or (int(int_addresses[i] - int_addresses[i + 1])) == -3:
             #     delta_histroy.append(-b)
             # else:
-            delta_histroy.append(int((int_addresses[i]>> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)  - (int_addresses[i + b] >> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE)))
+            delta_histroy.append(int( (int_addresses[i + b] >> LOG2_BLOCK_SIZE ) - (int_addresses[i]>> LOG2_BLOCK_SIZE )))
+            delta = int( (int_addresses[i + b] >> LOG2_BLOCK_SIZE ) - (int_addresses[i]>> LOG2_BLOCK_SIZE ))
+            print(f"{delta}", end=" ")
             #delta_histroy.append(int(int_addresses[i] - int_addresses[i + b]))
         except:
             pass

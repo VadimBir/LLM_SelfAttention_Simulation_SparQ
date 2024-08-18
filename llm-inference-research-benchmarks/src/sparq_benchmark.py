@@ -6,7 +6,12 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, List, Optional, Union
+import numpy as np
 
+
+import psutil
+current_process = psutil.Process()
+print('Current pid is {}'.format(current_process.pid))
 import torch
 from pyarrow import dataset
 from torch import Tensor
@@ -14,15 +19,29 @@ from torch.utils.data import DataLoader
 
 import gather_matmul as G
 
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
+
+import os
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['NUMEXPR_NUM_THREADS'] = '1'
+
+children = current_process.children(recursive=True)
+for child in children:
+    print('Child pid is {}'.format(child.pid))
+
 
 
 # Utility
 import ctypes
 torch.set_num_threads(1) # does not work
-data_loader = DataLoader(dataset, batch_size=32, num_workers=0)
+data_loader = DataLoader(dataset, batch_size=32, num_workers=1)
 #data_loader = DataLoader(dataset, batch_size=32, num_workers=0)
 VERBOSE = 0
 file = "./donglePinLibraries/cShared_PinFlags.so"
+
+
 def benchmark_call(
     fn: Callable[[], None],
     reps: int,
@@ -42,7 +61,9 @@ def benchmark_call(
         pre_fn()
         if device.type == "cuda":
             torch.cuda.synchronize()
+        
         torch.set_num_threads(1)
+        
         t0 = time.time() # time reset
         fn() # actual function exec
         transformer_layer_num += 1
@@ -72,17 +93,25 @@ def attn(Q: Tensor, K: Tensor, V: Tensor) -> Tensor:
     QK = (Q @ K.transpose(2, 3)).div_(Q.shape[-1] ** 0.5)
     return torch.softmax(QK, dim=-1) @ V
 
-
+foo_list = [0]*10000
 transformer_layer_num = 1
 def PIN_attn(Q: Tensor, K: Tensor, V: Tensor) -> Tensor:
     # PIN FLAG START
     # APPROTACH 1 Use Python to create some Metadata file to know what address is what
     # APPROACH 2 While executing move data down the MEM hierarchy
+
+    
+
     PINSTART = transformer_layer_num*2
     PINEND = transformer_layer_num*2-1 # must start from 1
-    ctypes.CDLL(file+str(PINSTART))
+    ctypes.CDLL(file+str(PINSTART))                         # T1 -> T2 ... 
+    for i in range(len(foo_list)): foo_list[i] = 0
     QK = (Q @ K.transpose(2, 3)).div_(Q.shape[-1] ** 0.5)
+    for i in range(len(foo_list)): foo_list[i] = 0
+    for i in range(len(foo_list)): foo_list[i] = 0
+    for i in range(len(foo_list)): foo_list[i] = 0
     result = torch.softmax(QK, dim=-1) @ V
+    for i in range(len(foo_list)): foo_list[i] = 0
     ctypes.CDLL(file+str(PINEND))
     print("Transformed Layer: ", transformer_layer_num, "PINSTART: ", PINSTART, "PINEND: ", PINEND)
     # PIN FLAG END
@@ -258,16 +287,17 @@ def run(b: Benchmark) -> Results:
                 re.MULTILINE,
             )
         )
-        device_name = f"{cpu_name} ({torch.get_num_threads()} threads)"
         torch.set_num_threads(1)
-    revision = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().rstrip("\n")
-    )
+        
+        device_name = f"{cpu_name} ({torch.get_num_threads()} threads)"
+    # revision = (
+    #     subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().rstrip("\n")
+    # )
     results = Results(
         # Metadata
         device_name=device_name,
         torch_version=torch.__version__,
-        revision=revision,
+        revision=None, #revision,
         # Stats
         duration=[],
         error=None,
@@ -310,14 +340,14 @@ def custom_run_full_self_attention(b: Benchmark) -> Results:
         )
         device_name = f"{cpu_name} ({torch.get_num_threads()} threads)"
         print(f"{cpu_name} ({torch.get_num_threads()} threads)")
-    revision = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().rstrip("\n")
-    )
+    # revision = (
+    #     subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().rstrip("\n")
+    # )
     results = Results(
         # Metadata
         device_name=device_name,
         torch_version=torch.__version__,
-        revision=revision,
+        revision= None, #revision,
         # Stats
         duration=[],
         error=None,
@@ -348,9 +378,34 @@ def custom_run_full_self_attention(b: Benchmark) -> Results:
 
 
 def main_benchmarkExec():
+    
     global VERBOSE
 
-    # Debugger
+    #Debugger
+    benchmark_config = Benchmark(
+        method="dense",  # Use 'dense' for typical self-attention
+        kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
+        # how many times heads = batch size (SIMULATE THE PARALLEL PROCESSING OF MULTIPLE SEQUENCES)
+        batch_size=1,  # Number of sequences
+        # how many times seq = num heads
+        n_head=1,  # Number of attention heads
+        # how many times dimentions = seq
+        sequence_length=1,  # Length of each sequence
+        # num elements per vector = dimention
+        head_dim=1,  # Dimensionality of each attention head
+        dtype="float32",  # Precision of computation
+        device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
+        reps=1,  # Number of repetitions for the benchmark
+        warmup=0,  # Number of warmup runs before timing
+    )
+    VERBOSE = 0
+    print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
+    # Running the benchmark
+    results = run(benchmark_config)
+    printResults(results)
+
+#    Example benchmark configuration for dense self-attention
+#    DEFAULT CONF
     # benchmark_config = Benchmark(
     #     method="dense",  # Use 'dense' for typical self-attention
     #     kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
@@ -361,41 +416,17 @@ def main_benchmarkExec():
     #     # how many times dimentions = seq
     #     sequence_length=3,  # Length of each sequence
     #     # num elements per vector = dimention
-    #     head_dim=4,  # Dimensionality of each attention head
+    #     head_dim=8,  # Dimensionality of each attention head
     #     dtype="float32",  # Precision of computation
     #     device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-    #     reps=16,  # Number of repetitions for the benchmark
+    #     reps=1,  # Number of repetitions for the benchmark
     #     warmup=0,  # Number of warmup runs before timing
     # )
-    # VERBOSE = 0
+    # VERBOSE = 0 # debugging logging 0 1 2
     # print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
     # # Running the benchmark
     # results = run(benchmark_config)
     # printResults(results)
-
-#    Example benchmark configuration for dense self-attention
-#    DEFAULT CONF
-    benchmark_config = Benchmark(
-        method="dense",  # Use 'dense' for typical self-attention
-        kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
-        # how many times heads = batch size (SIMULATE THE PARALLEL PROCESSING OF MULTIPLE SEQUENCES)
-        batch_size=1,  # Number of sequences
-        # how many times seq = num heads
-        n_head=2,  # Number of attention heads
-        # how many times dimentions = seq
-        sequence_length=3,  # Length of each sequence
-        # num elements per vector = dimention
-        head_dim=8,  # Dimensionality of each attention head
-        dtype="float32",  # Precision of computation
-        device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-        reps=1,  # Number of repetitions for the benchmark
-        warmup=0,  # Number of warmup runs before timing
-    )
-    VERBOSE = 0 # debugging logging 0 1 2
-    print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
-    # Running the benchmark
-    results = run(benchmark_config)
-    printResults(results)
 
 
     # # Pythia-70
@@ -467,4 +498,5 @@ def printResults(results):
 
 
 if __name__ == "__main__":
+    
     main_benchmarkExec()

@@ -6,7 +6,7 @@
 
 std::ofstream addressFile;
 
-std::string addressFilePath = "/home/ubuntu/Directory/SparQ/002-addressesHistory/addresses-CHANGENAME.txt"; // addresses-<TRACE_NAME>.txt
+std::string addressFilePath = "/home/ubuntu/Directory/SparQ/002-addressesHistory/addresses-000-pytorch_b1n1s1h1d1r1-ForLoop50K_Arr.txt"; // addresses-<TRACE_NAME>.txt
 void CACHE::l2c_prefetcher_initialize()
 {
     cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
@@ -30,13 +30,13 @@ void CACHE::l2c_prefetcher_initialize()
 
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
 {
-//    addressFile.open(addressFilePath, std::ios::app);
-//    if (addressFile.is_open()) {
-//        addressFile << std::hex << std::setw(12) << std::setfill('0') << (addr >> LOG2_BLOCK_SIZE) << std::dec << std::endl;
-//    }
+   addressFile.open(addressFilePath, std::ios::app);
+   if (addressFile.is_open()) {
+       addressFile << std::hex << std::setw(12) << std::setfill('0') << (addr >> LOG2_BLOCK_SIZE) << std::dec << std::endl;
+   }
     //uint64_t pf_addr = ((addr>>LOG2_BLOCK_SIZE)+1) << LOG2_BLOCK_SIZE;
 
-//    addressFile.close();
+    addressFile.close();
     // Always printing out access details
     //cout << "[" << NAME << "] " << __func__ << " base_cl: " << hex << (addr>>LOG2_BLOCK_SIZE);
     //cout << " pf_cl: " << (pf_addr>>LOG2_BLOCK_SIZE) << " ip: " << ip << " cache_hit: " << dec << +cache_hit << " type: " << +type << endl;
@@ -44,6 +44,8 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     //prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
     //uint32_t l2_cache_occupancy = get_l2_cache_occupancy();
     //std::cout << "L2 Cache Occupancy: " << l2_cache_occupancy << std::endl;
+    
+    
     return metadata_in;
 }
 

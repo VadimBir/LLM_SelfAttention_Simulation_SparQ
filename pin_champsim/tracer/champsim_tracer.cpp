@@ -134,6 +134,8 @@ void BeginInstruction(VOID *ip, UINT32 op_code)
     //cout<<"Ext:"<<EXTENSION_StringShort(op_code).c_str()<<" Cat:"<<CATEGORY_StringShort(op_code)<<endl;
     instrCaptured++;
 
+    
+
     // reset the current instruction
     curr_instr.ip = (unsigned long long int)ip;
 
@@ -479,14 +481,17 @@ VOID Routine(RTN rtn, VOID *v)
     }
 //    if (name.find("PIN_START")!= string::npos)
 //    {
-//        printf("%s-----------------------------------------\n", name.c_str());
+//printf("%s-----------------------------------------\n", name.c_str());
 ////        RTN_Open(rtn);
 ////        RTN_InsertCall(rtn, IPOINT_AFTER, (AFUNPTR) EnterROI, IARG_END);
 ////        RTN_Close(rtn);
 //    }
 ////        if (name.find("pin_end")!= string::npos)
 ////    {
-////        printf("%s\n", name.c_str());
+        // if (g_enable_instrument == true){
+            //printf("%s\n", name.c_str()); // NEW_V_FLAG
+       // }
+
 ////    }
 //    if (name.find("PIN_END")!= string::npos)
 //    {

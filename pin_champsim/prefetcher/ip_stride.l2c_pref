@@ -15,8 +15,8 @@
 
 #include "cache.h"
 
-#define IP_TRACKER_COUNT 4096
-#define PREFETCH_DEGREE 4
+#define IP_TRACKER_COUNT 8192
+#define PREFETCH_DEGREE 1
 
 class IP_TRACKER {
   public:
@@ -49,6 +49,10 @@ void CACHE::l2c_prefetcher_initialize()
         trackers[i].lru = i;
 }
 
+// VOID Instruction(INS ins, VOID *v) {
+//     std::cout << "IP: " << INS_Address(ins) << " Instruction: " << INS_Disassemble(ins) << std::endl;
+// }
+
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
 {
     // check for a tracker hit
@@ -59,7 +63,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
         if (trackers[index].ip == ip)
             break;
     }
-
+    //cout << "IP:"<< ip << endl;
     // this is a new IP that doesn't have a tracker yet, so allocate one
     if (index == IP_TRACKER_COUNT) {
 

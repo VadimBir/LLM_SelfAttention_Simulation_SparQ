@@ -27,10 +27,10 @@ int DBGER = 0;
  */
 
 
-int popular_prefetch_offset[] = { 2};
+int popular_prefetch_offset[] = {1,2,4};
 
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1 + 8192;
+const int MARKOV_LRU_SIZE = 1 + 4096;
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
 int markov_LRU_front = 0;
@@ -128,13 +128,16 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
 
     // USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
-//        for (int offset : popular_prefetch_offset) {
-//            pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
-//            prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
-//        }
+       for (int offset : popular_prefetch_offset) {
+           pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
+           prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+       }
     // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
+    
 
     // USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
+    
+    // markov preprocessing
     int64_t key_delta = 0;
     int64_t val_delta = 0;
 
@@ -144,24 +147,31 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
         key_delta = (pre_previous_addr) - (previous_addr);
         val_delta = (previous_addr) - (addr);
     }
+
+
     IteratorType key_it;
     std::unordered_map<int64_t, int>::iterator val_it;
-    if (pre_previous_addr != 0) {
+    
+    // filter out val_delta that were part of pupular_prefetch_offset
+    bool is_in_popular_offset = std::find(std::begin(popular_prefetch_offset), std::end(popular_prefetch_offset), val_delta) != std::end(popular_prefetch_offset);
+    if (!is_in_popular_offset) {
+        // markov table update
+        if (pre_previous_addr != 0) {
 
 
-        markov_table[key_delta][val_delta]++;
+            markov_table[key_delta][val_delta]++;
 
-        key_it = markov_table.find(key_delta);
-        val_it = key_it->second.find(val_delta);
+            key_it = markov_table.find(key_delta);
+            val_it = key_it->second.find(val_delta);
 
+        }
     }
-
-
+    // get Markov delta predictions
     std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
 
     for (int64_t pf_offset: pf_topP) {
 
-        pf_addr = ((addr) - pf_offset);
+        pf_addr = (((addr) - pf_offset)>> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE);
         prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
     }
     // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV

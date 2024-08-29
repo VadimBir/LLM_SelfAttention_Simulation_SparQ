@@ -1,0 +1,145 @@
+*************************************************
+   ChampSim Multicore Out-of-Order Simulator
+   Last compiled: Aug 28 2024 22:57:01
+*************************************************
+
+trace_0 ./LLM_Traces/LLM_Traces_v2/Phy70M-b1h8s1024d64r1_Traces331224700_NO_FOLLOWEXEC_SingleProc.champsim.3.xz
+CPU 0 L1D next line prefetcher
+Markov Talbe Size: 17 Markov Confidence: 30%
+Stride Size: 16 Prefetch Degree: 20
+
+CPU 0 L2C prefetcher
+warmup_instructions 2000000
+simulation_instructions 350000000
+champsim_seed 850
+
+num_cpus 1
+cpu_freq 4000
+dram_io_freq 2400
+page_size 4096
+block_size 64
+max_read_per_cycle 8
+max_fill_per_cycle 1
+dram_channels 1
+dram_ranks 1
+dram_banks 8
+dram_rows 65536
+dram_columns 128
+dram_row_size 8
+dram_size 4096
+dram_pages 1048576
+
+fetch_width 6
+decode_width 6
+exec_width 4
+lq_width 2
+sq_width 2
+retire_width 4
+scheduler_size 128
+branch_mispredict_penalty 20
+rob_size 256
+lq_size 72
+sq_size 56
+num_instr_destinations_sparc 4
+num_instr_destinations 2
+num_instr_sources 4
+
+itlb_set 16
+itlb_way 8
+itlb_rq_size 16
+itlb_wq_size 16
+itlb_pq_size 0
+itlb_mshr_size 8
+itlb_latency 1
+
+dtlb_set 16
+dtlb_way 4
+dtlb_rq_size 16
+dtlb_wq_size 16
+dtlb_pq_size 0
+dtlb_mshr_size 8
+dtlb_latency 1
+
+stlb_set 128
+stlb_way 12
+stlb_rq_size 32
+stlb_wq_size 32
+stlb_pq_size 0
+stlb_mshr_size 16
+stlb_latency 8
+
+l1i_size 32
+l1i_set 64
+l1i_way 8
+l1i_rq_size 64
+l1i_wq_size 64
+l1i_pq_size 8
+l1i_mshr_size 8
+l1i_latency 1
+
+l1d_size 32
+l1d_set 64
+l1d_way 8
+l1d_rq_size 64
+l1d_wq_size 64
+l1d_pq_size 8
+l1d_mshr_size 16
+l1d_latency 4
+
+l2c_size 512
+l2c_set 1024
+l2c_way 8
+l2c_rq_size 32
+l2c_wq_size 32
+l2c_pq_size 16
+l2c_mshr_size 32
+l2c_latency 10
+
+llc_size 2048
+llc_set 2048
+llc_way 16
+llc_rq_size 32
+llc_wq_size 32
+llc_pq_size 32
+llc_mshr_size 64
+llc_latency 20
+
+dram_channel_width 8
+dram_wq_size 64
+dram_rq_size 64
+tRP 15
+tRCD 15
+tCAS 12.5
+dram_dbus_turn_around_time 30
+dram_write_high_wm 56
+dram_write_low_wm 48
+min_dram_writes_per_switch 16
+dram_mtps 2400
+dram_dbus_return_time 13
+
+
+CPU 0 L2C prefetcher initialized
+
+
+Cache Size: 512
+number of cache lines: 8192
+Heartbeat CPU  0 instr:    1000002 cyc:     493526 curr IPC: 2.02624 AVG IPC: 2.02624 (Sim:0h0m1s) 
+Heartbeat CPU  0 instr:    2000003 cyc:     969107 curr IPC: 2.10269 AVG IPC: 2.06376 (Sim:0h0m3s) 
+
+Warmup complete CPU  0 instructions:    2000003 cycles:     969107 (Simulation time: 0 hr 0 min 3 sec) 
+
+Heartbeat CPU  0 instr:    3000002 cyc:    1565212 curr IPC: 1.67756 AVG IPC: 1.67756 (Sim:0h0m5s) 
+Heartbeat CPU  0 instr:    4000000 cyc:    2138252 curr IPC: 1.74508 AVG IPC: 1.71065 (Sim:0h0m6s) 
+Heartbeat CPU  0 instr:    5000000 cyc:    2710911 curr IPC: 1.74624 AVG IPC: 1.72235 (Sim:0h0m8s) 
+Heartbeat CPU  0 instr:    6000000 cyc:    3280237 curr IPC: 1.75646 AVG IPC: 1.73075 (Sim:0h0m9s) 
+Heartbeat CPU  0 instr:    7000000 cyc:    4005750 curr IPC: 1.37833 AVG IPC: 1.64655 (Sim:0h0m11s) 
+Heartbeat CPU  0 instr:    8000000 cyc:    4585943 curr IPC: 1.72356 AVG IPC: 1.65891 (Sim:0h0m13s) 
+Heartbeat CPU  0 instr:    9000002 cyc:    5144126 curr IPC: 1.79153 AVG IPC: 1.67664 (Sim:0h0m14s) 
+Heartbeat CPU  0 instr:   10000003 cyc:    5701353 curr IPC: 1.79460 AVG IPC: 1.69053 (Sim:0h0m16s) 
+Heartbeat CPU  0 instr:   11000000 cyc:    6254919 curr IPC: 1.80646 AVG IPC: 1.70267 (Sim:0h0m17s) 
+Heartbeat CPU  0 instr:   12000000 cyc:    6795969 curr IPC: 1.84826 AVG IPC: 1.71619 (Sim:0h0m19s) 
+Heartbeat CPU  0 instr:   13000002 cyc:    7477314 curr IPC: 1.46769 AVG IPC: 1.69017 (Sim:0h0m21s) 
+Heartbeat CPU  0 instr:   14000001 cyc:    8037410 curr IPC: 1.78541 AVG IPC: 1.69772 (Sim:0h0m23s) 
+Heartbeat CPU  0 instr:   15000001 cyc:    8595698 curr IPC: 1.79119 AVG IPC: 1.70456 (Sim:0h0m25s) 
+Heartbeat CPU  0 instr:   16000000 cyc:    9146697 curr IPC: 1.81488 AVG IPC: 1.71200 (Sim:0h0m27s) 
+Caught signal: 2

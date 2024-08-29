@@ -30,11 +30,11 @@ int DBGER = 0;
 int popular_prefetch_offset[] = {1,2,4};
 
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1 + 4096;
+const int MARKOV_LRU_SIZE = 1 + 8192;
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
 int markov_LRU_front = 0;
-const int MAX_PREDICTIONS = 10;
+const int MAX_PREDICTIONS = 16;
 const int MARKOV_PREDICTION_THRESHOLD = 16;
 
 
@@ -71,12 +71,12 @@ void markov_update_lru(int index) {
 
 std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
     std::vector<int64_t> top_predictions;
-    auto it = markov_table.find(previous_addr - addr);
+    auto it = markov_table.find((int64_t)previous_addr - (int64_t)addr);
     if (it != markov_table.end()) {
         auto &next_blocks = it->second;
-        std::vector<std::pair<uint64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        std::vector<std::pair<int64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
         std::sort(predictions.begin(), predictions.end(),
-                  [](const std::pair<uint64_t, int> &a, const std::pair<uint64_t, int> &b) {
+                  [](const std::pair<int64_t, int> &a, const std::pair<int64_t, int> &b) {
                       return a.second > b.second;
                   });
         for (auto &prediction: predictions) {
@@ -142,10 +142,10 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     int64_t val_delta = 0;
 
     addr = addr >> LOG2_BLOCK_SIZE;
-    addr = addr << LOG2_BLOCK_SIZE;
+    //addr = addr << LOG2_BLOCK_SIZE;
     if (pre_previous_addr != 0) {
-        key_delta = (pre_previous_addr) - (previous_addr);
-        val_delta = (previous_addr) - (addr);
+        key_delta = (int64_t)(pre_previous_addr) - (int64_t)(previous_addr);
+        val_delta = (int64_t)(previous_addr) - (int64_t)(addr);
     }
 
 
@@ -171,7 +171,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
     for (int64_t pf_offset: pf_topP) {
 
-        pf_addr = (((addr) - pf_offset)>> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE);
+        pf_addr = (((int64_t)(addr) - pf_offset)<< LOG2_BLOCK_SIZE);
         prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
     }
     // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV

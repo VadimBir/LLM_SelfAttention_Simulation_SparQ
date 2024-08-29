@@ -8,11 +8,8 @@
 #include <utility>
 #include <algorithm>
 
-void CACHE::l1d_prefetcher_initialize() {
-    cout << "CPU " << cpu << " L1D next line prefetcher" << endl;
-}
 
-int64_t cnt = 0;
+//int64_t cnt = 0;
 
 int DBGER = 0;
 /*
@@ -25,24 +22,40 @@ int DBGER = 0;
  */
 
 
-//int popular_prefetch_offset[] = { 2};
+int L1popular_prefetch_offset[] = {1,2,4};
+
 
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1 + 8192;
+const int MARKOV_LRU_SIZE = 1 + 999; 
+// 8192 16384 32768
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
 int markov_LRU_front = 0;
-const int MAX_PREDICTIONS = 10;
-const int MARKOV_PREDICTION_THRESHOLD = 16;
+const int MAX_PREDICTIONS = 9999;
+const double MARKOV_PREDICTION_PERCENTTHRESHOLD = 30;
 
 
 uint64_t pre_previous_addr = 0;
 uint64_t previous_addr = 0;
 uint64_t pf_addr = 0;
+uint64_t preIP = 0;
+//int64_t cnt = 0;
+
+void CACHE::l1d_prefetcher_initialize() {
+    cout << "Markov Talbe Size: " << MARKOV_LRU_SIZE << " Markov Confidence: " << MARKOV_PREDICTION_PERCENTTHRESHOLD << "%" << endl;
+    cout << "CPU " << cpu << " L1D prefetcher" << endl;
+}
+int64_t combine_hashes(int64_t pre_key_delta, int64_t key_delta) {
+    std::hash<int64_t> hasher;
+    int64_t hash1 = hasher(pre_key_delta);
+    int64_t hash2 = hasher(key_delta);
+
+    return hash1 ^ (hash2 << 1); 
+}
 
 std::unordered_map<int64_t, int>::iterator markov_evict_lru() {
     std::unordered_map<int64_t, int>::iterator val_it = markov_LRU[0];
-    for (size_t i = 1; i < markov_LRU_front; i++) {
+    for (int i = 1; i < markov_LRU_front; i++) {
         markov_LRU[i - 1] = markov_LRU[i];
     }
     return val_it;
@@ -50,7 +63,7 @@ std::unordered_map<int64_t, int>::iterator markov_evict_lru() {
 
 void markov_update_lru(int index) {
     auto tmpVal = markov_LRU[index];
-    for (size_t i = 0; i < markov_LRU_front; i++) {
+    for (int i = 0; i < markov_LRU_front; i++) {
         if (i < index) {
             continue;
         }
@@ -64,19 +77,27 @@ void markov_update_lru(int index) {
 
 std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
     std::vector<int64_t> top_predictions;
-    auto it = markov_table.find(previous_addr - addr);
+    int64_t doubleDeltaKey = combine_hashes(ip, (int64_t)previous_addr-(int64_t)addr);
+    auto it = markov_table.find(doubleDeltaKey);
     if (it != markov_table.end()) {
         auto &next_blocks = it->second;
-        std::vector<std::pair<uint64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        std::vector<std::pair<int64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
         std::sort(predictions.begin(), predictions.end(),
-                  [](const std::pair<uint64_t, int> &a, const std::pair<uint64_t, int> &b) {
+                  []( std::pair<int64_t, int> &a,  std::pair<int64_t, int> &b) {
                       return a.second > b.second;
                   });
+        int total_count = std::accumulate(predictions.begin(), predictions.end(), 0,
+        [](int sum,  std::pair<int64_t, int>& p) {
+            return sum + p.second;
+        });
         for (auto &prediction: predictions) {
-            if (top_predictions.size() >= MAX_PREDICTIONS) break;
-            if (prediction.second > MARKOV_PREDICTION_THRESHOLD) {
+            //if (top_predictions.size() >= MAX_PREDICTIONS) break;
+            if (((double)prediction.second)*100/total_count >= MARKOV_PREDICTION_PERCENTTHRESHOLD) {
                 pf_addr = prediction.first;
                 top_predictions.push_back(pf_addr);
+                //cout << "Markov Prediction: " << prediction.second << " total: " <<  total_count << " percent: " << (((double)prediction.second)*100/total_count) << endl;
+            } else {
+                break;
             }
         }
     }
@@ -116,48 +137,62 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
 }
 
 void CACHE::l1d_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type) {
-    // USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
-//    for (int offset : popular_prefetch_offset) {
-//        pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
-//        prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
-//    }
-    // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
-
+    
     // USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
+    
+    // markov preprocessing
     int64_t key_delta = 0;
     int64_t val_delta = 0;
 
     addr = addr >> LOG2_BLOCK_SIZE;
-    addr = addr << LOG2_BLOCK_SIZE;
+    //addr = addr << LOG2_BLOCK_SIZE;
     if (pre_previous_addr != 0) {
-        key_delta = (pre_previous_addr) - (previous_addr);
-        val_delta = (previous_addr) - (addr);
+        key_delta = (int64_t)(pre_previous_addr) - (int64_t)(previous_addr);
+        val_delta = (int64_t)(previous_addr) - (int64_t)(addr);
     }
+
+
     IteratorType key_it;
     std::unordered_map<int64_t, int>::iterator val_it;
-    if (pre_previous_addr != 0) {
+    
+    // filter out val_delta that were part of pupular_prefetch_offset
+    bool is_in_popular_offset = std::find(std::begin(L1popular_prefetch_offset), std::end(L1popular_prefetch_offset), val_delta) != std::end(L1popular_prefetch_offset);
+    if (!is_in_popular_offset) {
+        // markov table update
+        if (pre_previous_addr != 0) {
+            int64_t final_hash_value = combine_hashes(preIP, key_delta);
+            key_delta = final_hash_value;
+        
 
+            markov_table[key_delta][val_delta]++;
 
-        markov_table[key_delta][val_delta]++;
+            key_it = markov_table.find(key_delta);
+            val_it = key_it->second.find(val_delta);
 
-        key_it = markov_table.find(key_delta);
-        val_it = key_it->second.find(val_delta);
+        }
+        // get Markov delta predictions
+        std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
 
-    }
+        for (int64_t pf_offset: pf_topP) {
 
+            pf_addr = (((int64_t)(addr) - pf_offset) << LOG2_BLOCK_SIZE);
+            prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+        
+            //GHP_Markov->append(pf_addr >> LOG2_BLOCK_SIZE);
 
-    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
-
-    for (int64_t pf_offset: pf_topP) {
-
-        pf_addr = ((addr) - pf_offset);
-        prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+            // if (GHP_Markov->size() > (NUM_CACHELINES*1)) { // does a sliding window of size
+            //     GHP_Markov->pop();
+            // }
+            // prefetchGuessCnt_Markov++;
+        }
     }
     // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV
 
+
     pre_previous_addr = previous_addr;
     previous_addr = addr;
-    cnt++;
+    preIP = ip;
+    //cnt++;
 
 
 

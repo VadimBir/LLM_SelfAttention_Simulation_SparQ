@@ -1,0 +1,584 @@
+*************************************************
+   ChampSim Multicore Out-of-Order Simulator
+   Last compiled: Aug 21 2024 07:10:41
+*************************************************
+
+trace_0 ./LLM_Traces/2B_Traces_SelfAttention_Phythia-70M-Seq1024-07-08-0125.champsim.xz
+CPU 0 L2C next line prefetcher initialized
+warmup_instructions 2000000
+simulation_instructions 350000000
+champsim_seed 200
+
+num_cpus 1
+cpu_freq 4000
+dram_io_freq 2400
+page_size 4096
+block_size 64
+max_read_per_cycle 8
+max_fill_per_cycle 1
+dram_channels 1
+dram_ranks 1
+dram_banks 8
+dram_rows 65536
+dram_columns 128
+dram_row_size 8
+dram_size 4096
+dram_pages 1048576
+
+fetch_width 6
+decode_width 6
+exec_width 4
+lq_width 2
+sq_width 2
+retire_width 4
+scheduler_size 128
+branch_mispredict_penalty 20
+rob_size 256
+lq_size 72
+sq_size 56
+num_instr_destinations_sparc 4
+num_instr_destinations 2
+num_instr_sources 4
+
+itlb_set 16
+itlb_way 8
+itlb_rq_size 16
+itlb_wq_size 16
+itlb_pq_size 0
+itlb_mshr_size 8
+itlb_latency 1
+
+dtlb_set 16
+dtlb_way 4
+dtlb_rq_size 16
+dtlb_wq_size 16
+dtlb_pq_size 0
+dtlb_mshr_size 8
+dtlb_latency 1
+
+stlb_set 128
+stlb_way 12
+stlb_rq_size 32
+stlb_wq_size 32
+stlb_pq_size 0
+stlb_mshr_size 16
+stlb_latency 8
+
+l1i_size 32
+l1i_set 64
+l1i_way 8
+l1i_rq_size 64
+l1i_wq_size 64
+l1i_pq_size 8
+l1i_mshr_size 8
+l1i_latency 1
+
+l1d_size 32
+l1d_set 64
+l1d_way 8
+l1d_rq_size 64
+l1d_wq_size 64
+l1d_pq_size 8
+l1d_mshr_size 16
+l1d_latency 4
+
+l2c_size 512
+l2c_set 1024
+l2c_way 8
+l2c_rq_size 32
+l2c_wq_size 32
+l2c_pq_size 16
+l2c_mshr_size 32
+l2c_latency 10
+
+llc_size 2048
+llc_set 2048
+llc_way 16
+llc_rq_size 32
+llc_wq_size 32
+llc_pq_size 32
+llc_mshr_size 64
+llc_latency 20
+
+dram_channel_width 8
+dram_wq_size 64
+dram_rq_size 64
+tRP 15
+tRCD 15
+tCAS 12.5
+dram_dbus_turn_around_time 30
+dram_write_high_wm 56
+dram_write_low_wm 48
+min_dram_writes_per_switch 16
+dram_mtps 2400
+dram_dbus_return_time 13
+
+
+Heartbeat CPU  0 instr:    1000001 cyc:     467809 curr IPC: 2.13763 AVG IPC: 2.13763 (Sim:0h0m8s) 
+Heartbeat CPU  0 instr:    2000000 cyc:    1042068 curr IPC: 1.74137 AVG IPC: 1.91926 (Sim:0h0m27s) 
+
+Warmup complete CPU  0 instructions:    2000002 cycles:    1042069 (Simulation time: 0 hr 0 min 27 sec) 
+
+Heartbeat CPU  0 instr:    3000001 cyc:    2058945 curr IPC: 0.98340 AVG IPC: 0.98340 (Sim:0h0m50s) 
+Heartbeat CPU  0 instr:    4000000 cyc:    3113950 curr IPC: 0.94786 AVG IPC: 0.96531 (Sim:0h1m9s) 
+Heartbeat CPU  0 instr:    5000002 cyc:    4161640 curr IPC: 0.95448 AVG IPC: 0.96167 (Sim:0h1m28s) 
+Heartbeat CPU  0 instr:    6000001 cyc:    5215642 curr IPC: 0.94876 AVG IPC: 0.95841 (Sim:0h1m46s) 
+Heartbeat CPU  0 instr:    7000000 cyc:    6268404 curr IPC: 0.94988 AVG IPC: 0.95669 (Sim:0h2m2s) 
+Heartbeat CPU  0 instr:    8000000 cyc:    7330753 curr IPC: 0.94131 AVG IPC: 0.95409 (Sim:0h2m18s) 
+Heartbeat CPU  0 instr:    9000003 cyc:    8399586 curr IPC: 0.93560 AVG IPC: 0.95141 (Sim:0h2m35s) 
+Heartbeat CPU  0 instr:   10000003 cyc:    9463927 curr IPC: 0.93955 AVG IPC: 0.94991 (Sim:0h2m52s) 
+Heartbeat CPU  0 instr:   11000000 cyc:   10523974 curr IPC: 0.94335 AVG IPC: 0.94918 (Sim:0h3m10s) 
+Heartbeat CPU  0 instr:   12000000 cyc:   11599514 curr IPC: 0.92977 AVG IPC: 0.94720 (Sim:0h3m32s) 
+Heartbeat CPU  0 instr:   13000002 cyc:   12667470 curr IPC: 0.93637 AVG IPC: 0.94620 (Sim:0h3m51s) 
+Heartbeat CPU  0 instr:   14000002 cyc:   13716859 curr IPC: 0.95294 AVG IPC: 0.94676 (Sim:0h4m9s) 
+Heartbeat CPU  0 instr:   15000001 cyc:   14775039 curr IPC: 0.94502 AVG IPC: 0.94663 (Sim:0h4m27s) 
+Heartbeat CPU  0 instr:   16000000 cyc:   15836827 curr IPC: 0.94181 AVG IPC: 0.94628 (Sim:0h4m44s) 
+Heartbeat CPU  0 instr:   17000001 cyc:   16902789 curr IPC: 0.93812 AVG IPC: 0.94573 (Sim:0h5m0s) 
+Heartbeat CPU  0 instr:   18000003 cyc:   17982224 curr IPC: 0.92641 AVG IPC: 0.94450 (Sim:0h5m17s) 
+Heartbeat CPU  0 instr:   19000003 cyc:   19052891 curr IPC: 0.93400 AVG IPC: 0.94388 (Sim:0h5m36s) 
+Heartbeat CPU  0 instr:   20000000 cyc:   20130188 curr IPC: 0.92825 AVG IPC: 0.94299 (Sim:0h5m54s) 
+Heartbeat CPU  0 instr:   21000001 cyc:   21188407 curr IPC: 0.94498 AVG IPC: 0.94310 (Sim:0h6m10s) 
+Heartbeat CPU  0 instr:   22000001 cyc:   22268979 curr IPC: 0.92544 AVG IPC: 0.94220 (Sim:0h6m28s) 
+Heartbeat CPU  0 instr:   23000002 cyc:   23332517 curr IPC: 0.94026 AVG IPC: 0.94211 (Sim:0h6m45s) 
+Heartbeat CPU  0 instr:   24000000 cyc:   24387849 curr IPC: 0.94757 AVG IPC: 0.94235 (Sim:0h7m2s) 
+Heartbeat CPU  0 instr:   25000000 cyc:   25420070 curr IPC: 0.96878 AVG IPC: 0.94347 (Sim:0h7m18s) 
+Heartbeat CPU  0 instr:   26000003 cyc:   26544139 curr IPC: 0.88963 AVG IPC: 0.94110 (Sim:0h7m37s) 
+Heartbeat CPU  0 instr:   27000003 cyc:   27600411 curr IPC: 0.94673 AVG IPC: 0.94132 (Sim:0h7m55s) 
+Heartbeat CPU  0 instr:   28000000 cyc:   28666236 curr IPC: 0.93824 AVG IPC: 0.94120 (Sim:0h8m14s) 
+Heartbeat CPU  0 instr:   29000000 cyc:   29730377 curr IPC: 0.93973 AVG IPC: 0.94115 (Sim:0h8m33s) 
+Heartbeat CPU  0 instr:   30000002 cyc:   30801909 curr IPC: 0.93325 AVG IPC: 0.94087 (Sim:0h8m51s) 
+Heartbeat CPU  0 instr:   31000001 cyc:   31853248 curr IPC: 0.95117 AVG IPC: 0.94122 (Sim:0h9m11s) 
+Heartbeat CPU  0 instr:   32000000 cyc:   32909201 curr IPC: 0.94701 AVG IPC: 0.94141 (Sim:0h9m30s) 
+Heartbeat CPU  0 instr:   33000001 cyc:   33978168 curr IPC: 0.93548 AVG IPC: 0.94122 (Sim:0h9m49s) 
+Heartbeat CPU  0 instr:   34000000 cyc:   35039637 curr IPC: 0.94209 AVG IPC: 0.94124 (Sim:0h10m9s) 
+Heartbeat CPU  0 instr:   35000003 cyc:   36107249 curr IPC: 0.93667 AVG IPC: 0.94110 (Sim:0h10m27s) 
+Heartbeat CPU  0 instr:   36000000 cyc:   37168097 curr IPC: 0.94264 AVG IPC: 0.94115 (Sim:0h10m46s) 
+Heartbeat CPU  0 instr:   37000000 cyc:   38221394 curr IPC: 0.94940 AVG IPC: 0.94138 (Sim:0h11m6s) 
+Heartbeat CPU  0 instr:   38000003 cyc:   39304335 curr IPC: 0.92341 AVG IPC: 0.94087 (Sim:0h11m24s) 
+Heartbeat CPU  0 instr:   39000003 cyc:   40367297 curr IPC: 0.94077 AVG IPC: 0.94087 (Sim:0h11m43s) 
+Heartbeat CPU  0 instr:   40000000 cyc:   41426437 curr IPC: 0.94416 AVG IPC: 0.94096 (Sim:0h12m3s) 
+Heartbeat CPU  0 instr:   41000002 cyc:   42519065 curr IPC: 0.91523 AVG IPC: 0.94028 (Sim:0h12m20s) 
+Heartbeat CPU  0 instr:   42000001 cyc:   43584203 curr IPC: 0.93884 AVG IPC: 0.94024 (Sim:0h12m40s) 
+Heartbeat CPU  0 instr:   43000001 cyc:   44661856 curr IPC: 0.92794 AVG IPC: 0.93994 (Sim:0h13m0s) 
+Heartbeat CPU  0 instr:   44000000 cyc:   45737446 curr IPC: 0.92972 AVG IPC: 0.93969 (Sim:0h13m19s) 
+Heartbeat CPU  0 instr:   45000002 cyc:   46801320 curr IPC: 0.93996 AVG IPC: 0.93970 (Sim:0h13m39s) 
+Heartbeat CPU  0 instr:   46000001 cyc:   47885617 curr IPC: 0.92226 AVG IPC: 0.93930 (Sim:0h14m0s) 
+Heartbeat CPU  0 instr:   47000001 cyc:   48967064 curr IPC: 0.92469 AVG IPC: 0.93897 (Sim:0h14m20s) 
+Heartbeat CPU  0 instr:   48000000 cyc:   50031057 curr IPC: 0.93985 AVG IPC: 0.93899 (Sim:0h14m42s) 
+Heartbeat CPU  0 instr:   49000000 cyc:   51111842 curr IPC: 0.92525 AVG IPC: 0.93869 (Sim:0h15m1s) 
+Heartbeat CPU  0 instr:   50000000 cyc:   52103304 curr IPC: 1.00861 AVG IPC: 0.94005 (Sim:0h15m24s) 
+Heartbeat CPU  0 instr:   51000000 cyc:   53031788 curr IPC: 1.07702 AVG IPC: 0.94249 (Sim:0h15m46s) 
+Heartbeat CPU  0 instr:   52000000 cyc:   53951396 curr IPC: 1.08742 AVG IPC: 0.94501 (Sim:0h16m5s) 
+Heartbeat CPU  0 instr:   53000002 cyc:   54874340 curr IPC: 1.08349 AVG IPC: 0.94739 (Sim:0h16m26s) 
+Heartbeat CPU  0 instr:   54000003 cyc:   55801835 curr IPC: 1.07817 AVG IPC: 0.94960 (Sim:0h16m49s) 
+Heartbeat CPU  0 instr:   55000001 cyc:   56736087 curr IPC: 1.07037 AVG IPC: 0.95163 (Sim:0h17m9s) 
+Heartbeat CPU  0 instr:   56000000 cyc:   57663159 curr IPC: 1.07866 AVG IPC: 0.95371 (Sim:0h17m30s) 
+Heartbeat CPU  0 instr:   57000000 cyc:   58594570 curr IPC: 1.07364 AVG IPC: 0.95565 (Sim:0h17m52s) 
+Heartbeat CPU  0 instr:   58000001 cyc:   59525471 curr IPC: 1.07423 AVG IPC: 0.95754 (Sim:0h18m13s) 
+Heartbeat CPU  0 instr:   59000001 cyc:   60446756 curr IPC: 1.08544 AVG IPC: 0.95952 (Sim:0h18m35s) 
+Heartbeat CPU  0 instr:   60000000 cyc:   61362417 curr IPC: 1.09211 AVG IPC: 0.96153 (Sim:0h18m56s) 
+Heartbeat CPU  0 instr:   61000001 cyc:   62279233 curr IPC: 1.09073 AVG IPC: 0.96347 (Sim:0h19m19s) 
+Heartbeat CPU  0 instr:   62000001 cyc:   63192941 curr IPC: 1.09444 AVG IPC: 0.96539 (Sim:0h19m40s) 
+Heartbeat CPU  0 instr:   63000000 cyc:   64111288 curr IPC: 1.08891 AVG IPC: 0.96719 (Sim:0h20m2s) 
+Heartbeat CPU  0 instr:   64000000 cyc:   65016281 curr IPC: 1.10498 AVG IPC: 0.96914 (Sim:0h20m27s) 
+Heartbeat CPU  0 instr:   65000003 cyc:   65914063 curr IPC: 1.11386 AVG IPC: 0.97114 (Sim:0h20m45s) 
+Heartbeat CPU  0 instr:   66000000 cyc:   67039453 curr IPC: 0.88858 AVG IPC: 0.96974 (Sim:0h21m10s) 
+Heartbeat CPU  0 instr:   67000001 cyc:   68103224 curr IPC: 0.94005 AVG IPC: 0.96926 (Sim:0h21m31s) 
+Heartbeat CPU  0 instr:   68000000 cyc:   69144724 curr IPC: 0.96015 AVG IPC: 0.96913 (Sim:0h21m54s) 
+Heartbeat CPU  0 instr:   69000001 cyc:   70192717 curr IPC: 0.95421 AVG IPC: 0.96890 (Sim:0h22m16s) 
+Heartbeat CPU  0 instr:   70000001 cyc:   71244558 curr IPC: 0.95071 AVG IPC: 0.96863 (Sim:0h22m38s) 
+Heartbeat CPU  0 instr:   71000003 cyc:   72271056 curr IPC: 0.97419 AVG IPC: 0.96871 (Sim:0h23m1s) 
+Heartbeat CPU  0 instr:   72000000 cyc:   73308672 curr IPC: 0.96374 AVG IPC: 0.96864 (Sim:0h23m22s) 
+Heartbeat CPU  0 instr:   73000001 cyc:   74366457 curr IPC: 0.94537 AVG IPC: 0.96830 (Sim:0h23m45s) 
+Heartbeat CPU  0 instr:   74000001 cyc:   75426578 curr IPC: 0.94329 AVG IPC: 0.96794 (Sim:0h24m8s) 
+Heartbeat CPU  0 instr:   75000001 cyc:   76490450 curr IPC: 0.93996 AVG IPC: 0.96755 (Sim:0h24m31s) 
+Heartbeat CPU  0 instr:   76000000 cyc:   77542901 curr IPC: 0.95016 AVG IPC: 0.96731 (Sim:0h24m54s) 
+Heartbeat CPU  0 instr:   77000000 cyc:   78588966 curr IPC: 0.95596 AVG IPC: 0.96716 (Sim:0h25m16s) 
+Heartbeat CPU  0 instr:   78000002 cyc:   79634861 curr IPC: 0.95612 AVG IPC: 0.96701 (Sim:0h25m40s) 
+Heartbeat CPU  0 instr:   79000001 cyc:   80684690 curr IPC: 0.95254 AVG IPC: 0.96682 (Sim:0h26m3s) 
+Heartbeat CPU  0 instr:   80000000 cyc:   81722495 curr IPC: 0.96357 AVG IPC: 0.96678 (Sim:0h26m26s) 
+Heartbeat CPU  0 instr:   81000000 cyc:   82779288 curr IPC: 0.94626 AVG IPC: 0.96651 (Sim:0h26m50s) 
+Heartbeat CPU  0 instr:   82000000 cyc:   83852821 curr IPC: 0.93150 AVG IPC: 0.96606 (Sim:0h27m8s) 
+Heartbeat CPU  0 instr:   83000003 cyc:   84935325 curr IPC: 0.92379 AVG IPC: 0.96551 (Sim:0h27m27s) 
+Heartbeat CPU  0 instr:   84000000 cyc:   86010280 curr IPC: 0.93027 AVG IPC: 0.96507 (Sim:0h27m45s) 
+Heartbeat CPU  0 instr:   85000003 cyc:   87074371 curr IPC: 0.93977 AVG IPC: 0.96475 (Sim:0h28m4s) 
+Heartbeat CPU  0 instr:   86000001 cyc:   88135089 curr IPC: 0.94276 AVG IPC: 0.96449 (Sim:0h28m22s) 
+Heartbeat CPU  0 instr:   87000001 cyc:   89208828 curr IPC: 0.93133 AVG IPC: 0.96408 (Sim:0h28m41s) 
+Heartbeat CPU  0 instr:   88000000 cyc:   90268686 curr IPC: 0.94352 AVG IPC: 0.96384 (Sim:0h29m0s) 
+Heartbeat CPU  0 instr:   89000002 cyc:   91329414 curr IPC: 0.94275 AVG IPC: 0.96359 (Sim:0h29m18s) 
+Heartbeat CPU  0 instr:   90000002 cyc:   92351535 curr IPC: 0.97836 AVG IPC: 0.96376 (Sim:0h29m34s) 
+Heartbeat CPU  0 instr:   91000001 cyc:   93424785 curr IPC: 0.93175 AVG IPC: 0.96338 (Sim:0h29m56s) 
+Heartbeat CPU  0 instr:   92000000 cyc:   94495648 curr IPC: 0.93383 AVG IPC: 0.96304 (Sim:0h30m20s) 
+Heartbeat CPU  0 instr:   93000000 cyc:   95566213 curr IPC: 0.93409 AVG IPC: 0.96272 (Sim:0h30m39s) 
+Heartbeat CPU  0 instr:   94000000 cyc:   96614381 curr IPC: 0.95405 AVG IPC: 0.96262 (Sim:0h30m57s) 
+Heartbeat CPU  0 instr:   95000000 cyc:   97665545 curr IPC: 0.95133 AVG IPC: 0.96250 (Sim:0h31m16s) 
+Heartbeat CPU  0 instr:   96000000 cyc:   98727006 curr IPC: 0.94210 AVG IPC: 0.96228 (Sim:0h31m34s) 
+Heartbeat CPU  0 instr:   97000002 cyc:   99776599 curr IPC: 0.95275 AVG IPC: 0.96218 (Sim:0h31m53s) 
+Heartbeat CPU  0 instr:   98000000 cyc:  100844783 curr IPC: 0.93617 AVG IPC: 0.96190 (Sim:0h32m12s) 
+Heartbeat CPU  0 instr:   99000000 cyc:  101903609 curr IPC: 0.94444 AVG IPC: 0.96171 (Sim:0h32m31s) 
+Heartbeat CPU  0 instr:  100000000 cyc:  102978050 curr IPC: 0.93072 AVG IPC: 0.96139 (Sim:0h32m50s) 
+Heartbeat CPU  0 instr:  101000001 cyc:  104043745 curr IPC: 0.93836 AVG IPC: 0.96115 (Sim:0h33m9s) 
+Heartbeat CPU  0 instr:  102000003 cyc:  105105873 curr IPC: 0.94151 AVG IPC: 0.96095 (Sim:0h33m28s) 
+Heartbeat CPU  0 instr:  103000001 cyc:  106172679 curr IPC: 0.93738 AVG IPC: 0.96071 (Sim:0h33m47s) 
+Heartbeat CPU  0 instr:  104000000 cyc:  107218512 curr IPC: 0.95617 AVG IPC: 0.96067 (Sim:0h34m5s) 
+Heartbeat CPU  0 instr:  105000001 cyc:  108285814 curr IPC: 0.93694 AVG IPC: 0.96043 (Sim:0h34m28s) 
+Heartbeat CPU  0 instr:  106000000 cyc:  109347333 curr IPC: 0.94205 AVG IPC: 0.96025 (Sim:0h35m29s) 
+Heartbeat CPU  0 instr:  107000001 cyc:  110420396 curr IPC: 0.93191 AVG IPC: 0.95997 (Sim:0h36m7s) 
+Heartbeat CPU  0 instr:  108000000 cyc:  111494104 curr IPC: 0.93135 AVG IPC: 0.95969 (Sim:0h36m40s) 
+Heartbeat CPU  0 instr:  109000000 cyc:  112584965 curr IPC: 0.91671 AVG IPC: 0.95927 (Sim:0h37m22s) 
+Heartbeat CPU  0 instr:  110000002 cyc:  113662832 curr IPC: 0.92776 AVG IPC: 0.95897 (Sim:0h38m16s) 
+Heartbeat CPU  0 instr:  111000002 cyc:  114743705 curr IPC: 0.92518 AVG IPC: 0.95865 (Sim:0h39m14s) 
+Heartbeat CPU  0 instr:  112000000 cyc:  115790629 curr IPC: 0.95518 AVG IPC: 0.95862 (Sim:0h40m28s) 
+Heartbeat CPU  0 instr:  113000000 cyc:  116846825 curr IPC: 0.94679 AVG IPC: 0.95851 (Sim:0h40m57s) 
+Heartbeat CPU  0 instr:  114000000 cyc:  117879271 curr IPC: 0.96857 AVG IPC: 0.95860 (Sim:0h41m31s) 
+Heartbeat CPU  0 instr:  115000002 cyc:  118791042 curr IPC: 1.09677 AVG IPC: 0.95967 (Sim:0h42m4s) 
+Heartbeat CPU  0 instr:  116000000 cyc:  119705021 curr IPC: 1.09411 AVG IPC: 0.96070 (Sim:0h42m38s) 
+Heartbeat CPU  0 instr:  117000000 cyc:  120616568 curr IPC: 1.09704 AVG IPC: 0.96174 (Sim:0h43m17s) 
+Heartbeat CPU  0 instr:  118000003 cyc:  121534314 curr IPC: 1.08963 AVG IPC: 0.96272 (Sim:0h43m47s) 
+Heartbeat CPU  0 instr:  119000001 cyc:  122447443 curr IPC: 1.09513 AVG IPC: 0.96371 (Sim:0h44m17s) 
+Heartbeat CPU  0 instr:  120000000 cyc:  123355291 curr IPC: 1.10150 AVG IPC: 0.96474 (Sim:0h44m45s) 
+Heartbeat CPU  0 instr:  121000001 cyc:  124265171 curr IPC: 1.09905 AVG IPC: 0.96573 (Sim:0h45m23s) 
+Heartbeat CPU  0 instr:  122000000 cyc:  125167051 curr IPC: 1.10879 AVG IPC: 0.96677 (Sim:0h45m55s) 
+Heartbeat CPU  0 instr:  123000003 cyc:  126061430 curr IPC: 1.11810 AVG IPC: 0.96785 (Sim:0h46m24s) 
+Heartbeat CPU  0 instr:  124000000 cyc:  126957492 curr IPC: 1.11599 AVG IPC: 0.96890 (Sim:0h46m53s) 
+Heartbeat CPU  0 instr:  125000003 cyc:  127850079 curr IPC: 1.12034 AVG IPC: 0.96997 (Sim:0h47m21s) 
+Heartbeat CPU  0 instr:  126000003 cyc:  128754608 curr IPC: 1.10555 AVG IPC: 0.97093 (Sim:0h47m51s) 
+Heartbeat CPU  0 instr:  127000002 cyc:  129656756 curr IPC: 1.10846 AVG IPC: 0.97190 (Sim:0h48m23s) 
+Heartbeat CPU  0 instr:  128000000 cyc:  130558384 curr IPC: 1.10910 AVG IPC: 0.97285 (Sim:0h48m52s) 
+Heartbeat CPU  0 instr:  129000000 cyc:  131447348 curr IPC: 1.12490 AVG IPC: 0.97389 (Sim:0h49m18s) 
+Heartbeat CPU  0 instr:  130000000 cyc:  132001069 curr IPC: 1.80596 AVG IPC: 0.97741 (Sim:0h49m31s) 
+Heartbeat CPU  0 instr:  131000000 cyc:  132371805 curr IPC: 2.69734 AVG IPC: 0.98226 (Sim:0h49m34s) 
+Heartbeat CPU  0 instr:  132000000 cyc:  133634035 curr IPC: 0.79225 AVG IPC: 0.98045 (Sim:0h49m59s) 
+Heartbeat CPU  0 instr:  133000000 cyc:  140359693 curr IPC: 0.14868 AVG IPC: 0.94030 (Sim:0h52m3s) 
+Heartbeat CPU  0 instr:  134000000 cyc:  147541447 curr IPC: 0.13924 AVG IPC: 0.90103 (Sim:0h54m15s) 
+Heartbeat CPU  0 instr:  135000002 cyc:  154761976 curr IPC: 0.13849 AVG IPC: 0.86521 (Sim:0h56m31s) 
+Heartbeat CPU  0 instr:  136000000 cyc:  161950349 curr IPC: 0.13911 AVG IPC: 0.83277 (Sim:0h58m59s) 
+Heartbeat CPU  0 instr:  137000000 cyc:  166106990 curr IPC: 0.24058 AVG IPC: 0.81786 (Sim:1h0m15s) 
+Heartbeat CPU  0 instr:  138000002 cyc:  168270582 curr IPC: 0.46220 AVG IPC: 0.81326 (Sim:1h0m45s) 
+Heartbeat CPU  0 instr:  139000000 cyc:  170817877 curr IPC: 0.39257 AVG IPC: 0.80695 (Sim:1h1m17s) 
+Heartbeat CPU  0 instr:  140000000 cyc:  173375853 curr IPC: 0.39093 AVG IPC: 0.80077 (Sim:1h1m48s) 
+Heartbeat CPU  0 instr:  141000002 cyc:  175798986 curr IPC: 0.41269 AVG IPC: 0.79539 (Sim:1h2m23s) 
+Heartbeat CPU  0 instr:  142000001 cyc:  178191260 curr IPC: 0.41801 AVG IPC: 0.79029 (Sim:1h2m53s) 
+Heartbeat CPU  0 instr:  143000000 cyc:  180588501 curr IPC: 0.41715 AVG IPC: 0.78531 (Sim:1h3m33s) 
+Heartbeat CPU  0 instr:  144000000 cyc:  183078607 curr IPC: 0.40159 AVG IPC: 0.78006 (Sim:1h4m6s) 
+Heartbeat CPU  0 instr:  145000000 cyc:  185510726 curr IPC: 0.41116 AVG IPC: 0.77520 (Sim:1h4m36s) 
+Heartbeat CPU  0 instr:  146000003 cyc:  187958063 curr IPC: 0.40861 AVG IPC: 0.77040 (Sim:1h5m7s) 
+Heartbeat CPU  0 instr:  147000002 cyc:  190355395 curr IPC: 0.41713 AVG IPC: 0.76593 (Sim:1h5m38s) 
+Heartbeat CPU  0 instr:  148000000 cyc:  192764286 curr IPC: 0.41513 AVG IPC: 0.76152 (Sim:1h6m9s) 
+Heartbeat CPU  0 instr:  149000003 cyc:  195147227 curr IPC: 0.41965 AVG IPC: 0.75732 (Sim:1h6m39s) 
+Heartbeat CPU  0 instr:  150000001 cyc:  197520708 curr IPC: 0.42132 AVG IPC: 0.75326 (Sim:1h7m10s) 
+Heartbeat CPU  0 instr:  151000000 cyc:  200065104 curr IPC: 0.39302 AVG IPC: 0.74866 (Sim:1h7m44s) 
+Heartbeat CPU  0 instr:  152000000 cyc:  202633236 curr IPC: 0.38939 AVG IPC: 0.74408 (Sim:1h8m19s) 
+Heartbeat CPU  0 instr:  153000002 cyc:  205128510 curr IPC: 0.40076 AVG IPC: 0.73988 (Sim:1h8m58s) 
+Heartbeat CPU  0 instr:  154000003 cyc:  207581030 curr IPC: 0.40774 AVG IPC: 0.73594 (Sim:1h9m36s) 
+Heartbeat CPU  0 instr:  155000000 cyc:  209975228 curr IPC: 0.41768 AVG IPC: 0.73229 (Sim:1h10m9s) 
+Heartbeat CPU  0 instr:  156000000 cyc:  212393178 curr IPC: 0.41357 AVG IPC: 0.72865 (Sim:1h10m40s) 
+Heartbeat CPU  0 instr:  157000000 cyc:  214809197 curr IPC: 0.41390 AVG IPC: 0.72509 (Sim:1h11m19s) 
+Heartbeat CPU  0 instr:  158000001 cyc:  217194510 curr IPC: 0.41923 AVG IPC: 0.72171 (Sim:1h12m13s) 
+Heartbeat CPU  0 instr:  159000002 cyc:  219615958 curr IPC: 0.41298 AVG IPC: 0.71829 (Sim:1h12m57s) 
+Heartbeat CPU  0 instr:  160000000 cyc:  222087940 curr IPC: 0.40453 AVG IPC: 0.71478 (Sim:1h13m44s) 
+Heartbeat CPU  0 instr:  161000001 cyc:  224507263 curr IPC: 0.41334 AVG IPC: 0.71152 (Sim:1h14m25s) 
+Heartbeat CPU  0 instr:  162000000 cyc:  226924493 curr IPC: 0.41370 AVG IPC: 0.70833 (Sim:1h15m0s) 
+Heartbeat CPU  0 instr:  163000001 cyc:  229368268 curr IPC: 0.40920 AVG IPC: 0.70513 (Sim:1h15m34s) 
+Heartbeat CPU  0 instr:  164000000 cyc:  231783574 curr IPC: 0.41403 AVG IPC: 0.70208 (Sim:1h16m10s) 
+Heartbeat CPU  0 instr:  165000000 cyc:  234202170 curr IPC: 0.41346 AVG IPC: 0.69909 (Sim:1h16m47s) 
+Heartbeat CPU  0 instr:  166000002 cyc:  236698299 curr IPC: 0.40062 AVG IPC: 0.69593 (Sim:1h17m16s) 
+Heartbeat CPU  0 instr:  167000000 cyc:  239159904 curr IPC: 0.40624 AVG IPC: 0.69293 (Sim:1h17m45s) 
+Heartbeat CPU  0 instr:  168000000 cyc:  241559036 curr IPC: 0.41682 AVG IPC: 0.69018 (Sim:1h18m13s) 
+Heartbeat CPU  0 instr:  169000000 cyc:  244024224 curr IPC: 0.40565 AVG IPC: 0.68729 (Sim:1h18m43s) 
+Heartbeat CPU  0 instr:  170000000 cyc:  246462734 curr IPC: 0.41009 AVG IPC: 0.68454 (Sim:1h19m12s) 
+Heartbeat CPU  0 instr:  171000000 cyc:  248916233 curr IPC: 0.40758 AVG IPC: 0.68180 (Sim:1h19m41s) 
+Heartbeat CPU  0 instr:  172000000 cyc:  251364693 curr IPC: 0.40842 AVG IPC: 0.67912 (Sim:1h20m10s) 
+Heartbeat CPU  0 instr:  173000001 cyc:  253792500 curr IPC: 0.41189 AVG IPC: 0.67656 (Sim:1h20m38s) 
+Heartbeat CPU  0 instr:  174000000 cyc:  256230077 curr IPC: 0.41024 AVG IPC: 0.67401 (Sim:1h21m9s) 
+Heartbeat CPU  0 instr:  175000003 cyc:  258671119 curr IPC: 0.40966 AVG IPC: 0.67151 (Sim:1h21m39s) 
+Heartbeat CPU  0 instr:  176000000 cyc:  261057279 curr IPC: 0.41908 AVG IPC: 0.66919 (Sim:1h22m8s) 
+Heartbeat CPU  0 instr:  177000000 cyc:  263452716 curr IPC: 0.41746 AVG IPC: 0.66689 (Sim:1h22m36s) 
+Heartbeat CPU  0 instr:  178000000 cyc:  265936099 curr IPC: 0.40268 AVG IPC: 0.66442 (Sim:1h23m5s) 
+Heartbeat CPU  0 instr:  179000003 cyc:  268408766 curr IPC: 0.40442 AVG IPC: 0.66201 (Sim:1h23m34s) 
+Heartbeat CPU  0 instr:  180000000 cyc:  270874337 curr IPC: 0.40558 AVG IPC: 0.65967 (Sim:1h24m3s) 
+Heartbeat CPU  0 instr:  181000002 cyc:  273391065 curr IPC: 0.39734 AVG IPC: 0.65724 (Sim:1h24m32s) 
+Heartbeat CPU  0 instr:  182000001 cyc:  275806755 curr IPC: 0.41396 AVG IPC: 0.65511 (Sim:1h24m59s) 
+Heartbeat CPU  0 instr:  183000000 cyc:  278234827 curr IPC: 0.41185 AVG IPC: 0.65298 (Sim:1h25m28s) 
+Heartbeat CPU  0 instr:  184000000 cyc:  280640302 curr IPC: 0.41572 AVG IPC: 0.65093 (Sim:1h25m56s) 
+Heartbeat CPU  0 instr:  185000002 cyc:  283060051 curr IPC: 0.41327 AVG IPC: 0.64889 (Sim:1h26m23s) 
+Heartbeat CPU  0 instr:  186000000 cyc:  285439837 curr IPC: 0.42020 AVG IPC: 0.64698 (Sim:1h26m51s) 
+Heartbeat CPU  0 instr:  187000000 cyc:  287851577 curr IPC: 0.41464 AVG IPC: 0.64503 (Sim:1h27m20s) 
+Heartbeat CPU  0 instr:  188000000 cyc:  290253559 curr IPC: 0.41632 AVG IPC: 0.64313 (Sim:1h27m50s) 
+Heartbeat CPU  0 instr:  189000000 cyc:  292728125 curr IPC: 0.40411 AVG IPC: 0.64110 (Sim:1h28m21s) 
+Heartbeat CPU  0 instr:  190000001 cyc:  295103696 curr IPC: 0.42095 AVG IPC: 0.63932 (Sim:1h28m51s) 
+Heartbeat CPU  0 instr:  191000002 cyc:  297525810 curr IPC: 0.41286 AVG IPC: 0.63747 (Sim:1h29m21s) 
+Heartbeat CPU  0 instr:  192000000 cyc:  299906963 curr IPC: 0.41996 AVG IPC: 0.63574 (Sim:1h29m51s) 
+Heartbeat CPU  0 instr:  193000000 cyc:  302296720 curr IPC: 0.41845 AVG IPC: 0.63402 (Sim:1h30m24s) 
+Heartbeat CPU  0 instr:  194000002 cyc:  304687209 curr IPC: 0.41833 AVG IPC: 0.63232 (Sim:1h30m54s) 
+Heartbeat CPU  0 instr:  195000003 cyc:  307225336 curr IPC: 0.39399 AVG IPC: 0.63034 (Sim:1h31m24s) 
+Heartbeat CPU  0 instr:  196000000 cyc:  309719040 curr IPC: 0.40101 AVG IPC: 0.62849 (Sim:1h31m53s) 
+Heartbeat CPU  0 instr:  197000000 cyc:  312131574 curr IPC: 0.41450 AVG IPC: 0.62683 (Sim:1h32m23s) 
+Heartbeat CPU  0 instr:  198000000 cyc:  314553507 curr IPC: 0.41289 AVG IPC: 0.62518 (Sim:1h32m53s) 
+Heartbeat CPU  0 instr:  199000002 cyc:  316947159 curr IPC: 0.41777 AVG IPC: 0.62361 (Sim:1h33m23s) 
+Heartbeat CPU  0 instr:  200000000 cyc:  319333032 curr IPC: 0.41913 AVG IPC: 0.62207 (Sim:1h33m53s) 
+Heartbeat CPU  0 instr:  201000003 cyc:  321047510 curr IPC: 0.58327 AVG IPC: 0.62186 (Sim:1h34m10s) 
+Heartbeat CPU  0 instr:  202000000 cyc:  321681906 curr IPC: 1.57630 AVG IPC: 0.62375 (Sim:1h34m18s) 
+Heartbeat CPU  0 instr:  203000000 cyc:  322267199 curr IPC: 1.70855 AVG IPC: 0.62573 (Sim:1h34m52s) 
+Heartbeat CPU  0 instr:  204000000 cyc:  322876387 curr IPC: 1.64153 AVG IPC: 0.62765 (Sim:1h35m26s) 
+Heartbeat CPU  0 instr:  205000001 cyc:  323460832 curr IPC: 1.71103 AVG IPC: 0.62962 (Sim:1h36m0s) 
+Heartbeat CPU  0 instr:  206000000 cyc:  324006716 curr IPC: 1.83189 AVG IPC: 0.63165 (Sim:1h36m42s) 
+Heartbeat CPU  0 instr:  207000003 cyc:  324566800 curr IPC: 1.78545 AVG IPC: 0.63365 (Sim:1h37m20s) 
+Heartbeat CPU  0 instr:  208000000 cyc:  325147036 curr IPC: 1.72343 AVG IPC: 0.63560 (Sim:1h37m59s) 
+Heartbeat CPU  0 instr:  209000003 cyc:  325719473 curr IPC: 1.74692 AVG IPC: 0.63756 (Sim:1h38m32s) 
+Heartbeat CPU  0 instr:  210000003 cyc:  326299637 curr IPC: 1.72365 AVG IPC: 0.63949 (Sim:1h39m6s) 
+Heartbeat CPU  0 instr:  211000000 cyc:  326865104 curr IPC: 1.76844 AVG IPC: 0.64145 (Sim:1h39m43s) 
+Heartbeat CPU  0 instr:  212000000 cyc:  327503366 curr IPC: 1.56675 AVG IPC: 0.64326 (Sim:1h40m25s) 
+Heartbeat CPU  0 instr:  213000002 cyc:  328267885 curr IPC: 1.30801 AVG IPC: 0.64481 (Sim:1h41m15s) 
+Heartbeat CPU  0 instr:  214000002 cyc:  329002509 curr IPC: 1.36124 AVG IPC: 0.64642 (Sim:1h42m7s) 
+Heartbeat CPU  0 instr:  215000003 cyc:  329738876 curr IPC: 1.35802 AVG IPC: 0.64801 (Sim:1h42m50s) 
+Heartbeat CPU  0 instr:  216000000 cyc:  330523243 curr IPC: 1.27491 AVG IPC: 0.64951 (Sim:1h43m34s) 
+Heartbeat CPU  0 instr:  217000003 cyc:  331262233 curr IPC: 1.35320 AVG IPC: 0.65108 (Sim:1h44m19s) 
+Heartbeat CPU  0 instr:  218000002 cyc:  331995202 curr IPC: 1.36431 AVG IPC: 0.65266 (Sim:1h45m2s) 
+Heartbeat CPU  0 instr:  219000000 cyc:  332756124 curr IPC: 1.31419 AVG IPC: 0.65418 (Sim:1h45m44s) 
+Heartbeat CPU  0 instr:  220000000 cyc:  333516178 curr IPC: 1.31570 AVG IPC: 0.65569 (Sim:1h46m28s) 
+Heartbeat CPU  0 instr:  221000003 cyc:  334248717 curr IPC: 1.36512 AVG IPC: 0.65725 (Sim:1h47m14s) 
+Heartbeat CPU  0 instr:  222000002 cyc:  335053836 curr IPC: 1.24205 AVG IPC: 0.65866 (Sim:1h47m58s) 
+Heartbeat CPU  0 instr:  223000000 cyc:  335895928 curr IPC: 1.18752 AVG IPC: 0.65999 (Sim:1h48m50s) 
+Heartbeat CPU  0 instr:  224000000 cyc:  336723516 curr IPC: 1.20833 AVG IPC: 0.66134 (Sim:1h49m37s) 
+Heartbeat CPU  0 instr:  225000002 cyc:  337487103 curr IPC: 1.30961 AVG IPC: 0.66281 (Sim:1h50m23s) 
+Heartbeat CPU  0 instr:  226000000 cyc:  338212892 curr IPC: 1.37781 AVG IPC: 0.66435 (Sim:1h51m8s) 
+Heartbeat CPU  0 instr:  227000000 cyc:  338945452 curr IPC: 1.36508 AVG IPC: 0.66587 (Sim:1h51m51s) 
+Heartbeat CPU  0 instr:  228000000 cyc:  339732073 curr IPC: 1.27126 AVG IPC: 0.66728 (Sim:1h52m36s) 
+Heartbeat CPU  0 instr:  229000001 cyc:  340456455 curr IPC: 1.38049 AVG IPC: 0.66880 (Sim:1h53m18s) 
+Heartbeat CPU  0 instr:  230000001 cyc:  341183854 curr IPC: 1.37476 AVG IPC: 0.67031 (Sim:1h54m0s) 
+Heartbeat CPU  0 instr:  231000000 cyc:  341935180 curr IPC: 1.33098 AVG IPC: 0.67176 (Sim:1h54m43s) 
+Heartbeat CPU  0 instr:  232000000 cyc:  342700600 curr IPC: 1.30647 AVG IPC: 0.67319 (Sim:1h55m31s) 
+Heartbeat CPU  0 instr:  233000003 cyc:  343429760 curr IPC: 1.37145 AVG IPC: 0.67467 (Sim:1h56m18s) 
+Heartbeat CPU  0 instr:  234000001 cyc:  344163443 curr IPC: 1.36298 AVG IPC: 0.67615 (Sim:1h57m2s) 
+Heartbeat CPU  0 instr:  235000003 cyc:  344944917 curr IPC: 1.27964 AVG IPC: 0.67752 (Sim:1h57m43s) 
+Heartbeat CPU  0 instr:  236000000 cyc:  345686490 curr IPC: 1.34848 AVG IPC: 0.67896 (Sim:1h58m27s) 
+Heartbeat CPU  0 instr:  237000000 cyc:  346410529 curr IPC: 1.38114 AVG IPC: 0.68043 (Sim:1h59m13s) 
+Heartbeat CPU  0 instr:  238000001 cyc:  347140631 curr IPC: 1.36967 AVG IPC: 0.68189 (Sim:1h59m56s) 
+Heartbeat CPU  0 instr:  239000001 cyc:  347922903 curr IPC: 1.27833 AVG IPC: 0.68323 (Sim:2h0m41s) 
+Heartbeat CPU  0 instr:  240000000 cyc:  348818886 curr IPC: 1.11609 AVG IPC: 0.68435 (Sim:2h1m23s) 
+Heartbeat CPU  0 instr:  241000003 cyc:  349554533 curr IPC: 1.35935 AVG IPC: 0.68577 (Sim:2h2m4s) 
+Heartbeat CPU  0 instr:  242000002 cyc:  350288406 curr IPC: 1.36263 AVG IPC: 0.68719 (Sim:2h2m49s) 
+Heartbeat CPU  0 instr:  243000003 cyc:  351033020 curr IPC: 1.34298 AVG IPC: 0.68859 (Sim:2h3m40s) 
+Heartbeat CPU  0 instr:  244000000 cyc:  351808402 curr IPC: 1.28968 AVG IPC: 0.68992 (Sim:2h5m6s) 
+Heartbeat CPU  0 instr:  245000000 cyc:  352528467 curr IPC: 1.38876 AVG IPC: 0.69135 (Sim:2h6m1s) 
+Heartbeat CPU  0 instr:  246000003 cyc:  353248873 curr IPC: 1.38811 AVG IPC: 0.69277 (Sim:2h6m46s) 
+Heartbeat CPU  0 instr:  247000001 cyc:  354023263 curr IPC: 1.29134 AVG IPC: 0.69409 (Sim:2h7m21s) 
+Heartbeat CPU  0 instr:  248000000 cyc:  354757002 curr IPC: 1.36288 AVG IPC: 0.69548 (Sim:2h7m52s) 
+Heartbeat CPU  0 instr:  249000001 cyc:  355472027 curr IPC: 1.39855 AVG IPC: 0.69689 (Sim:2h8m21s) 
+Heartbeat CPU  0 instr:  250000002 cyc:  356209577 curr IPC: 1.35584 AVG IPC: 0.69826 (Sim:2h8m51s) 
+Heartbeat CPU  0 instr:  251000000 cyc:  356969981 curr IPC: 1.31509 AVG IPC: 0.69958 (Sim:2h9m22s) 
+Heartbeat CPU  0 instr:  252000000 cyc:  357692439 curr IPC: 1.38416 AVG IPC: 0.70097 (Sim:2h9m51s) 
+Heartbeat CPU  0 instr:  253000001 cyc:  358415637 curr IPC: 1.38275 AVG IPC: 0.70235 (Sim:2h10m21s) 
+Heartbeat CPU  0 instr:  254000003 cyc:  359163280 curr IPC: 1.33754 AVG IPC: 0.70367 (Sim:2h10m49s) 
+Heartbeat CPU  0 instr:  255000001 cyc:  359936042 curr IPC: 1.29406 AVG IPC: 0.70494 (Sim:2h11m19s) 
+Heartbeat CPU  0 instr:  256000000 cyc:  360735032 curr IPC: 1.25158 AVG IPC: 0.70616 (Sim:2h11m46s) 
+Heartbeat CPU  0 instr:  257000002 cyc:  361530928 curr IPC: 1.25645 AVG IPC: 0.70737 (Sim:2h12m15s) 
+Heartbeat CPU  0 instr:  258000001 cyc:  362287074 curr IPC: 1.32249 AVG IPC: 0.70866 (Sim:2h12m42s) 
+Heartbeat CPU  0 instr:  259000002 cyc:  363109610 curr IPC: 1.21575 AVG IPC: 0.70981 (Sim:2h13m6s) 
+Heartbeat CPU  0 instr:  260000000 cyc:  363912278 curr IPC: 1.24584 AVG IPC: 0.71100 (Sim:2h13m32s) 
+Heartbeat CPU  0 instr:  261000003 cyc:  364670626 curr IPC: 1.31866 AVG IPC: 0.71227 (Sim:2h13m54s) 
+Heartbeat CPU  0 instr:  262000003 cyc:  365433272 curr IPC: 1.31122 AVG IPC: 0.71352 (Sim:2h14m15s) 
+Heartbeat CPU  0 instr:  263000003 cyc:  366254329 curr IPC: 1.21794 AVG IPC: 0.71465 (Sim:2h14m40s) 
+Heartbeat CPU  0 instr:  264000000 cyc:  367017026 curr IPC: 1.31113 AVG IPC: 0.71590 (Sim:2h15m1s) 
+Heartbeat CPU  0 instr:  265000001 cyc:  367768201 curr IPC: 1.33125 AVG IPC: 0.71716 (Sim:2h15m23s) 
+Heartbeat CPU  0 instr:  266000000 cyc:  368557999 curr IPC: 1.26615 AVG IPC: 0.71834 (Sim:2h15m48s) 
+Heartbeat CPU  0 instr:  267000000 cyc:  369362634 curr IPC: 1.24280 AVG IPC: 0.71948 (Sim:2h16m10s) 
+Heartbeat CPU  0 instr:  268000000 cyc:  370122082 curr IPC: 1.31675 AVG IPC: 0.72071 (Sim:2h16m33s) 
+Heartbeat CPU  0 instr:  269000001 cyc:  370875536 curr IPC: 1.32722 AVG IPC: 0.72195 (Sim:2h16m54s) 
+Heartbeat CPU  0 instr:  270000003 cyc:  371683298 curr IPC: 1.23799 AVG IPC: 0.72307 (Sim:2h17m17s) 
+Heartbeat CPU  0 instr:  271000000 cyc:  372460325 curr IPC: 1.28695 AVG IPC: 0.72425 (Sim:2h17m40s) 
+Heartbeat CPU  0 instr:  272000000 cyc:  373257102 curr IPC: 1.25506 AVG IPC: 0.72539 (Sim:2h18m1s) 
+Heartbeat CPU  0 instr:  273000002 cyc:  374053907 curr IPC: 1.25501 AVG IPC: 0.72652 (Sim:2h18m21s) 
+Heartbeat CPU  0 instr:  274000003 cyc:  374819301 curr IPC: 1.30652 AVG IPC: 0.72771 (Sim:2h18m45s) 
+Heartbeat CPU  0 instr:  275000002 cyc:  375571176 curr IPC: 1.33001 AVG IPC: 0.72892 (Sim:2h19m6s) 
+Heartbeat CPU  0 instr:  276000000 cyc:  376331633 curr IPC: 1.31500 AVG IPC: 0.73010 (Sim:2h19m28s) 
+Heartbeat CPU  0 instr:  277000000 cyc:  377067908 curr IPC: 1.35819 AVG IPC: 0.73133 (Sim:2h19m53s) 
+Heartbeat CPU  0 instr:  278000001 cyc:  377829186 curr IPC: 1.31358 AVG IPC: 0.73251 (Sim:2h20m17s) 
+Heartbeat CPU  0 instr:  279000001 cyc:  378574245 curr IPC: 1.34218 AVG IPC: 0.73371 (Sim:2h20m36s) 
+Heartbeat CPU  0 instr:  280000000 cyc:  379313004 curr IPC: 1.35362 AVG IPC: 0.73492 (Sim:2h20m58s) 
+Heartbeat CPU  0 instr:  281000001 cyc:  380055160 curr IPC: 1.34743 AVG IPC: 0.73612 (Sim:2h21m19s) 
+Heartbeat CPU  0 instr:  282000000 cyc:  380793695 curr IPC: 1.35403 AVG IPC: 0.73732 (Sim:2h21m40s) 
+Heartbeat CPU  0 instr:  283000001 cyc:  381551496 curr IPC: 1.31961 AVG IPC: 0.73848 (Sim:2h22m2s) 
+Heartbeat CPU  0 instr:  284000000 cyc:  382285593 curr IPC: 1.36222 AVG IPC: 0.73968 (Sim:2h22m26s) 
+Heartbeat CPU  0 instr:  285000000 cyc:  383040459 curr IPC: 1.32474 AVG IPC: 0.74084 (Sim:2h22m47s) 
+Heartbeat CPU  0 instr:  286000002 cyc:  383792365 curr IPC: 1.32996 AVG IPC: 0.74200 (Sim:2h23m10s) 
+Heartbeat CPU  0 instr:  287000002 cyc:  384540185 curr IPC: 1.33722 AVG IPC: 0.74316 (Sim:2h23m46s) 
+Heartbeat CPU  0 instr:  288000000 cyc:  385284100 curr IPC: 1.34424 AVG IPC: 0.74432 (Sim:2h24m24s) 
+Heartbeat CPU  0 instr:  289000000 cyc:  386078820 curr IPC: 1.25830 AVG IPC: 0.74538 (Sim:2h24m56s) 
+Heartbeat CPU  0 instr:  290000001 cyc:  386902790 curr IPC: 1.21364 AVG IPC: 0.74638 (Sim:2h25m19s) 
+Heartbeat CPU  0 instr:  291000000 cyc:  387659584 curr IPC: 1.32136 AVG IPC: 0.74751 (Sim:2h25m46s) 
+Heartbeat CPU  0 instr:  292000000 cyc:  388391016 curr IPC: 1.36718 AVG IPC: 0.74868 (Sim:2h26m14s) 
+Heartbeat CPU  0 instr:  293000002 cyc:  389125992 curr IPC: 1.36059 AVG IPC: 0.74984 (Sim:2h26m40s) 
+Heartbeat CPU  0 instr:  294000002 cyc:  389857332 curr IPC: 1.36735 AVG IPC: 0.75100 (Sim:2h27m7s) 
+Heartbeat CPU  0 instr:  295000001 cyc:  390607924 curr IPC: 1.33228 AVG IPC: 0.75212 (Sim:2h27m38s) 
+Heartbeat CPU  0 instr:  296000000 cyc:  391334485 curr IPC: 1.37635 AVG IPC: 0.75328 (Sim:2h28m7s) 
+Heartbeat CPU  0 instr:  297000000 cyc:  392059589 curr IPC: 1.37911 AVG IPC: 0.75444 (Sim:2h28m28s) 
+Heartbeat CPU  0 instr:  298000000 cyc:  392791970 curr IPC: 1.36541 AVG IPC: 0.75558 (Sim:2h28m56s) 
+Heartbeat CPU  0 instr:  299000003 cyc:  393522057 curr IPC: 1.36970 AVG IPC: 0.75673 (Sim:2h29m34s) 
+Heartbeat CPU  0 instr:  300000000 cyc:  394268450 curr IPC: 1.33977 AVG IPC: 0.75783 (Sim:2h30m10s) 
+Heartbeat CPU  0 instr:  301000000 cyc:  395028136 curr IPC: 1.31633 AVG IPC: 0.75891 (Sim:2h30m44s) 
+Heartbeat CPU  0 instr:  302000001 cyc:  395752440 curr IPC: 1.38064 AVG IPC: 0.76005 (Sim:2h31m16s) 
+Heartbeat CPU  0 instr:  303000002 cyc:  396474871 curr IPC: 1.38422 AVG IPC: 0.76119 (Sim:2h31m42s) 
+Heartbeat CPU  0 instr:  304000000 cyc:  397199903 curr IPC: 1.37925 AVG IPC: 0.76232 (Sim:2h32m3s) 
+Heartbeat CPU  0 instr:  305000002 cyc:  397973094 curr IPC: 1.29334 AVG IPC: 0.76336 (Sim:2h32m25s) 
+Heartbeat CPU  0 instr:  306000003 cyc:  398761261 curr IPC: 1.26877 AVG IPC: 0.76436 (Sim:2h32m48s) 
+Heartbeat CPU  0 instr:  307000003 cyc:  399524713 curr IPC: 1.30984 AVG IPC: 0.76540 (Sim:2h33m13s) 
+Heartbeat CPU  0 instr:  308000000 cyc:  400272442 curr IPC: 1.33738 AVG IPC: 0.76647 (Sim:2h33m40s) 
+Heartbeat CPU  0 instr:  309000002 cyc:  400998934 curr IPC: 1.37648 AVG IPC: 0.76758 (Sim:2h34m3s) 
+Heartbeat CPU  0 instr:  310000000 cyc:  401721973 curr IPC: 1.38305 AVG IPC: 0.76869 (Sim:2h34m27s) 
+Heartbeat CPU  0 instr:  311000003 cyc:  402447145 curr IPC: 1.37899 AVG IPC: 0.76980 (Sim:2h34m56s) 
+Heartbeat CPU  0 instr:  312000000 cyc:  403199855 curr IPC: 1.32853 AVG IPC: 0.77084 (Sim:2h35m27s) 
+Heartbeat CPU  0 instr:  313000001 cyc:  403939911 curr IPC: 1.35125 AVG IPC: 0.77191 (Sim:2h36m2s) 
+Heartbeat CPU  0 instr:  314000001 cyc:  404696728 curr IPC: 1.32132 AVG IPC: 0.77294 (Sim:2h36m39s) 
+Heartbeat CPU  0 instr:  315000000 cyc:  405422181 curr IPC: 1.37845 AVG IPC: 0.77402 (Sim:2h37m7s) 
+Heartbeat CPU  0 instr:  316000000 cyc:  406149160 curr IPC: 1.37556 AVG IPC: 0.77510 (Sim:2h37m46s) 
+Heartbeat CPU  0 instr:  317000001 cyc:  406912929 curr IPC: 1.30930 AVG IPC: 0.77611 (Sim:2h38m17s) 
+Heartbeat CPU  0 instr:  318000000 cyc:  407653647 curr IPC: 1.35004 AVG IPC: 0.77715 (Sim:2h39m7s) 
+Heartbeat CPU  0 instr:  319000000 cyc:  408364939 curr IPC: 1.40589 AVG IPC: 0.77825 (Sim:2h40m0s) 
+Heartbeat CPU  0 instr:  320000000 cyc:  409098868 curr IPC: 1.36253 AVG IPC: 0.77930 (Sim:2h40m37s) 
+Heartbeat CPU  0 instr:  321000002 cyc:  409874013 curr IPC: 1.29008 AVG IPC: 0.78027 (Sim:2h41m26s) 
+Heartbeat CPU  0 instr:  322000001 cyc:  410638254 curr IPC: 1.30849 AVG IPC: 0.78126 (Sim:2h41m59s) 
+Heartbeat CPU  0 instr:  323000000 cyc:  411408735 curr IPC: 1.29789 AVG IPC: 0.78223 (Sim:2h42m30s) 
+Heartbeat CPU  0 instr:  324000000 cyc:  412196599 curr IPC: 1.26925 AVG IPC: 0.78316 (Sim:2h43m9s) 
+Heartbeat CPU  0 instr:  325000000 cyc:  412991803 curr IPC: 1.25754 AVG IPC: 0.78408 (Sim:2h43m39s) 
+Heartbeat CPU  0 instr:  326000003 cyc:  413788086 curr IPC: 1.25584 AVG IPC: 0.78499 (Sim:2h44m21s) 
+Heartbeat CPU  0 instr:  327000003 cyc:  414540008 curr IPC: 1.32993 AVG IPC: 0.78598 (Sim:2h45m0s) 
+Heartbeat CPU  0 instr:  328000000 cyc:  415305635 curr IPC: 1.30612 AVG IPC: 0.78694 (Sim:2h45m46s) 
+Heartbeat CPU  0 instr:  329000001 cyc:  416101283 curr IPC: 1.25684 AVG IPC: 0.78784 (Sim:2h46m26s) 
+Heartbeat CPU  0 instr:  330000000 cyc:  416893647 curr IPC: 1.26205 AVG IPC: 0.78874 (Sim:2h47m25s) 
+Heartbeat CPU  0 instr:  331000001 cyc:  417640577 curr IPC: 1.33881 AVG IPC: 0.78973 (Sim:2h48m12s) 
+Heartbeat CPU  0 instr:  332000000 cyc:  418426708 curr IPC: 1.27205 AVG IPC: 0.79064 (Sim:2h49m8s) 
+Heartbeat CPU  0 instr:  333000001 cyc:  419235293 curr IPC: 1.23673 AVG IPC: 0.79150 (Sim:2h49m49s) 
+Heartbeat CPU  0 instr:  334000002 cyc:  420005346 curr IPC: 1.29861 AVG IPC: 0.79243 (Sim:2h50m17s) 
+Heartbeat CPU  0 instr:  335000001 cyc:  420763816 curr IPC: 1.31844 AVG IPC: 0.79338 (Sim:2h50m42s) 
+Heartbeat CPU  0 instr:  336000000 cyc:  421544311 curr IPC: 1.28124 AVG IPC: 0.79429 (Sim:2h51m9s) 
+Heartbeat CPU  0 instr:  337000001 cyc:  422325465 curr IPC: 1.28016 AVG IPC: 0.79519 (Sim:2h51m34s) 
+Heartbeat CPU  0 instr:  338000001 cyc:  423102484 curr IPC: 1.28697 AVG IPC: 0.79609 (Sim:2h52m1s) 
+Heartbeat CPU  0 instr:  339000000 cyc:  423756064 curr IPC: 1.53003 AVG IPC: 0.79723 (Sim:2h52m21s) 
+Heartbeat CPU  0 instr:  340000000 cyc:  424199274 curr IPC: 2.25627 AVG IPC: 0.79876 (Sim:2h52m32s) 
+Heartbeat CPU  0 instr:  341000000 cyc:  424597213 curr IPC: 2.51295 AVG IPC: 0.80037 (Sim:2h52m36s) 
+Heartbeat CPU  0 instr:  342000001 cyc:  425262472 curr IPC: 1.50318 AVG IPC: 0.80147 (Sim:2h52m42s) 
+Heartbeat CPU  0 instr:  343000001 cyc:  426119737 curr IPC: 1.16650 AVG IPC: 0.80221 (Sim:2h52m51s) 
+Heartbeat CPU  0 instr:  344000000 cyc:  426861994 curr IPC: 1.34724 AVG IPC: 0.80316 (Sim:2h52m59s) 
+Heartbeat CPU  0 instr:  345000002 cyc:  427626670 curr IPC: 1.30775 AVG IPC: 0.80406 (Sim:2h53m7s) 
+Heartbeat CPU  0 instr:  346000001 cyc:  428394131 curr IPC: 1.30300 AVG IPC: 0.80496 (Sim:2h53m15s) 
+Heartbeat CPU  0 instr:  347000000 cyc:  429164923 curr IPC: 1.29737 AVG IPC: 0.80584 (Sim:2h53m23s) 
+Heartbeat CPU  0 instr:  348000000 cyc:  429943914 curr IPC: 1.28371 AVG IPC: 0.80671 (Sim:2h53m33s) 
+Heartbeat CPU  0 instr:  349000000 cyc:  430719915 curr IPC: 1.28866 AVG IPC: 0.80758 (Sim:2h53m41s) 
+Heartbeat CPU  0 instr:  350000003 cyc:  431500699 curr IPC: 1.28077 AVG IPC: 0.80844 (Sim:2h53m50s) 
+Heartbeat CPU  0 instr:  351000003 cyc:  432272338 curr IPC: 1.29594 AVG IPC: 0.80931 (Sim:2h53m58s) 
+Heartbeat CPU  0 instr:  352000000 cyc:  433048050 curr IPC: 1.28913 AVG IPC: 0.81017 (Sim:2h54m5s) 
+Finished CPU 0 instr: 350000002 cyc: 432005989 AVG IPC: 0.81017 (Sim time: 2h54m5s
+
+ChampSim completed all CPUs
+
+[ROI Statistics]
+Core_0_instructions 350000002
+Core_0_cycles 432005989
+Core_0_IPC 0.81017
+
+Core_0_branch_prediction_accuracy 98.12358
+Core_0_branch_MPKI 0.51152
+Core_0_average_ROB_occupancy_at_mispredict 208.59752
+
+Core_0_L1D_total_access 91229625
+Core_0_L1D_total_hit 72004264 Hit Ratio: 0.78926
+Core_0_L1D_total_miss 19225361
+Core_0_L1D_loads 84749601
+Core_0_L1D_load_hit 66677458
+Core_0_L1D_load_miss 18072143
+Core_0_L1D_RFOs 6480024
+Core_0_L1D_RFO_hit 5326806
+Core_0_L1D_RFO_miss 1153218
+Core_0_L1D_prefetches 0
+Core_0_L1D_prefetch_hit 0
+Core_0_L1D_prefetch_miss 0
+Core_0_L1D_writebacks 0
+Core_0_L1D_writeback_hit 0
+Core_0_L1D_writeback_miss 0
+Core_0_L1D_prefetch_requested 0
+Core_0_L1D_prefetch_issued 0
+Core_0_L1D_prefetch_useful 0
+Core_0_L1D_prefetch_useless 0
+Core_0_L1D_prefetch_late 0
+Core_0_L1D_average_miss_latency 40.62205
+
+Core_0_L1I_total_access 112158077
+Core_0_L1I_total_hit 112148667 Hit Ratio: 0.99992
+Core_0_L1I_total_miss 9410
+Core_0_L1I_loads 112158077
+Core_0_L1I_load_hit 112148667
+Core_0_L1I_load_miss 9410
+Core_0_L1I_RFOs 0
+Core_0_L1I_RFO_hit 0
+Core_0_L1I_RFO_miss 0
+Core_0_L1I_prefetches 0
+Core_0_L1I_prefetch_hit 0
+Core_0_L1I_prefetch_miss 0
+Core_0_L1I_writebacks 0
+Core_0_L1I_writeback_hit 0
+Core_0_L1I_writeback_miss 0
+Core_0_L1I_prefetch_requested 0
+Core_0_L1I_prefetch_issued 0
+Core_0_L1I_prefetch_useful 0
+Core_0_L1I_prefetch_useless 0
+Core_0_L1I_prefetch_late 0
+Core_0_L1I_average_miss_latency 177.11265
+
+Core_0_L2C_total_access 64461136
+Core_0_L2C_total_hit 57084971 Hit Ratio: 0.88557
+Core_0_L2C_total_miss 7376165
+Core_0_L2C_loads 18081458
+Core_0_L2C_load_hit 16814219
+Core_0_L2C_load_miss 1267239
+Core_0_L2C_RFOs 1153209
+Core_0_L2C_RFO_hit 612021
+Core_0_L2C_RFO_miss 541188
+Core_0_L2C_prefetches 43216811
+Core_0_L2C_prefetch_hit 37649493
+Core_0_L2C_prefetch_miss 5567318
+Core_0_L2C_writebacks 2009658
+Core_0_L2C_writeback_hit 2009238
+Core_0_L2C_writeback_miss 420
+Core_0_L2C_prefetch_requested 54947194
+Core_0_L2C_prefetch_issued 46937459
+Core_0_L2C_prefetch_useful 3873127
+Core_0_L2C_prefetch_useless 1723465
+Core_0_L2C_prefetch_late 255586
+Core_0_L2C_average_miss_latency 204.38346
+
+Core_0_LLC_total_access 9080610
+Core_0_LLC_total_hit 4836816 Hit Ratio: 0.53265
+Core_0_LLC_total_miss 4243794
+Core_0_LLC_loads 1014613
+Core_0_LLC_load_hit 285840
+Core_0_LLC_load_miss 728773
+Core_0_LLC_RFOs 538287
+Core_0_LLC_RFO_hit 1846
+Core_0_LLC_RFO_miss 536441
+Core_0_LLC_prefetches 5822845
+Core_0_LLC_prefetch_hit 2844516
+Core_0_LLC_prefetch_miss 2978329
+Core_0_LLC_writebacks 1704865
+Core_0_LLC_writeback_hit 1704614
+Core_0_LLC_writeback_miss 251
+Core_0_LLC_prefetch_requested 0
+Core_0_LLC_prefetch_issued 0
+Core_0_LLC_prefetch_useful 64764
+Core_0_LLC_prefetch_useless 2916142
+Core_0_LLC_prefetch_late 0
+Core_0_LLC_average_miss_latency 311.81750
+
+Core_0_major_page_fault 0
+Core_0_minor_page_fault 18565
+
+CPU 0 L2C next line prefetcher final stats
+Channel_0_RQ_row_buffer_hit 1400307
+Channel_0_RQ_row_buffer_miss 2843212
+Channel_0_WQ_row_buffer_hit 446865
+Channel_0_WQ_row_buffer_miss 1210571
+Channel_0_WQ_full 0
+Channel_0_dbus_congested 2742873
+
+avg_congested_cycle 10

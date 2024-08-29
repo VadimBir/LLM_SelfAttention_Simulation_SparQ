@@ -47,23 +47,23 @@ void print_roi_stats(uint32_t cpu, CACHE *cache)
     }
 
     cout<< "Core_" << cpu << "_" << cache->NAME << "_total_access " << TOTAL_ACCESS << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_total_hit " << TOTAL_HIT << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_total_hit " << TOTAL_HIT << " "<<cache->NAME<< "_total_Hit Ratio: " << (double)TOTAL_HIT/(double)TOTAL_ACCESS<<endl
         << "Core_" << cpu << "_" << cache->NAME << "_total_miss " << TOTAL_MISS << endl
         << "Core_" << cpu << "_" << cache->NAME << "_loads " << cache->roi_access[cpu][0] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_load_hit " << cache->roi_hit[cpu][0] << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_load_hit " << cache->roi_hit[cpu][0] << " "<<cache->NAME<< "_load_Hit Ratio: " << (double)cache->roi_hit[cpu][0]/(double)cache->roi_access[cpu][0]<< endl
         << "Core_" << cpu << "_" << cache->NAME << "_load_miss " << cache->roi_miss[cpu][0] << endl
         << "Core_" << cpu << "_" << cache->NAME << "_RFOs " << cache->roi_access[cpu][1] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_RFO_hit " << cache->roi_hit[cpu][1] << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_RFO_hit " << cache->roi_hit[cpu][1] << " "<<cache->NAME<< "_RFO_Hit Ratio: " << (double)cache->roi_hit[cpu][1]/(double)cache->roi_access[cpu][1]<< endl
         << "Core_" << cpu << "_" << cache->NAME << "_RFO_miss " << cache->roi_miss[cpu][1] << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetches " << cache->roi_access[cpu][2] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_hit " << cache->roi_hit[cpu][2] << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_hit " << cache->roi_hit[cpu][2] << " "<<cache->NAME<< "_prefetch_Hit Ratio: " << (double)cache->roi_hit[cpu][2]/(double)cache->roi_access[cpu][2]<< endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_miss " << cache->roi_miss[cpu][2] << endl
         << "Core_" << cpu << "_" << cache->NAME << "_writebacks " << cache->roi_access[cpu][3] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_writeback_hit " << cache->roi_hit[cpu][3] << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_writeback_hit " << cache->roi_hit[cpu][3] << " "<<cache->NAME<< "_writeback_Hit Ratio: " << (double)cache->roi_hit[cpu][3]/(double)cache->roi_access[cpu][3]<< endl
         << "Core_" << cpu << "_" << cache->NAME << "_writeback_miss " << cache->roi_miss[cpu][3] << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_requested " << cache->pf_requested << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_issued " << cache->pf_issued << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_useful " << cache->pf_useful << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_useful " << cache->pf_useful << " "<<cache->NAME<< "_Total_Hit Ratio: " << (double)cache->pf_useful/(double)cache->pf_issued << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_useless " << cache->pf_useless << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_late " << cache->pf_late << endl
         << "Core_" << cpu << "_" << cache->NAME << "_average_miss_latency " << (1.0*(cache->total_miss_latency))/TOTAL_MISS << endl
@@ -811,9 +811,9 @@ int main(int argc, char** argv)
                     cumulative_ipc = (1.0*ooo_cpu[i].num_retired) / current_core_cycle[i];
                 float heartbeat_ipc = (1.0*ooo_cpu[i].num_retired - ooo_cpu[i].last_sim_instr) / (current_core_cycle[i] - ooo_cpu[i].last_sim_cycle);
 
-                cout << "Heartbeat CPU " << setw(2) << i << " instructions: " << setw(10) << ooo_cpu[i].num_retired << " cycles: " << setw(10) << current_core_cycle[i];
-                cout << " heartbeat IPC: " << FIXED_FLOAT(heartbeat_ipc) << " cumulative IPC: " << FIXED_FLOAT(cumulative_ipc); 
-                cout << " (Simulation time: " << elapsed_hour << " hr " << elapsed_minute << " min " << elapsed_second << " sec) " << endl;
+                cout << "Heartbeat CPU " << setw(2) << i << " instr: " << setw(10) << ooo_cpu[i].num_retired << " cyc: " << setw(10) << current_core_cycle[i];
+                cout << " curr IPC: " << FIXED_FLOAT(heartbeat_ipc) << " AVG IPC: " << FIXED_FLOAT(cumulative_ipc); 
+                cout << " (Sim:" << elapsed_hour << "h" << elapsed_minute << "m" << elapsed_second << "s) " << endl;
                 ooo_cpu[i].next_print_instruction += STAT_PRINTING_PERIOD;
 
                 ooo_cpu[i].last_sim_instr = ooo_cpu[i].num_retired;
@@ -850,9 +850,9 @@ int main(int argc, char** argv)
                 ooo_cpu[i].finish_sim_instr = ooo_cpu[i].num_retired - ooo_cpu[i].begin_sim_instr;
                 ooo_cpu[i].finish_sim_cycle = current_core_cycle[i] - ooo_cpu[i].begin_sim_cycle;
 
-                cout << "Finished CPU " << i << " instructions: " << ooo_cpu[i].finish_sim_instr << " cycles: " << ooo_cpu[i].finish_sim_cycle;
-                cout << " cumulative IPC: " << ((float) ooo_cpu[i].finish_sim_instr / ooo_cpu[i].finish_sim_cycle);
-                cout << " (Simulation time: " << elapsed_hour << " hr " << elapsed_minute << " min " << elapsed_second << " sec) " << endl;
+                cout << "Finished CPU " << i << " instr: " << ooo_cpu[i].finish_sim_instr << " cyc: " << ooo_cpu[i].finish_sim_cycle;
+                cout << " AVG IPC: " << ((float) ooo_cpu[i].finish_sim_instr / ooo_cpu[i].finish_sim_cycle);
+                cout << " (Sim time: " << elapsed_hour << "h" << elapsed_minute << "m" << elapsed_second << "s" << endl;
 
                 record_roi_stats(i, &ooo_cpu[i].L1D);
                 record_roi_stats(i, &ooo_cpu[i].L1I);

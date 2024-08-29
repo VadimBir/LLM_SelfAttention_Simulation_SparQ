@@ -1,7 +1,13 @@
+import os
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['NUMEXPR_NUM_THREADS'] = '1'
+
+
 # Copyright (c) 2024 Graphcore Ltd. All rights reserved.
 
 import re
-import subprocess
+#import subprocess
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,20 +18,22 @@ import numpy as np
 import psutil
 current_process = psutil.Process()
 print('Current pid is {}'.format(current_process.pid))
+
+
 import torch
-from pyarrow import dataset
+
+torch.set_num_threads(1)
+#from pyarrow import dataset
+
 from torch import Tensor
 from torch.utils.data import DataLoader
 
 import gather_matmul as G
 
 torch.set_num_threads(1)
-torch.set_num_interop_threads(1)
+#torch.set_num_interop_threads(1)
 
-import os
-os.environ['OMP_NUM_THREADS'] = '1'
-os.environ['MKL_NUM_THREADS'] = '1'
-os.environ['NUMEXPR_NUM_THREADS'] = '1'
+
 
 children = current_process.children(recursive=True)
 for child in children:
@@ -35,8 +43,8 @@ for child in children:
 
 # Utility
 import ctypes
-torch.set_num_threads(1) # does not work
-data_loader = DataLoader(dataset, batch_size=32, num_workers=1)
+#torch.set_num_threads(1) # does not work
+#data_loader = DataLoader(dataset, batch_size=32, num_workers=1)
 #data_loader = DataLoader(dataset, batch_size=32, num_workers=0)
 VERBOSE = 0
 file = "./donglePinLibraries/cShared_PinFlags.so"
@@ -101,17 +109,12 @@ def PIN_attn(Q: Tensor, K: Tensor, V: Tensor) -> Tensor:
     # APPROACH 2 While executing move data down the MEM hierarchy
 
     
-
-    PINSTART = transformer_layer_num*2
     PINEND = transformer_layer_num*2-1 # must start from 1
+    PINSTART = transformer_layer_num*2
+
     ctypes.CDLL(file+str(PINSTART))                         # T1 -> T2 ... 
-    for i in range(len(foo_list)): foo_list[i] = 0
     QK = (Q @ K.transpose(2, 3)).div_(Q.shape[-1] ** 0.5)
-    for i in range(len(foo_list)): foo_list[i] = 0
-    for i in range(len(foo_list)): foo_list[i] = 0
-    for i in range(len(foo_list)): foo_list[i] = 0
     result = torch.softmax(QK, dim=-1) @ V
-    for i in range(len(foo_list)): foo_list[i] = 0
     ctypes.CDLL(file+str(PINEND))
     print("Transformed Layer: ", transformer_layer_num, "PINSTART: ", PINSTART, "PINEND: ", PINEND)
     # PIN FLAG END
@@ -382,27 +385,27 @@ def main_benchmarkExec():
     global VERBOSE
 
     #Debugger
-    benchmark_config = Benchmark(
-        method="dense",  # Use 'dense' for typical self-attention
-        kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
-        # how many times heads = batch size (SIMULATE THE PARALLEL PROCESSING OF MULTIPLE SEQUENCES)
-        batch_size=1,  # Number of sequences
-        # how many times seq = num heads
-        n_head=1,  # Number of attention heads
-        # how many times dimentions = seq
-        sequence_length=1,  # Length of each sequence
-        # num elements per vector = dimention
-        head_dim=1,  # Dimensionality of each attention head
-        dtype="float32",  # Precision of computation
-        device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-        reps=1,  # Number of repetitions for the benchmark
-        warmup=0,  # Number of warmup runs before timing
-    )
-    VERBOSE = 0
-    print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
-    # Running the benchmark
-    results = run(benchmark_config)
-    printResults(results)
+    # benchmark_config = Benchmark(
+    #     method="dense",  # Use 'dense' for typical self-attention
+    #     kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
+    #     # how many times heads = batch size (SIMULATE THE PARALLEL PROCESSING OF MULTIPLE SEQUENCES)
+    #     batch_size=1,  # Number of sequences
+    #     # how many times seq = num heads
+    #     n_head=1,  # Number of attention heads
+    #     # how many times dimentions = seq
+    #     sequence_length=1,  # Length of each sequence
+    #     # num elements per vector = dimention
+    #     head_dim=1,  # Dimensionality of each attention head
+    #     dtype="float32",  # Precision of computation
+    #     device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
+    #     reps=1,  # Number of repetitions for the benchmark
+    #     warmup=0,  # Number of warmup runs before timing
+    # )
+    # VERBOSE = 0
+    # print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
+    # # Running the benchmark
+    # results = run(benchmark_config)
+    # printResults(results)
 
 #    Example benchmark configuration for dense self-attention
 #    DEFAULT CONF
@@ -430,28 +433,29 @@ def main_benchmarkExec():
 
 
     # # Pythia-70
-    # benchmark_config = Benchmark(
-    #     method="dense",  # Use 'dense' for typical self-attention
-    #     kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
-    #     # how many times heads = batch size
-    #     batch_size=1,  # Number of sequences
-    #     # how many times seq = num heads
-    #     n_head=8,  # Number of attention heads
-    #     # how many times dimentions = seq
-    #     sequence_length=1,  # Length of each sequence
-    #     # num elements per vector = dimention
-    #     head_dim=64,  # Dimensionality of each attention head
-    #     dtype="float32",  # Precision of computation
-    #     device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-    #     reps=6,  # EMULATE NUM OF LAYERS
-    #     warmup=0,  # Number of warmup runs before timing
-    # )
-    # VERBOSE = 0
-    # print(f"Pythia-70 Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
-    # # # Running the benchmark
-    # results = custom_run_full_self_attention(benchmark_config)
-    #
-    # printResults(results)
+    benchmark_config = Benchmark(
+        method="dense",  # Use 'dense' for typical self-attention
+        kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
+        # how many times heads = batch size
+        batch_size=1,  # Number of sequences
+        # how many times seq = num heads
+        n_head=8,  # Number of attention heads
+        # how many times dimentions = seq
+        sequence_length=1024,  # Length of each sequence
+        # num elements per vector = dimention
+        head_dim=64,  # Dimensionality of each attention head
+        dtype="float32",  # Precision of computation
+        device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
+        reps=1,  # EMULATE NUM OF LAYERS
+        warmup=0,  # Number of warmup runs before timing
+    )
+    VERBOSE = 0
+    print(f"Pythia-70 Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
+    # # Running the benchmark
+    
+    results = custom_run_full_self_attention(benchmark_config)
+    
+    printResults(results)
 
     # # LLAMA 2
     # benchmark_config = Benchmark(
@@ -499,4 +503,6 @@ def printResults(results):
 
 if __name__ == "__main__":
     
+    
     main_benchmarkExec()
+    

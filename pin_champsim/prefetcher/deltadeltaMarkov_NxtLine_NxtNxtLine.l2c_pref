@@ -55,7 +55,7 @@ int DBGER = 0;
 
 int64_t toSKIP_Inst = 1000000 * 100;
 
-int popular_prefetch_offset[] = {1, 2};
+int popular_prefetch_offset[] = {1, 2, 4};
 int popular_prefetch_offset_P2[] = {1, 2, 16};
 
 int lim_part1 = 3000000;
@@ -63,11 +63,11 @@ int switchInt = 0;
 
 // Markov Table
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1+ 4048;
+const int MARKOV_LRU_SIZE = 1+ 8192;
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};  // Used for LRU
 int markov_LRU_front = 0;
-const int MAX_PREDICTIONS = 10;
+const int MAX_PREDICTIONS = 32;
 const int MARKOV_PREDICTION_THRESHOLD = 4;
 
 //uint64_t pf_addr = ((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
@@ -155,7 +155,7 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
 //        }
 
     // the it for prediction
-    int64_t doubleDeltaKey = combine_hashes(ip, previous_addr-addr);
+    int64_t doubleDeltaKey = combine_hashes(ip, (int64_t)previous_addr-(int64_t)addr);
     auto it = markov_table.find(doubleDeltaKey);
 
     if (it != markov_table.end()) {
@@ -164,7 +164,7 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
 
         //cout << "Next Blocks: " << next_blocks.size() << endl;
         // Create a vector and sort the predictions based on their hit counts
-        std::vector<std::pair<uint64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        std::vector<std::pair<int64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
         // vector
         if (DBGER == 5) {
             for (auto& prediction : predictions) {
@@ -173,7 +173,7 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
             std::cout << std::endl;
         }
         std::sort(predictions.begin(), predictions.end(),
-                  [](const std::pair<uint64_t, int>& a, const std::pair<uint64_t, int>& b) {
+                  [](const std::pair<int64_t, int>& a, const std::pair<int64_t, int>& b) {
                       return a.second > b.second;  // Sort by descending hit count
                   });
 
@@ -333,12 +333,12 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     //cout << "Current: " << addr << endl;
 
     addr = addr >> LOG2_BLOCK_SIZE;
-    addr = addr << LOG2_BLOCK_SIZE;
+    //addr = addr << LOG2_BLOCK_SIZE;
     //cout << "PrevAddr: "<<previous_addr<<" Aligned Current: " << addr << endl;
     if (pre_pre_previous_addr !=0){
         pre_key_delta = pre_pre_previous_addr - pre_previous_addr;
-        key_delta = (pre_previous_addr) - (previous_addr);
-        val_delta = (previous_addr) - (addr);
+        key_delta = (int64_t)(pre_previous_addr) - (int64_t)(previous_addr);
+        val_delta = (int64_t)(previous_addr) - (int64_t)(addr);
         //cout << pre_previous_addr << " d: " << key_delta << " >" << previous_addr << " d: " << val_delta << " > " << addr << endl;
         if (DBGER == 5) {
             std::cout << pre_previous_addr << " d: "
@@ -360,7 +360,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
         // ADD NEW ENTRY TO MARKOV TABLE ACCORDING TO THE PREPRE_ADDR AND PRE_ADDR
         // this way we create a key:value pair in the table and in case if it existed, it would be incremented
 
-        int64_t final_hash_value = combine_hashes(ip, key_delta);
+        int64_t final_hash_value = combine_hashes(preIP, key_delta);
         key_delta = final_hash_value;
         markov_table[key_delta][val_delta]++;
         // find the iterator of the key:value pair, which is an iterator inside the hash table that is inside a hash table
@@ -391,11 +391,11 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
     // PROCESS THE CURRENT ADDR
     // let markov take the aligned arrd
-    std::vector<int64_t> pf_topP = markov_prefetcher(addr, preIP, key_it, val_it);
+    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
 
     for (int64_t pf_offset : pf_topP) {
 
-        pf_addr = ((addr) - pf_offset )  ;
+        pf_addr =(((addr) - pf_offset )>>  << LOG2_BLOCK_SIZE);
         if (DBGER == 5) {
             cout << addr << " offset: "<< pf_offset<<" prefetchingAddr: " << pf_addr << endl;
         }

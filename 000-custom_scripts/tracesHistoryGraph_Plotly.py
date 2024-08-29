@@ -77,7 +77,7 @@ print("nparranged")
 
 # df['address_int'] = df['address'].apply(lambda x: int(x, 16))
 # print("get length")
-# x_values_pd = pd.RangeIndex(start=0, stop=len(df))
+# x_values_pd = pd.RangeIndex(start=0, slen(df))
 # # Convert hex addresses to integers
 # print("np.sort")
 # unique_sorted_ints = np.sort(df['address_int'].unique())

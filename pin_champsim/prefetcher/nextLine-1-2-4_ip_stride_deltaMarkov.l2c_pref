@@ -21,16 +21,21 @@
 #include <utility>
 #include <algorithm>
 
-#define IP_TRACKER_COUNT 32768
-#define PREFETCH_DEGREE 16
+#include <list>
+#include <cstdint>
+
+#define IP_TRACKER_COUNT 1024
+#define PREFETCH_DEGREE 20
+
+uint64_t NUM_CACHELINES = 0;
 
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1 + 8192;
+const int MARKOV_LRU_SIZE = 1 + 1024; // 8192 16384 32768
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
 int markov_LRU_front = 0;
-const int MAX_PREDICTIONS = 16;
-const int MARKOV_PREDICTION_THRESHOLD = 20;
+const int MAX_PREDICTIONS = 20;
+const int MARKOV_PREDICTION_THRESHOLD = 16;
 
 int popular_prefetch_offset[] = {1,2,4};
 
@@ -38,6 +43,79 @@ uint64_t pre_previous_addr = 0;
 uint64_t previous_addr = 0;
 uint64_t pf_addr = 0;
 int64_t cnt = 0;
+
+
+class UInt64List : public std::list<uint64_t> {
+public:
+    uint64_t pop() {
+        if (this->empty()) {
+            throw std::out_of_range("List is empty");
+        }
+        uint64_t value = this->front();
+        this->pop_front();
+        return value;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const UInt64List& list);
+
+    void append(uint64_t value) {
+        this->push_back(value);
+    }
+
+bool contains(uint64_t value) {
+    for (auto it = this->begin(); it != this->end(); ++it) {
+        //std::cout << "Comparing " << *it << " with " << value << std::endl;
+        if (*it == value) {
+            //cout << "Found " << value << " in the list" << endl;
+            return true;
+        }
+    }
+    return false;
+}
+
+    // Helper method to calculate quartiles and IQR from a sorted vector
+    void calculateQuartiles(const std::vector<uint64_t>& values, double& q1, double& q3, double& iqr) {
+        size_t n = values.size();
+        q1 = values[n / 4]; // First quartile
+        q3 = values[3 * n / 4]; // Third quartile
+        iqr = q3 - q1;
+    }
+
+    void filterOutliers(UInt64List& small_outliers, UInt64List& non_outliers, UInt64List& large_outliers) {
+        if (this->empty()) return;
+
+        // Temporary vector to hold values for calculation
+        std::vector<uint64_t> sorted_lst(this->begin(), this->end());
+        std::sort(sorted_lst.begin(), sorted_lst.end());
+
+        double q1, q3, iqr;
+        calculateQuartiles(sorted_lst, q1, q3, iqr);
+
+        double lower_bound = q1 - 1.5 * iqr;
+        double upper_bound = q3 + 1.5 * iqr;
+
+        // Iterate through the original list
+        for (uint64_t value : *this) {
+            if (value < lower_bound) {
+                small_outliers.append(value); // Use append method if specific to UInt64List
+            } else if (value > upper_bound) {
+                large_outliers.append(value);
+            } else {
+                non_outliers.append(value);
+            }
+        }
+    }
+};
+// Overload the << operator
+std::ostream& operator<<(std::ostream& os, const UInt64List& list) {
+    os << "HEAD->";
+    for (auto val : list) {
+        os << val << "->";
+    }
+    os << "NULL";
+    return os;
+}
+
 
 class IP_TRACKER {
   public:
@@ -68,6 +146,7 @@ void CACHE::l2c_prefetcher_initialize()
     cout << "CPU " << cpu << " L2C IP-based stride prefetcher" << endl;
     for (int i=0; i<IP_TRACKER_COUNT; i++)
         trackers[i].lru = i;
+
 }
 
 // VOID Instruction(INS ins, VOID *v) {
@@ -101,12 +180,12 @@ void markov_update_lru(int index) {
 
 std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
     std::vector<int64_t> top_predictions;
-    auto it = markov_table.find(previous_addr - addr);
+    auto it = markov_table.find((int64_t)previous_addr - (int64_t)addr);
     if (it != markov_table.end()) {
         auto &next_blocks = it->second;
-        std::vector<std::pair<uint64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        std::vector<std::pair<int64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
         std::sort(predictions.begin(), predictions.end(),
-                  [](const std::pair<uint64_t, int> &a, const std::pair<uint64_t, int> &b) {
+                  [](const std::pair<int64_t, int> &a, const std::pair<int64_t, int> &b) {
                       return a.second > b.second;
                   });
         for (auto &prediction: predictions) {
@@ -152,18 +231,40 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
     return top_predictions;
 }
 
+// global history pf window of a prefetcher
+uint64_t cache_hit_cnt = 0;
+uint64_t cache_hit_cnt_nxtLine = 0;
+uint64_t cache_hit_cnt_stride = 0;
+uint64_t cache_hit_cnt_markov = 0;
 
+UInt64List* GHP_NxtLine = new UInt64List();
+UInt64List* GHP_Stride = new UInt64List();
+UInt64List* GHP_Markov = new UInt64List();
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
 {
-    
+    if(NUM_CACHELINES == 0){
+        uint64_t cache_size = (L2C_SET*L2C_WAY*BLOCK_SIZE)/1024;
+        cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+        cout << "\n\nCache Size: " << cache_size << endl;
+        cout << "number of cache lines: " << L2C_SET*L2C_WAY << endl;
+        NUM_CACHELINES = L2C_SET*L2C_WAY;
+    }
+
     
     // USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
        for (int offset : popular_prefetch_offset) {
-           pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
-           prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+            pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
+            prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+            GHP_NxtLine->append(pf_addr >> LOG2_BLOCK_SIZE);
+
+            if (GHP_NxtLine->size() > (NUM_CACHELINES*1)) { // does a sliding window of size
+                GHP_NxtLine->pop();
+            }
        }
     // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
     
+
+
     // IP STRIDE PREFETCHER ---------------------------------------------------------------------------------------------- IP STRIDE START
     // check for a tracker hit
     uint64_t cl_addr = addr >> LOG2_BLOCK_SIZE;
@@ -225,18 +326,24 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
         // do some prefetching
         for (int i=0; i<PREFETCH_DEGREE; i++) {
-            uint64_t pf_address = (cl_addr + (stride*(i+1))) << LOG2_BLOCK_SIZE;
+            uint64_t pf_addr = (cl_addr + (stride*(i+1))) << LOG2_BLOCK_SIZE;
 
             // only issue a prefetch if the prefetch address is in the same 4 KB page 
             // as the current demand access address
-            if ((pf_address >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE))
+            if ((pf_addr >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE))
                 break;
 
             // check the MSHR occupancy to decide if we're going to prefetch to the L2 or LLC
             if (MSHR.occupancy < (MSHR.SIZE>>1))
-	      prefetch_line(ip, addr, pf_address, FILL_L2, 0);
+	      prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
             else
-	      prefetch_line(ip, addr, pf_address, FILL_LLC, 0);
+	      prefetch_line(ip, addr, pf_addr, FILL_LLC, 0);
+        
+            GHP_Stride->append(pf_addr >> LOG2_BLOCK_SIZE);
+
+            if (GHP_Stride->size() > (NUM_CACHELINES*1)) { // does a sliding window of size
+                GHP_Stride->pop();
+            }
         }
     }
 
@@ -259,10 +366,10 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     int64_t val_delta = 0;
 
     addr = addr >> LOG2_BLOCK_SIZE;
-    addr = addr << LOG2_BLOCK_SIZE;
+    //addr = addr << LOG2_BLOCK_SIZE;
     if (pre_previous_addr != 0) {
-        key_delta = (pre_previous_addr) - (previous_addr);
-        val_delta = (previous_addr) - (addr);
+        key_delta = (int64_t)(pre_previous_addr) - (int64_t)(previous_addr);
+        val_delta = (int64_t)(previous_addr) - (int64_t)(addr);
     }
 
 
@@ -282,17 +389,58 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
             val_it = key_it->second.find(val_delta);
 
         }
-    }
-    // get Markov delta predictions
-    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
+        // get Markov delta predictions
+        std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
 
-    for (int64_t pf_offset: pf_topP) {
+        for (int64_t pf_offset: pf_topP) {
 
-        pf_addr = (((addr) - pf_offset)>> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE);
-        prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+            pf_addr = (((int64_t)(addr) - pf_offset) << LOG2_BLOCK_SIZE);
+            prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+        
+            GHP_Markov->append(pf_addr >> LOG2_BLOCK_SIZE);
+
+            if (GHP_Markov->size() > (NUM_CACHELINES*1)) { // does a sliding window of size
+                GHP_Markov->pop();
+            }
+
+        }
     }
     // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV
 
+
+    // if current address is cache hit, we traverse through each of the GHBs to find show pfed it and calculate the accuracy
+    if (cache_hit){
+        bool anyHit = false;
+        if (GHP_NxtLine->contains((addr))){
+            cache_hit_cnt_nxtLine++;
+            anyHit = true;
+            cache_hit_cnt++;
+        }
+        if (GHP_Stride->contains((addr))){
+            cache_hit_cnt_stride++;
+            anyHit = true;
+            cache_hit_cnt++;
+        }
+        if (GHP_Markov->contains((addr))){
+            cache_hit_cnt_markov++;
+            anyHit = true;
+            cache_hit_cnt++;
+        }
+        if (GHP_Markov->size() > (NUM_CACHELINES*1) or GHP_Stride->size() > (NUM_CACHELINES*1) or GHP_NxtLine->size() > (NUM_CACHELINES*1)) { // does a sliding window of size 
+            cout << "ERROR: Cache hit but sliding window not working" << endl;
+        }
+        // if (!anyHit){
+        //     cout << "ERROR: Cache hit but no prefetcher hit" << endl;
+        //     cout<< "NxtLine Hit" <<GHP_NxtLine->contains((addr))<< endl;
+        //     cout << "Addr: " << addr << endl;
+        //     // cout << "GBH_NxtLine: " << *GHP_NxtLine << endl;
+        //     // cout << "GBH_Stride: " << *GHP_Stride << endl;
+        //     // cout << "GBH_Markov: " << *GHP_Markov << endl;
+        // }
+        anyHit = false;
+    }
+    
+    // update the variables for the next iteration
     pre_previous_addr = previous_addr;
     previous_addr = addr;
     cnt++;
@@ -307,4 +455,9 @@ uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t 
 void CACHE::l2c_prefetcher_final_stats()
 {
     cout << "CPU " << cpu << " L2C PC-based stride prefetcher final stats" << endl;
+
+    cout << "Hit Total: " << cache_hit_cnt << " Coverage: " << ((double)cnt/cache_hit_cnt)*100 << "%" << endl;
+    cout << " \t\tNxtLine: " << cache_hit_cnt_nxtLine << " \tStride: " << cache_hit_cnt_stride << " \tMarkov: " << cache_hit_cnt_markov << endl;
+    cout << "Hit Ratio: \tNxtLine: " << ((double)cache_hit_cnt_nxtLine/cache_hit_cnt)*100 << "% \tStride: " << ((double)cache_hit_cnt_stride/cache_hit_cnt)*100 << "% \tMarkov: " << ((double)cache_hit_cnt_markov/cache_hit_cnt)*100 <<"%"<< endl;    
+
 }

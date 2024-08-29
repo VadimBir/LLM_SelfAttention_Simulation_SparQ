@@ -148,7 +148,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     // USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
        for (int offset : popular_prefetch_offset) {
            pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
-           prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+           prefetch_line(ip, addr, pf_addr, FILL_L3, 0);
        }
     // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
     

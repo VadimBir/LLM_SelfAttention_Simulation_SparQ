@@ -25,13 +25,13 @@
 #include <list>
 #include <cstdint>
 
-#define IP_TRACKER_COUNT 1024
+#define IP_TRACKER_COUNT 4096
 #define PREFETCH_DEGREE 20
 
 uint64_t NUM_CACHELINES = 0;
 
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1 + 1024; // 8192 16384 32768
+const int MARKOV_LRU_SIZE = 1 + 4096; // 8192 16384 32768
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
 int markov_LRU_front = 0;

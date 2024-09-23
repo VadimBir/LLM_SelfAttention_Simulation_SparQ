@@ -6,8 +6,9 @@ if [ "$#" -lt 4 ]; then
     exit 1
 fi
 
+#TRACE_DIR=$(dirname "$PWD")/traces
 TRACE_DIR=$PWD/traces
-BINARY=${1}
+BINARY=./bin/${1}
 N_WARM=${2}
 N_SIM=${3}
 TRACE=${4}
@@ -19,10 +20,10 @@ OPTION=${5}
 #    exit 1
 #fi
 #
-#if [ ! -f "$BINARY" ] ; then
+# if [ ! -f "$BINARY" ] ; then
 #    echo "[ERROR] Cannot find a ChampSim binary: $BINARY"
 #    exit 1
-#fi
+# fi
 
 re='^[0-9]+$'
 if ! [[ $N_WARM =~ $re ]] || [ -z $N_WARM ] ; then

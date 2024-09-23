@@ -446,7 +446,7 @@ def main_benchmarkExec():
         head_dim=64,  # Dimensionality of each attention head
         dtype="float32",  # Precision of computation
         device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-        reps=1,  # EMULATE NUM OF LAYERS
+        reps=2,  # EMULATE NUM OF Transformer LAYERS
         warmup=0,  # Number of warmup runs before timing
     )
     VERBOSE = 0

@@ -675,8 +675,9 @@ void CACHE::handle_read()
                                 //MSHR.entry[mshr_index].lq_index_depend_on_me[lq_index] = 1;
 				MSHR.entry[mshr_index].lq_index_depend_on_me.join (RQ.entry[index].lq_index_depend_on_me, LQ_SIZE);
                             }
-                        }
+                        } 
                         else {
+                            
                             if (RQ.entry[index].instruction) {
                                 uint32_t rob_index = RQ.entry[index].rob_index;
                                 MSHR.entry[mshr_index].instr_merged = 1;

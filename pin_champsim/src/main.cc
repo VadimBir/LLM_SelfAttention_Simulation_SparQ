@@ -748,7 +748,13 @@ int main(int argc, char** argv)
     uncore.LLC.llc_initialize_replacement();
     uncore.LLC.llc_prefetcher_initialize();
 
-    print_knobs();
+    if (true){
+        cout << "MAIN.cc ln 751 stats print skipped" << endl;
+    } else {
+        print_knobs();
+    }
+
+
 
     // simulation entry point
     start_time = time(NULL);

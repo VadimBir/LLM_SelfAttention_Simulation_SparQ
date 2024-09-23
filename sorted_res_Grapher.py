@@ -226,7 +226,7 @@ def plot_trace_type(records, trace_type):
             f'{ipc:.5f}',                        # Text (IPC value)
             ha='center',                         # Horizontal alignment
             va='bottom',                         # Vertical alignment
-            fontsize=10,                         # Font size of the text
+            fontsize=14,                         # Font size of the text
             color='black',                       # Color of the text
             weight='bold'                        # Font weight (bold)
         )

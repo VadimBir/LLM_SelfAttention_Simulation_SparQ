@@ -75,7 +75,8 @@ void handler(int nSignum, siginfo_t* si, void* vcontext)
     assert(crashAddr == (char*)(context->uc_mcontext.gregs[REG_RIP]));
 #endif
 #endif
-    printf("Segmentation fault\n");
+    printf("Segmentation faultTTT\n");
+    printf("errno: %d:%s\n", errno, strerror(errno));
 
     exit(0);
 }
@@ -356,7 +357,8 @@ int main(int argc, char* argv[])
     }
     __except (MyFilter(GetExceptionCode(), GetExceptionInformation()))
     {
-        printf("Segmentation fault\n");
+        printf("Segmentation fault TTT\n");
+        printf("GetExceptionInformation()");
         return 0;
     }
 

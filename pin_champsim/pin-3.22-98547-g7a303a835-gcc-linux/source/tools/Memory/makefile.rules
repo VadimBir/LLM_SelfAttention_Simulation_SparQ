@@ -151,7 +151,7 @@ check_memory_access.test: $(OBJDIR)check_memory_access_tool$(PINTOOL_SUFFIX) $(O
 #Instruction in the middle of a trace is not executable - Instruction in the beginning of the page 
 mid_trace_start_non_exec_page.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 	$(PIN) -- $(OBJDIR)protection_test_app$(EXE_SUFFIX) 1 > $(OBJDIR)mid_trace_start_non_exec_page.out 
-	$(QGREP) "Segmentation fault" $(OBJDIR)mid_trace_start_non_exec_page.out
+	$(QGREP) "Segmentation faultM" $(OBJDIR)mid_trace_start_non_exec_page.out
 	$(RM) $(OBJDIR)mid_trace_start_non_exec_page.out
 
 #Test execution prevention of non-executable code:
@@ -159,21 +159,21 @@ mid_trace_start_non_exec_page.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 # (first executable, second not executable)
 mid_trace_cross_exec_non_exec_pages.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 	$(PIN) -- $(OBJDIR)protection_test_app$(EXE_SUFFIX) 2 > $(OBJDIR)mid_trace_cross_exec_non_exec_pages.out 
-	$(QGREP) "Segmentation fault" $(OBJDIR)mid_trace_cross_exec_non_exec_pages.out
+	$(QGREP) "Segmentation faultM" $(OBJDIR)mid_trace_cross_exec_non_exec_pages.out
 	$(RM) $(OBJDIR)mid_trace_cross_exec_non_exec_pages.out	
 
 #Test execution prevention of non-executable code:	
 #First instruction of trace is not executable - Instruction in the beginning of the page.
 start_trace_start_non_exec_page.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 	$(PIN) -- $(OBJDIR)protection_test_app$(EXE_SUFFIX) 3 > $(OBJDIR)start_trace_start_non_exec_page.out 
-	$(QGREP) "Segmentation fault" $(OBJDIR)start_trace_start_non_exec_page.out
+	$(QGREP) "Segmentation faultM" $(OBJDIR)start_trace_start_non_exec_page.out
 	$(RM) $(OBJDIR)start_trace_start_non_exec_page.out	
 
 #Test execution prevention of non-executable code:
 #First instruction of trace is not executable - Instruction in the middle of the page.	
 start_trace_mid_non_exec_page.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 	$(PIN) -- $(OBJDIR)protection_test_app$(EXE_SUFFIX) 4 > $(OBJDIR)start_trace_mid_non_exec_page.out 
-	$(QGREP) "Segmentation fault" $(OBJDIR)start_trace_mid_non_exec_page.out
+	$(QGREP) "Segmentation faultM" $(OBJDIR)start_trace_mid_non_exec_page.out
 	$(RM) $(OBJDIR)start_trace_mid_non_exec_page.out	
 	
 #Test execution prevention of non-executable code:	
@@ -181,7 +181,7 @@ start_trace_mid_non_exec_page.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 # first page not executable, second page executable
 start_trace_cross_non_exec_exec_pages.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 	$(PIN) -- $(OBJDIR)protection_test_app$(EXE_SUFFIX) 5 > $(OBJDIR)start_trace_cross_non_exec_exec_pages.out 
-	$(QGREP) "Segmentation fault" $(OBJDIR)start_trace_cross_non_exec_exec_pages.out
+	$(QGREP) "Segmentation faultM" $(OBJDIR)start_trace_cross_non_exec_exec_pages.out
 	$(RM) $(OBJDIR)start_trace_cross_non_exec_exec_pages.out	
 
 #Test execution prevention of non-executable code:
@@ -189,7 +189,7 @@ start_trace_cross_non_exec_exec_pages.test: $(OBJDIR)protection_test_app$(EXE_SU
 # first page executable, second page not executable
 start_trace_cross_exec_non_exec_pages.test: $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 	$(PIN) -- $(OBJDIR)protection_test_app$(EXE_SUFFIX) 6 > $(OBJDIR)start_trace_cross_exec_non_exec_pages.out 
-	$(QGREP) "Segmentation fault" $(OBJDIR)start_trace_cross_exec_non_exec_pages.out
+	$(QGREP) "Segmentation faultM" $(OBJDIR)start_trace_cross_exec_non_exec_pages.out
 	$(RM) $(OBJDIR)start_trace_cross_exec_non_exec_pages.out	
 	
 #Test if the tool catch the exception when execution a non-executable code:
@@ -197,7 +197,7 @@ start_trace_cross_exec_non_exec_pages.test: $(OBJDIR)protection_test_app$(EXE_SU
 non_executable_code_with_tool.test: $(OBJDIR)protection_test_tool$(PINTOOL_SUFFIX) $(OBJDIR)protection_test_app$(EXE_SUFFIX)
 	$(PIN) -t $(OBJDIR)protection_test_tool$(PINTOOL_SUFFIX) -o $(OBJDIR)non_executable_code_with_tool.log \
 	-- $(OBJDIR)protection_test_app$(EXE_SUFFIX) 1 > $(OBJDIR)non_executable_code_with_tool.out 
-	$(QGREP) "Segmentation fault" $(OBJDIR)non_executable_code_with_tool.out
+	$(QGREP) "Segmentation faultM" $(OBJDIR)non_executable_code_with_tool.out
 	$(QGREP) "Tool: Start handling exception" $(OBJDIR)non_executable_code_with_tool.log
 	$(RM) $(OBJDIR)non_executable_code_with_tool.log $(OBJDIR)non_executable_code_with_tool.out
 

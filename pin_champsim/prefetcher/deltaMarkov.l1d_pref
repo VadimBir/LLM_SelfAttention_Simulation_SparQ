@@ -32,7 +32,7 @@ using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
 int markov_LRU_front = 0;
 const int MAX_PREDICTIONS = 9999;
-const double MARKOV_PREDICTION_PERCENTTHRESHOLD = 30;
+const double MARKOV_PREDICTION_PERCENTTHRESHOLD = 50;
 
 
 uint64_t pre_previous_addr = 0;

@@ -1,17 +1,4 @@
-//
-// From Data Prefetching Championship Simulator 2
-// Seth Pugsley, seth.h.pugsley@intel.com
-//
 
-/*
-
-  This file describes an Instruction Pointer-based (Program Counter-based) stride prefetcher.  
-  The prefetcher detects stride patterns coming from the same IP, and then 
-  prefetches additional cache lines.
-
-  Prefetches are issued into the L2 or LLC depending on L2 MSHR occupancy.
-
- */
 
 #include "cache.h"
 
@@ -25,18 +12,18 @@
 #include <list>
 #include <cstdint>
 
-#define IP_TRACKER_COUNT 4096
+#define IP_TRACKER_COUNT 64
 #define PREFETCH_DEGREE 20
 
 uint64_t NUM_CACHELINES = 0;
 
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
-const int MARKOV_LRU_SIZE = 1 + 4096; // 8192 16384 32768
+const int MARKOV_LRU_SIZE = 1 + 64; // 8192 16384 32768
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
 int markov_LRU_front = 0;
 const int MAX_PREDICTIONS = 9999;
-const double MARKOV_PREDICTION_PERCENTTHRESHOLD = 30;
+const double MARKOV_PREDICTION_PERCENTTHRESHOLD = 1;
 //16 max predictions if each is 6.25% // 25 may have max 4 predictions, 50 may have max 2 predictions and 75 may have max 1 prediction but those are unlikely. 
 
 int popular_prefetch_offset[] = {1,2,4};
@@ -222,7 +209,7 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
         markov_update_lru(index);
     } else {
         if (markov_LRU_front != MARKOV_LRU_SIZE - 1) {
-            markov_LRU[markov_LRU_front] = val_it;
+            markov_LRU[markov_LRU_front++] = val_it;
             markov_LRU_front++;
         } else {
             auto toDel = markov_evict_lru();
@@ -267,7 +254,7 @@ int64_t prefetchGuessCnt_Markov = 0;
 
 uint64_t preIP = 0;
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
-{
+{                                         //  {Hash(IP, delta)} -> {extdelta:count}
     if(NUM_CACHELINES == 0){
         uint64_t cache_size = (L2C_SET*L2C_WAY*BLOCK_SIZE)/1024;
         cout << "CPU " << cpu << " L2C prefetcher initialized" << endl;
@@ -278,22 +265,22 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
     
     // USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
-    //    for (int offset : popular_prefetch_offset) {
-    //         pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
-    //         prefetch_line(ip, addr, pf_addr, FILL_L1, 0);
-    //         //GHP_NxtLine->append(pf_addr >> LOG2_BLOCK_SIZE);
+       for (int offset : popular_prefetch_offset) {
+            pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
+            prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+            //GHP_NxtLine->append(pf_addr >> LOG2_BLOCK_SIZE);
 
 
-    //         // if (GHP_NxtLine->size() > (NUM_CACHELINES*1)) { // does a sliding window of size
-    //         //     GHP_NxtLine->pop();
-    //         // }
-    //         // prefetchGuessCnt_NxtLine++;
-    //    }
+            // if (GHP_NxtLine->size() > (NUM_CACHELINES*1)) { // does a sliding window of size
+            //     GHP_NxtLine->pop();
+            // }
+            // prefetchGuessCnt_NxtLine++;
+       }
     // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
     
 
 
-    // IP STRIDE PREFETCHER ---------------------------------------------------------------------------------------------- IP STRIDE START
+    // // IP STRIDE PREFETCHER ---------------------------------------------------------------------------------------------- IP STRIDE START
     // check for a tracker hit
     uint64_t cl_addr = addr >> LOG2_BLOCK_SIZE;
 
@@ -388,7 +375,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     }
     trackers[index].lru = 0;
 
-    // IP STRIDE PREFETCHER ---------------------------------------------------------------------------------------------- IP STRIDE END
+    // // IP STRIDE PREFETCHER ---------------------------------------------------------------------------------------------- IP STRIDE END
 
     
     // USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
@@ -440,6 +427,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
         }
     }
     // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV
+
 
 
     // if current address is cache hit, we traverse through each of the GHBs to find show pfed it and calculate the accuracy

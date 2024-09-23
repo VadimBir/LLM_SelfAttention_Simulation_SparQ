@@ -34,7 +34,7 @@ fi
 
 
 # Directory containing the files
-directory="005-ChampSim_Stats/LLM_Layer1_ConfBF_v5_Phy70M-b1h8s1024d64r1_Traces331M_SingleProc_V3_BulkData"
+directory="005-ChampSim_Stats/LLM_Layer1_TOTALRUN_V3_DegreeTTT"
 
 
 # Temporary file to store extracted data

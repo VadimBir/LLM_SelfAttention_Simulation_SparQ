@@ -30,7 +30,7 @@ srcDirs := $(shell find . -name '*.$(srcExt)' -exec dirname {} \; | uniq)
 objects := $(patsubst %.$(srcExt),$(objDir)/%.o,$(sources))
 
 ifeq ($(srcExt),cc)
-	CC = $(CXX)
+	CC =  ccache $(CXX)
 else
 	CFlags += -std=gnu99
 endif
@@ -70,7 +70,7 @@ endef
 
 # usage: $(call make-depend,source-file,object-file,depend-file)
 define make-depend
-  $(CC) -MM       \
+   ccache $(CC) -MM       \
         -MF $3    \
         -MP       \
         -MT $2    \

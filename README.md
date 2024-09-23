@@ -1,3 +1,11 @@
+Prefetcher Debugging 
+dir ./SparQ/pin_champsim$ 
+gdb ./bin/perceptron-no-foo-no-lru-1core
+COMMAND: r -warmup_instructions 2000000 -simulation_instructions 10000000 -traces ../LLM_Traces/2B_Traces_SelfAttention_Phythia-70M-Seq1024-07-08-0125.champsim.xz
+
+
+
+
 # REQUIREMENTS
 
 ```bash
@@ -10,6 +18,11 @@ sudo apt-get install libxcb-1-0 libxcb-render0 libxcb-xinerama0 libxcb-cursor0 l
 sudo apt-get install libwayland-client0 libwayland-cursor0 libwayland-egl1
 sudo apt-get update
 sudo apt-get upgrade -y
+```
+
+For Fast(~x5) Prefetcher Compile and use of ccache in MakeFile 
+```bash
+sudo apt-get install ccache
 ```
 - QT might have an error playing around and reinstalling could help, likewise, have to create a new terminal session
 > (venv) ubuntu@RVLSU108-09457:~/Directory/SparQ$ python 000-custom_scripts/visPy_TracesHistoryGraph_GPU.py 

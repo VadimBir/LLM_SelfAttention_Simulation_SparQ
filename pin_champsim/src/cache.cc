@@ -2,6 +2,11 @@
 #include "set.h"
 
 uint64_t l2pf_access = 0;
+bool FORCE_ALL_HITS = false;
+
+void CACHE::set_force_all_hits(bool toEnable) {
+    FORCE_ALL_HITS = toEnable;
+}
 
 void print_cache_config()
 {
@@ -1048,8 +1053,18 @@ void CACHE::fill_cache(uint32_t set, uint32_t way, PACKET *packet)
 
 int CACHE::check_hit(PACKET *packet)
 {
+
     uint32_t set = get_set(packet->address);
     int match_way = -1;
+    
+    //pf_issued=pf_issued+1024;
+    if (FORCE_ALL_HITS) { //(cache_type == IS_L1D || cache_type == IS_L2C || cache_type == IS_LLC)) {
+        // Force a hit by using way 0
+        block[set][0].valid = 1;
+        block[set][0].tag = packet->address;
+        // Optionally, set other necessary fields to simulate a valid cache line
+        return 0; // Indicate a hit in way 0
+    }
 
     if (NUM_SET < set) {
         cerr << "[" << NAME << "_ERROR] " << __func__ << " invalid set index: " << set << " NUM_SET: " << NUM_SET;
@@ -1436,7 +1451,7 @@ int CACHE::add_pq(PACKET *packet)
     cout << " type: " << +PQ.entry[index].type << " head: " << PQ.head << " tail: " << PQ.tail << " occupancy: " << PQ.occupancy;
     cout << " event: " << PQ.entry[index].event_cycle << " current: " << current_core_cycle[PQ.entry[index].cpu] << endl; });
 
-    if (packet->address == 0)
+    if (packet->address == 0 && !FORCE_ALL_HITS)
         assert(0);
 
     PQ.TO_CACHE++;

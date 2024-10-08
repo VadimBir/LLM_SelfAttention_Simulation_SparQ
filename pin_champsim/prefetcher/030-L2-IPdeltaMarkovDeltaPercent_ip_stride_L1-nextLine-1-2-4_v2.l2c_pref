@@ -29,7 +29,7 @@ uint64_t NUM_CACHELINES = 0;
 
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
 std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table_missOnly;
-const int MARKOV_LRU_SIZE = 1 + 64;
+const int MARKOV_LRU_SIZE = 1 + 512;
  // 8192 16384 32768
 using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
 std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};

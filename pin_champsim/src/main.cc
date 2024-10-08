@@ -35,6 +35,32 @@ void record_roi_stats(uint32_t cpu, CACHE *cache)
         cache->roi_miss[cpu][i] = cache->sim_miss[cpu][i];
     }
 }
+double print_pf_hitRatio(uint32_t cpu, CACHE *cache)
+{
+    //cout<< "Core_" << cpu << "_" << cache->NAME << "_prefetch_useful " << cache->pf_useful << " "<<cache->NAME<< "_Total_Hit Ratio: " << (double)cache->pf_useful/(double)cache->pf_issued << endl;
+    
+    //(double)cache->roi_hit[cpu][2]/(double)cache->roi_access[cpu][2]
+    //cout<<"PfHitRatio: "<<(double)cache->pf_useful/(double)cache->pf_issued;
+    return ((double)cache->sim_hit[cpu][2]/(double)cache->sim_access[cpu][2]);
+}
+double print_L2_hitRatio(uint32_t cpu, CACHE *cache)
+{
+    uint64_t TOTAL_ACCESS = 0, TOTAL_HIT = 0, TOTAL_MISS = 0;
+    for (uint32_t i=0; i<NUM_TYPES; i++) {
+        TOTAL_ACCESS += cache->sim_access[cpu][i];
+        TOTAL_HIT += cache->sim_hit[cpu][i];
+        TOTAL_MISS += cache->sim_miss[cpu][i];
+    }
+    //cout<< "Core_" << cpu << "_" << cache->NAME << "_prefetch_useful " << cache->pf_useful << " "<<cache->NAME<< "_Total_Hit Ratio: " << (double)cache->pf_useful/(double)cache->pf_issued << endl;
+    
+    //(double)cache->roi_hit[cpu][2]/(double)cache->roi_access[cpu][2]
+    //cout<<"PfHitRatio: "<<(double)cache->pf_useful/(double)cache->pf_issued;
+    return ((double)TOTAL_HIT/(double)TOTAL_ACCESS);
+}
+double print_L2_usefulRatio(uint32_t cpu, CACHE *cache){
+    return ((double)cache->pf_useful/(double)cache->pf_issued);
+}
+
 
 void print_roi_stats(uint32_t cpu, CACHE *cache)
 {
@@ -63,7 +89,7 @@ void print_roi_stats(uint32_t cpu, CACHE *cache)
         << "Core_" << cpu << "_" << cache->NAME << "_writeback_miss " << cache->roi_miss[cpu][3] << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_requested " << cache->pf_requested << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_issued " << cache->pf_issued << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_useful " << cache->pf_useful << " "<<cache->NAME<< "_Total_Hit Ratio: " << (double)cache->pf_useful/(double)cache->pf_issued << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_useful " << cache->pf_useful << " "<<cache->NAME<< "_Useful Ratio: " << (double)cache->pf_useful/(double)cache->pf_issued << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_useless " << cache->pf_useless << endl
         << "Core_" << cpu << "_" << cache->NAME << "_prefetch_late " << cache->pf_late << endl
         << "Core_" << cpu << "_" << cache->NAME << "_average_miss_latency " << (1.0*(cache->total_miss_latency))/TOTAL_MISS << endl
@@ -122,14 +148,23 @@ void print_dram_stats()
             << "Channel_" << i << "_dbus_congested " << uncore.DRAM.dbus_congested[NUM_TYPES][NUM_TYPES] << endl
             << endl;
     }
+    
 
     uint64_t total_congested_cycle = 0;
     for (uint32_t i=0; i<DRAM_CHANNELS; i++)
         total_congested_cycle += uncore.DRAM.dbus_cycle_congested[i];
-    if (uncore.DRAM.dbus_congested[NUM_TYPES][NUM_TYPES])
-        cout << "avg_congested_cycle " << (total_congested_cycle / uncore.DRAM.dbus_congested[NUM_TYPES][NUM_TYPES]) << endl;
-    else
-        cout << "avg_congested_cycle 0" << endl;
+    if (uncore.DRAM.dbus_congested[NUM_TYPES][NUM_TYPES]){
+            cout << "avg_congested_cycle " << (total_congested_cycle / uncore.DRAM.dbus_congested[NUM_TYPES][NUM_TYPES]) <<endl<< endl;
+            for (int i=0; i<NUM_CPUS; i++) {
+                cout << "EzSearch AVG IPC :" << ((float) ooo_cpu[i].finish_sim_instr / ooo_cpu[i].finish_sim_cycle)<<":" << " L2-Pf-HR :" << (double)ooo_cpu[i].L2C.roi_hit[i][2]/(double)ooo_cpu[i].L2C.roi_access[i][2] << " : L2-HR :" <<print_L2_hitRatio(i,&ooo_cpu[i].L2C) << " Uful:"<< print_L2_usefulRatio(i,&ooo_cpu[i].L2C)<<endl;
+            }
+        }
+    else{
+        cout << "avg_congested_cycle 0\n" << endl;
+        for (int i=0; i<NUM_CPUS; i++) {
+                cout << "EzSearch AVG IPC:" << ((float) ooo_cpu[i].finish_sim_instr / ooo_cpu[i].finish_sim_cycle)<<":" << " L2-Pf-HR :" << (double)ooo_cpu[i].L2C.roi_hit[i][2]/(double)ooo_cpu[i].L2C.roi_access[i][2] << " : L2-HR :" <<print_L2_hitRatio(i,&ooo_cpu[i].L2C) << " Uful:"<< print_L2_usefulRatio(i,&ooo_cpu[i].L2C)<<endl;
+        }
+    }
 }
 
 void reset_cache_stats(uint32_t cpu, CACHE *cache)
@@ -817,9 +852,12 @@ int main(int argc, char** argv)
                     cumulative_ipc = (1.0*ooo_cpu[i].num_retired) / current_core_cycle[i];
                 float heartbeat_ipc = (1.0*ooo_cpu[i].num_retired - ooo_cpu[i].last_sim_instr) / (current_core_cycle[i] - ooo_cpu[i].last_sim_cycle);
 
-                cout << "Heartbeat CPU " << setw(2) << i << " instr: " << setw(10) << ooo_cpu[i].num_retired << " cyc: " << setw(10) << current_core_cycle[i];
-                cout << " curr IPC: " << FIXED_FLOAT(heartbeat_ipc) << " AVG IPC: " << FIXED_FLOAT(cumulative_ipc); 
-                cout << " (Sim:" << elapsed_hour << "h" << elapsed_minute << "m" << elapsed_second << "s) " << endl;
+                cout << "CPU " << setw(2) << i << " inst: " << setw(10) << ooo_cpu[i].num_retired << " cyc: " << setw(10) << current_core_cycle[i];
+                
+                cout << " now IPC :" << FIXED_FLOAT(heartbeat_ipc) << ": AVG IPC :" << FIXED_FLOAT(cumulative_ipc)<< ": L2-Pf-HR :" << print_pf_hitRatio(i,&ooo_cpu[i].L2C)<< ": L2-HR :"<<print_L2_hitRatio(i,&ooo_cpu[i].L2C);
+                                                                                                                    //(double)cache->roi_hit[cpu][2]/(double)cache->roi_access[cpu][2]
+                
+                cout << ": (Sim:" << elapsed_hour << "h" << elapsed_minute << "m" << elapsed_second << "s) " << endl;
                 ooo_cpu[i].next_print_instruction += STAT_PRINTING_PERIOD;
 
                 ooo_cpu[i].last_sim_instr = ooo_cpu[i].num_retired;
@@ -858,7 +896,7 @@ int main(int argc, char** argv)
 
                 cout << "Finished CPU " << i << " instr: " << ooo_cpu[i].finish_sim_instr << " cyc: " << ooo_cpu[i].finish_sim_cycle;
                 cout << " AVG IPC: " << ((float) ooo_cpu[i].finish_sim_instr / ooo_cpu[i].finish_sim_cycle);
-                cout << " (Sim time: " << elapsed_hour << "h" << elapsed_minute << "m" << elapsed_second << "s" << endl;
+                cout << " (Sim time: " << elapsed_hour << "h" << elapsed_minute << "m" << elapsed_second << "s)" << endl;
 
                 record_roi_stats(i, &ooo_cpu[i].L1D);
                 record_roi_stats(i, &ooo_cpu[i].L1I);

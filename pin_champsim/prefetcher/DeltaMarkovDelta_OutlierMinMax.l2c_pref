@@ -7,16 +7,6 @@
 //#include "Pf_LRU_Cache.h"
 
 // define debugger 
-#define FORCEALLHITS false
-
-/*
-1 to print prefetch deltas 
-2 to print markov table 
-3 to print prefetch deltas and markov table
-4 to print MSHR occupancy
-5 print misses delta 
-*/
-// Define an array for debug flags
 std::vector<int> DEBUG_FLAGS = {};  // initialize to zero
 /*
 DEBUG_FLAGS array indexes:
@@ -26,7 +16,12 @@ DEBUG_FLAGS array indexes:
 4 - print MSHR occupancy
 */
 
+
 // MARKOV PREFETCHER CLASS ----------------------------------------------------------------------------------------------
+#define FORCEALLHITS false
+#define MK_SIZE 128 
+#define MK_TMAX 128
+#define MK_TMIN 64
 
 #include <map>
 #include <unordered_map>
@@ -41,11 +36,13 @@ int wType = 0;
 class IPDelta_Markov_Delta {
 
 public:
-    static const int MARKOV_LRU_SIZE = 2048;
+    static const int MARKOV_LRU_SIZE = MK_SIZE;
     static const int MAX_PREDICTIONS = 9999;
     static constexpr double MARKOV_PREDICTION_PERCENTTHRESHOLD = 0;
 
-    static const int32_t OUTLIERS_THRESHOLD = 2048; // is ± from 0 delta considered an outlier
+    // filter outliers
+    static const int32_t OUTLIERS_THRESHOLD_Max = MK_TMAX; 
+    static const int32_t OUTLIERS_THRESHOLD_Min = MK_TMIN;
     IPDelta_Markov_Delta() : markov_LRU_front(0), pre_previous_addr(0), previous_addr(0), pf_addr(0), pre_ip(0) {}
 
     std::vector<int64_t> operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type) {
@@ -69,13 +66,15 @@ public:
         
         // markov table update
         if (pre_previous_addr != 0) {
-            int64_t final_hash_value = combine_hashes(pre_ip, key_delta);
-            final_hash_value = combine_hashes(wType,final_hash_value);
+            //int64_t final_hash_value = combine_hashes(pre_ip, key_delta);
+            //final_hash_value = combine_hashes(wType,final_hash_value);
 
-            key_delta = final_hash_value;
+            //key_delta = final_hash_value;
             // int64_t final_hash_value = combine_hashes(pre_ip, key_delta);
             // key_delta = final_hash_value;
-            if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD && std::abs(val_delta) <= OUTLIERS_THRESHOLD) {
+            
+            if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)){
+            //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
                 markov_table[key_delta][val_delta]++;
             }
             if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 2) != DEBUG_FLAGS.end()) {
@@ -91,7 +90,9 @@ public:
 
 
             key_it = markov_table.find(key_delta);
-            if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD && std::abs(val_delta) <= OUTLIERS_THRESHOLD) {
+            if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)) {
+
+            //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
                 val_it = key_it->second.find(val_delta);
             }
         }
@@ -106,6 +107,7 @@ public:
         
         return pf_topP;
         }
+        
     
 
     
@@ -161,12 +163,12 @@ private:
 
     std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
         std::vector<int64_t> top_predictions;
-        int64_t doubleDeltaKey = combine_hashes(ip, (int64_t)previous_addr-(int64_t)addr);
-        doubleDeltaKey = combine_hashes(wType, doubleDeltaKey);
+        //int64_t doubleDeltaKey = combine_hashes(ip, (int64_t)previous_addr-(int64_t)addr);
+        //doubleDeltaKey = combine_hashes(wType, doubleDeltaKey);
         // int64_t doubleDeltaKey = combine_hashes(ip, static_cast<int64_t>(previous_addr) - static_cast<int64_t>(addr));
         // auto it = markov_table.find(doubleDeltaKey);
 
-        auto it = markov_table.find(doubleDeltaKey);
+        auto it = markov_table.find((int64_t)previous_addr-(int64_t)addr);
 
         if (it != markov_table.end()) {
             //cout << "Found in Markov Table" << endl;
@@ -311,13 +313,15 @@ void CACHE::l2c_prefetcher_initialize()
     int lru_size = IPDelta_Markov_Delta::MARKOV_LRU_SIZE;
     int max_predictions = IPDelta_Markov_Delta::MAX_PREDICTIONS;
     double prediction_threshold = IPDelta_Markov_Delta::MARKOV_PREDICTION_PERCENTTHRESHOLD;
-    int outlier_threshold = IPDelta_Markov_Delta::OUTLIERS_THRESHOLD;
+    int outlier_threshold = IPDelta_Markov_Delta::OUTLIERS_THRESHOLD_Max;
+    int outlier_threshold_min = IPDelta_Markov_Delta::OUTLIERS_THRESHOLD_Min;
     std:cout<<"-----------MARKOV PREFETCHER INITIALIZED-----------"<<std::endl;
     // You can now use these variables in your initialization code
     std::cout << "\t\tMarkov LRU Size: " << lru_size << std::endl;
     //std::cout << "\t\tMax Predictions: " << max_predictions << std::endl;
     std::cout << "\t\tPrediction Threshold: " << prediction_threshold << std::endl;
-    std::cout << "\t\tOutlier Threshold: " << outlier_threshold << std::endl;
+    std::cout << "\t\tOutlier ThresholdMax: " << outlier_threshold << std::endl;
+    std::cout << "\t\tOutlier ThresholdMin: " << outlier_threshold_min << std::endl;
     std::cout<<"----------------------------------------------------"<<std::endl;
 }   
     
@@ -343,7 +347,7 @@ IPDelta_Markov_Delta markov_prefetcher = IPDelta_Markov_Delta();
 //Nxtln* nxtln_prefetcher = new Nxtln();
 Nxtln nxtln_prefetcher;
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in) {
-    
+    //cout << "addr:"<< addr <<endl;
     set_force_all_hits(FORCEALLHITS);
     wType = type;
     // if (!markov_prefetcher) {
@@ -383,11 +387,11 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     for (auto offset : markov_predictions) {
         uint64_t pf_addr = ((aligned_addr - offset) << LOG2_BLOCK_SIZE);
         
-        if ((pf_addr >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE)){
-            continue;;
-        }
+        // if ((pf_addr >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE)){
+        //     continue;;
+        // }
         //pf_addr >> 
-        prefetch_line(ip, addr, pf_addr, FILL_L2, metadata_in);
+        prefetch_line(ip, pf_addr, pf_addr, FILL_L2, metadata_in);
         markov_pf_addr.push_back(pf_addr);
         if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 1) != DEBUG_FLAGS.end()) {
             cout << "Δ" << offset << " ";

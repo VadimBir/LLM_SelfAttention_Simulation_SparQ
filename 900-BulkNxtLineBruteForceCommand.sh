@@ -1,6 +1,6 @@
 #COMBINATIONS=()
 
-FILE_PATH="/home/ubuntu/Directory/SparQ/pin_champsim/prefetcher/deltaMarkov_NxtLine_NxtNxtLine.l2c_pref"
+FILE_PATH="/home/ubuntu/Directory/SparQ/pin_champsim/prefetcher/IPDeltaMarkovDelta_OutlierMinMax.l2c_pref"
 CHAMPSIM_DIR="/home/ubuntu/Directory/SparQ/pin_champsim"
 #COMBO="TO RUN 0,-64,64,-128,128,192,-192"  # "1,2,3" "0,-64,64" "1,2,3,4" "0,-64,64,-128,128" "1,2,4,6,8" "0,-64,64,-128,128,192,-192" "1,2,4,8,16" "0,-64,64,-128,128,192,-192,-320,320" "1,2,8,16"
 

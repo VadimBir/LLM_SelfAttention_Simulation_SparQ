@@ -15,8 +15,8 @@
 
 #include "cache.h"
 
-#define IP_TRACKER_COUNT 8192
-#define PREFETCH_DEGREE 1
+#define IP_TRACKER_COUNT 1024
+#define PREFETCH_DEGREE 10
 
 class IP_TRACKER {
   public:
@@ -120,7 +120,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
             // only issue a prefetch if the prefetch address is in the same 4 KB page 
             // as the current demand access address
             if ((pf_address >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE))
-                break;
+                continue;
 
             // check the MSHR occupancy to decide if we're going to prefetch to the L2 or LLC
             if (MSHR.occupancy < (MSHR.SIZE>>1))
@@ -150,4 +150,5 @@ uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t 
 void CACHE::l2c_prefetcher_final_stats()
 {
     cout << "CPU " << cpu << " L2C PC-based stride prefetcher final stats" << endl;
+    cout << "  IP_TRACKER_COUNT: " << IP_TRACKER_COUNT << endl;
 }

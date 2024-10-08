@@ -29,8 +29,9 @@ sources := $(shell find $(srcDir) -name '*.$(srcExt)')
 srcDirs := $(shell find . -name '*.$(srcExt)' -exec dirname {} \; | uniq)
 objects := $(patsubst %.$(srcExt),$(objDir)/%.o,$(sources))
 
+# CC =   ccache $(CXX)
 ifeq ($(srcExt),cc)
-	CC =  ccache $(CXX)
+	CC =   $(CXX)
 else
 	CFlags += -std=gnu99
 endif
@@ -69,8 +70,9 @@ endef
 
 
 # usage: $(call make-depend,source-file,object-file,depend-file)
+# ccache $(CC) -MM       
 define make-depend
-   ccache $(CC) -MM       \
+     $(CC) -MM       \
         -MF $3    \
         -MP       \
         -MT $2    \

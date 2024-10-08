@@ -1,3 +1,12 @@
+## simstatGrapher and Bulk Running
+# Bulk Running
+>./800-IPMarkovDelta_Outliyer-MultiProcess_BruteBruteForce.sh
+* Will run many simulations for IPMarkovDelta prefetcher design where parameter combinations could be set for bruteforce and test
+
+>python simstatGrapher.py
+* Champsim stats printout was modified to have a special printout approach during simulations. 
+* This script would read all of those files and print ranked IPC, L2PfHit, and L2Hit ratios on a graph showing how different combitions have performed. 
+
 ## ./000-custom_scripts/cPrefetcher_Simulation_runner.sh
 Script that executes the [c_pseudo_prefetcher_simulation.cpp](c_pseudo_prefetcher_simulation.cpp) that may take addresses-<NAME>.txt argument. 
 Otherwise, would run BK history traces.

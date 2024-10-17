@@ -19,9 +19,9 @@ DEBUG_FLAGS array indexes:
 
 // MARKOV PREFETCHER CLASS ----------------------------------------------------------------------------------------------
 #define FORCEALLHITS false
-#define MK_SIZE 128 
-#define MK_TMAX 128
-#define MK_TMIN 64
+#define MK_SIZE 256 
+#define MK_TMAX 4
+#define MK_TMIN 0
 
 #include <map>
 #include <unordered_map>
@@ -62,7 +62,8 @@ public:
         IteratorType key_it;
         std::unordered_map<int64_t, int>::iterator val_it;
 
-        // filter out val_delta that were part of popular_prefetch_offset
+        
+        
         
         // markov table update
         if (pre_previous_addr != 0) {
@@ -75,7 +76,10 @@ public:
             
             if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)){
             //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
-                markov_table[key_delta][val_delta]++;
+                // if val_delta is not -1 -2 or -4 then add val_delta to markov_table
+                if (val_delta != -1 && val_delta != -2 && val_delta != -4) {
+                    markov_table[key_delta][val_delta]++;
+                }
             }
             if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 2) != DEBUG_FLAGS.end()) {
                 // print markov table
@@ -93,7 +97,9 @@ public:
             if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)) {
 
             //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
-                val_it = key_it->second.find(val_delta);
+                if (val_delta != -1 && val_delta != -2 && val_delta != -4) {
+                    val_it = key_it->second.find(val_delta);
+                }
             }
         }
         // get Markov delta predictions and return vector<int64_t> top_predictions

@@ -1,4 +1,4 @@
-//#include "/inc/cache.h"
+#include "cache.h"
 
 //#include "HashMapLRU.h"
 
@@ -16,11 +16,10 @@
 
 int MSHR_Occupancy_Sum = 0;
 int frequency = 10000;
+// hashmap to store the prefetcher count
+std::unordered_map<int, int> prefetcher_count;
 
-int GBH_DELTA_PF_Percent_Threshold = 1; // 1% and min 2
-int GBB_DELTA_PF_cnt_Threshold = 1; // 1% and min 2
-int GBH_DELTA_LRU_SIZE = 64;
-LRUCache<uint64_t> GBH_DeltaCnt(GBH_DELTA_LRU_SIZE);
+
 
 #define IP_TRACKER_COUNT 64
 #define PREFETCH_DEGREE 20
@@ -83,77 +82,6 @@ int64_t combine_hashes(int64_t pre_key_delta, int64_t key_delta) {
 }
 
 
-class UInt64List : public std::list<uint64_t> {
-public:
-    uint64_t pop() {
-        if (this->empty()) {
-            throw std::out_of_range("List is empty");
-        }
-        uint64_t value = this->front();
-        this->pop_front();
-        return value;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const UInt64List& list);
-
-    void append(uint64_t value) {
-        this->push_back(value);
-    }
-
-bool contains(uint64_t value) {
-    for (auto it = this->begin(); it != this->end(); ++it) {
-        //std::cout << "Comparing " << *it << " with " << value << std::endl;
-        if (*it == value) {
-            //cout << "Found " << value << " in the list" << endl;
-            return true;
-        }
-    }
-    return false;
-}
-
-    // Helper method to calculate quartiles and IQR from a sorted vector
-    void calculateQuartiles(const std::vector<uint64_t>& values, double& q1, double& q3, double& iqr) {
-        size_t n = values.size();
-        q1 = values[n / 4]; // First quartile
-        q3 = values[3 * n / 4]; // Third quartile
-        iqr = q3 - q1;
-    }
-
-    void filterOutliers(UInt64List& small_outliers, UInt64List& non_outliers, UInt64List& large_outliers) {
-        if (this->empty()) return;
-
-        // Temporary vector to hold values for calculation
-        std::vector<uint64_t> sorted_lst(this->begin(), this->end());
-        std::sort(sorted_lst.begin(), sorted_lst.end());
-
-        double q1, q3, iqr;
-        calculateQuartiles(sorted_lst, q1, q3, iqr);
-
-        double lower_bound = q1 - 1.5 * iqr;
-        double upper_bound = q3 + 1.5 * iqr;
-
-        // Iterate through the original list
-        for (uint64_t value : *this) {
-            if (value < lower_bound) {
-                small_outliers.append(value); // Use append method if specific to UInt64List
-            } else if (value > upper_bound) {
-                large_outliers.append(value);
-            } else {
-                non_outliers.append(value);
-            }
-        }
-    }
-};
-// Overload the << operator
-std::ostream& operator<<(std::ostream& os, const UInt64List& list) {
-    os << "HEAD->";
-    for (auto val : list) {
-        os << val << "->";
-    }
-    os << "NULL";
-    return os;
-}
-
 class IP_TRACKER {
   public:
     // the IP we're tracking
@@ -186,6 +114,10 @@ void CACHE::l2c_prefetcher_initialize()
     for (int i=0; i<IP_TRACKER_COUNT; i++)
         trackers[i].lru = i;
 
+
+    prefetcher_count[1]=0;
+    prefetcher_count[2]=0;
+    prefetcher_count[3]=0;
 }
 
 // VOID Instruction(INS ins, VOID *v) {
@@ -299,50 +231,6 @@ std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType 
 //     return nullptr;  // Return nullptr if no matching cache line is found
 // }
 // MAIN PREFETCHER FUNCTION ---------------------------------------------------------------------------------------------- MAIN PREFETCHER START !!!
-uint64_t cache_hit_cnt = 0;
-uint64_t cache_hit_cnt_nxtLine = 0;
-uint64_t cache_hit_cnt_stride = 0;
-uint64_t cache_hit_cnt_markov = 0;
-
-UInt64List* GHP_NxtLine = new UInt64List();
-UInt64List* GHP_Stride = new UInt64List();
-UInt64List* GHP_Markov = new UInt64List();
-
-int64_t pf_NxtLine_HitCnt = 0;
-int64_t pf_Stride_HitCnt = 0;
-int64_t pf_Markov_HitCnt = 0;
-int64_t pf_SecondaryMk_HitCnt = 0;
-
-int64_t pf_slidingWindow_Stride_HitCnt = 0;
-int64_t pf_slidingWindow_Markov_HitCnt = 0;
-int64_t pf_slidingWindow_SecondaryMk_HitCnt = 0;
-
-
-bool is_pfed_NxtLine = false;
-bool is_pfed_Stride = false;
-bool is_pfed_SecondaryMk = false;
-bool is_pfed_Markov = false;
-
-int64_t pf_cnt_NxtLine = 0;
-int64_t pf_cnt_Stride = 0;
-int64_t pf_cnt_Markov = 0;
-int64_t pf_cnt_SecondaryMk = 0;
-
-int64_t pf_hitcnt_NxtLine = 0;
-int64_t pf_hitcnt_Stride = 0;
-int64_t pf_hitcnt_Markov = 0;
-int64_t pf_hitcnt_SecondaryMk = 0;
-
-int64_t pf_totalcnt_NxtLine = 0;
-int64_t pf_totalcnt_Stride = 0;
-int64_t pf_totalcnt_Markov = 0;
-int64_t pf_totalcnt_SecondaryMk = 0;
-
-int64_t pf_NxtLine_ID = 1;
-int64_t pf_Stride_ID = 2;
-int64_t pf_Markov_ID = 4;
-int64_t pf_SecondaryMk_ID = 7;
-
 // previous prefetchs addr vector 
 std::vector<uint64_t> previous_prefetches_stride;
 std::vector<uint64_t> previous_prefetches_markov;
@@ -351,50 +239,14 @@ std::vector<uint64_t> previous_prefetches_SecondaryMk;
 
 int slidingWindowCnt = 0;
 
-std::unordered_set<uint64_t> ip_stride_prefetches;
+std::vector<std::pair<int, double>> prefetcher_pf_count;
+
+
 
 uint64_t preIP = 0;
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
 {                                         //  {Hash(IP, delta)} -> {extdelta:count}
     
-    //cout << "Meta:" << metadata_in << endl;
-    uint32_t metadata = 0;
-    if (cache_hit) {
-        // check vectors if any Pf has pfed current addr 
-        if (std::find(previous_prefetches_stride.begin(), previous_prefetches_stride.end(), addr) != previous_prefetches_stride.end()) {
-            pf_slidingWindow_Stride_HitCnt++;
-        }
-        if (std::find(ip_stride_prefetches.begin(), ip_stride_prefetches.end(), addr) != ip_stride_prefetches.end()) {
-            pf_Stride_HitCnt++;
-        }
-        if (std::find(previous_prefetches_markov.begin(), previous_prefetches_markov.end(), addr) != previous_prefetches_markov.end()) {
-            
-            pf_slidingWindow_Markov_HitCnt++;
-            
-        }
-        if (std::find(previous_prefetches_markov.begin(), previous_prefetches_markov.end(), addr) != previous_prefetches_markov.end()) {
-            pf_Markov_HitCnt++;
-        }
-        if (std::find(previous_prefetches_NxtLine.begin(), previous_prefetches_NxtLine.end(), addr) != previous_prefetches_NxtLine.end()) {
-            pf_NxtLine_HitCnt++;
-        }
-        if (std::find(previous_prefetches_SecondaryMk.begin(), previous_prefetches_SecondaryMk.end(), addr) != previous_prefetches_SecondaryMk.end()) {
-            pf_SecondaryMk_HitCnt++;
-            pf_slidingWindow_SecondaryMk_HitCnt++;
-        }
-        if (is_pfed_SecondaryMk && std::find(previous_prefetches_SecondaryMk.begin(), previous_prefetches_SecondaryMk.end(), addr) != previous_prefetches_SecondaryMk.end()){
-            pf_hitcnt_SecondaryMk++;
-
-
-        
-        previous_prefetches_stride.clear();
-        previous_prefetches_markov.clear();
-        previous_prefetches_NxtLine.clear();
-        previous_prefetches_SecondaryMk.clear();
-
-        is_pfed_SecondaryMk=false;
-
-    }
     if(NUM_CACHELINES == 0){
         uint64_t cache_size = (L2C_SET*L2C_WAY*BLOCK_SIZE)/1024;
         cout << "CPU " << cpu << " L2C prefetcher initialized" << endl;
@@ -404,14 +256,6 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     }
     if (!cache_hit && cnt > 1200) {
         uint64_t alignedAddr = addr >> LOG2_BLOCK_SIZE;
-        //cout << cnt<<" M:" << (alignedAddr) << "\t" << "Δ" <<setfill(' ') << setw(13)<<(int64_t)(previous_addr) - (int64_t)(alignedAddr) << "\tIP:"<< preIP << endl;
-
-    }
-    // if (cache_hit && cnt > 1200) {
-    //     uint64_t alignedAddr = addr >> LOG2_BLOCK_SIZE;
-    //     cout << cnt<<" H:" << (alignedAddr) << "\t" << "Δ" <<setfill(' ') << setw(13)<< (int64_t)(previous_addr) - (int64_t)(alignedAddr) << "\tIP:"<< preIP << endl;
-
-    // }
 
 
     
@@ -419,6 +263,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     //    for (int offset : popular_prefetch_offset) {
     //         pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
     //         prefetch_line(ip, addr, pf_addr, FILL_L1, );
+                //prefetcher_count[1]++;
     //         //GHP_NxtLine->append(pf_addr >> LOG2_BLOCK_SIZE);
 
 
@@ -434,8 +279,6 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     // IP STRIDE PREFETCHER ---------------------------------------------------------------------------------------------- IP STRIDE START
     // check for a tracker hit
 
-    // stride pf_addr histry
-    ip_stride_prefetches.clear();
     
     uint64_t cl_addr = addr >> LOG2_BLOCK_SIZE;
 
@@ -517,12 +360,14 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
             // check the MSHR occupancy to decide if we're going to prefetch to the L2 or LLC
             if (MSHR.occupancy < (MSHR.SIZE>>1)){
                 previous_prefetches_stride.push_back(pf_addr);
-	            prefetch_line(ip, addr, pf_addr, FILL_L2, metadata);
+	            prefetch_line(ip, addr, pf_addr, FILL_L2, metadata_in);
+                prefetcher_count[2]++;
                 //GHP_Stride->append(pf_addr >> LOG2_BLOCK_SIZE);
-                ip_stride_prefetches.insert(pf_addr);
+                
             }
             else{
-	            prefetch_line(ip, addr, pf_addr, FILL_LLC, metadata);
+	            prefetch_line(ip, addr, pf_addr, FILL_LLC, metadata_in);
+
             }
             
         
@@ -595,21 +440,18 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
             //     cout << "P:" << pf << ;
             // }
 
-            if (ip_stride_prefetches.find(pf_addr) != ip_stride_prefetches.end()) {
-                previous_prefetches_markov.push_back(pf_addr);
-                continue;
-            }
             // if ((pf_addr >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE))
             //     continue;
 
             if (MSHR.occupancy < (MSHR.SIZE/8)){
                 
                 previous_prefetches_markov.push_back(pf_addr);
-                prefetch_line(ip, addr, (pf_addr), FILL_L2, metadata);
+                prefetch_line(ip, addr, (pf_addr), FILL_L2, metadata_in);
+                prefetcher_count[3]++;
             }
             else{
                 
-	            prefetch_line(ip, addr, pf_addr, FILL_LLC, metadata);
+	            prefetch_line(ip, addr, pf_addr, FILL_LLC, metadata_in);
             }
 	            
         
@@ -630,45 +472,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV
 
     // GBH Delta LRU CNT --------------------------------------------------------------------------------------------------- GBH DELTA LRU CNT START
-    int64_t currentDelta = (int64_t)previous_addr-(int64_t)addr;
-    //cout << "Rl:"<< currentDelta << " " << endl; 
-    if (cnt > 3 && !cache_hit){
-        GBH_DeltaCnt.put(preIP, currentDelta);    
-        // std::cout << "Count for (IP1, Delta1): " << GBH_DeltaCnt.get(ip) << std::endl;
-        // cout<< "Cache:";
-        //GBH_DeltaCnt.print();
-    }
-    std::vector<std::pair<int64_t, int>> GHB_get = GBH_DeltaCnt.get(ip);
-    // if vector is not empty
-    if (GHB_get.size() > 0){
-        hypoPfCnt++;
-    }
-    int i=0;
-    for (auto& topP_Offset: GHB_get){
-        if (topP_Offset.first != std::numeric_limits<int64_t>::max() && GBB_DELTA_PF_cnt_Threshold <= topP_Offset.second){
-            is_pfed_SecondaryMk = true;
-        }
-    }
-    if (is_pfed_SecondaryMk){
-        pf_cnt_SecondaryMk++;
-    }
-    for (auto& topP_Offset: GHB_get){
-        i++;
-        pf_totalcnt_SecondaryMk++;
-        if (topP_Offset.first != std::numeric_limits<int64_t>::max() && GBB_DELTA_PF_cnt_Threshold <= topP_Offset.second){
-
-            //      cout << "cIP:"<<ip<< "G:" << topP_Offset.first << " cnt:" << topP_Offset.second ;
-            pf_addr = (((int64_t)(addr) - topP_Offset.first) << LOG2_BLOCK_SIZE);
-            
-            previous_prefetches_SecondaryMk.push_back(pf_addr);
-            
-            prefetch_line(ip, addr, pf_addr, FILL_L2, metadata);
-            if ( currentDelta==topP_Offset.first){
-        //        cout << " HIT" << endl;
-                hypoHitCnt++;
-            }   
-        }
-    }
+    
     
     
     // cout << endl;
@@ -712,25 +516,6 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     //}
 
     // print avg of MSHR occupancy every 10k
-    if (cnt % frequency == 0 and cnt != 0){
-        cout << "MSHR%: " << ((double)MSHR_Occupancy_Sum/(double)frequency)/MSHR.SIZE*100 << " \tMSHR_len : "<< MSHR.SIZE << "\tCurr Usg: "<< MSHR.occupancy << "\n\t\tNxtHit% \t\tPf_Stride: " << pf_Stride_HitCnt/(double)cnt*100 << " Pf_Markov: " << pf_Markov_HitCnt/(double)cnt*100 << " Pf_SecondaryMk: " << pf_SecondaryMk_HitCnt/(double)cnt*100 << endl;
-        cout << "\t\t10k_SlidingWindow: \tPf_Stride: " << pf_slidingWindow_Stride_HitCnt/(double)slidingWindowCnt*100 << " Pf_Markov: " << pf_slidingWindow_Markov_HitCnt/(double)slidingWindowCnt*100 << " Pf_SecondaryMk: " << pf_slidingWindow_SecondaryMk_HitCnt/(double)slidingWindowCnt*100 << endl<<endl;
-        
-        cout << "\nPredictionAccuracy \tNxtLine: " << " SecondaryMk: onPf_accuracy: " << ((double)pf_hitcnt_SecondaryMk/(double)pf_cnt_SecondaryMk)*100 << "% SecondaryMk: avg_pf_LRU_Cost "<< (double)pf_cnt_SecondaryMk/(double)pf_totalcnt_SecondaryMk<<"\tMarkov: " << ((double)pf_hitcnt_Markov/pf_totalcnt_Markov)*100 << "% \tStride: " << ((double)pf_hitcnt_Stride/pf_totalcnt_Stride)*100 << "%" << endl;
-        
-        
-        pf_hitcnt_SecondaryMk = 0; // keeps track of hits only when a pf occured 
-        pf_cnt_SecondaryMk = 0; // keeps track of all number of singular pf 
-        pf_totalcnt_SecondaryMk = 0; // keeps track of number of multiple pf
-
-        MSHR_Occupancy_Sum = 0;
-
-        pf_slidingWindow_Stride_HitCnt=0;
-        pf_slidingWindow_SecondaryMk_HitCnt=0;
-        pf_slidingWindow_Markov_HitCnt=0;
-        slidingWindowCnt = 0;
-    }
-    MSHR_Occupancy_Sum += MSHR.occupancy;
     
     // update the variables for the next iteration
     pre_previous_addr = previous_addr;
@@ -754,13 +539,18 @@ void CACHE::l2c_prefetcher_final_stats()
 {
     cout << "CPU " << cpu << " L2C PC-based stride prefetcher final stats" << endl;
 
-    cout << "Hit Total: " << cache_hit_cnt << " Coverage: " << ((double)cnt/cache_hit_cnt)*100 << "%" << endl;
-    cout << " \t\tNxtLine: " << cache_hit_cnt_nxtLine << " \tStride: " << cache_hit_cnt_stride << " \tMarkov: " << cache_hit_cnt_markov << endl;
-    cout << "Hit Ratio: \tNxtLine: " << ((double)cache_hit_cnt_nxtLine/cache_hit_cnt)*100 << "% \tStride: " << ((double)cache_hit_cnt_stride/cache_hit_cnt)*100 << "% \tMarkov: " << ((double)cache_hit_cnt_markov/cache_hit_cnt)*100 <<"%"<< endl;    
+
+    cout << "IPStride Degree/Access Ratio: " << (double)prefetcher_count[2]/(double)cnt << endl;
+    cout << "IPDEltaMarkov  Degree/Access Ratio: " << (double)prefetcher_count[3]/(double)cnt << endl;
+
+
+    //cout << "Hit Total: " << cache_hit_cnt << " Coverage: " << ((double)cnt/cache_hit_cnt)*100 << "%" << endl;
+    //cout << " \t\tNxtLine: " << cache_hit_cnt_nxtLine << " \tStride: " << cache_hit_cnt_stride << " \tMarkov: " << cache_hit_cnt_markov << endl;
+    //cout << "Hit Ratio: \tNxtLine: " << ((double)cache_hit_cnt_nxtLine/cache_hit_cnt)*100 << "% \tStride: " << ((double)cache_hit_cnt_stride/cache_hit_cnt)*100 << "% \tMarkov: " << ((double)cache_hit_cnt_markov/cache_hit_cnt)*100 <<"%"<< endl;    
     //cout << "Accuracy : \tNxtLine: " << ((double)cache_hit_cnt_nxtLine/prefetchGuessCnt_NxtLine)*100 << "% \tStride: " << ((double)cache_hit_cnt_stride/prefetchGuessCnt_Stride)*100 << "% \tMarkov: " << ((double)cache_hit_cnt_markov/prefetchGuessCnt_Markov)*100 <<"%"<< endl;    
 
-    cout << "\nPredictionAccuracy \tNxtLine: " << " SecondaryMk: onPf_accuracy: " << ((double)pf_hitcnt_SecondaryMk/(double)pf_cnt_SecondaryMk)*100 << "% SecondaryMk: avg_pf_LRU_Cost "<< (double)pf_cnt_SecondaryMk/(double)pf_totalcnt_SecondaryMk<<"\tMarkov: " << ((double)pf_hitcnt_Markov/pf_totalcnt_Markov)*100 << "% \tStride: " << ((double)pf_hitcnt_Stride/pf_totalcnt_Stride)*100 << "%" << endl;
+    //cout << "\nPredictionAccuracy \tNxtLine: " << " SecondaryMk: onPf_accuracy: " << ((double)pf_hitcnt_SecondaryMk/(double)pf_cnt_SecondaryMk)*100 << "% SecondaryMk: avg_pf_LRU_Cost "<< (double)pf_cnt_SecondaryMk/(double)pf_totalcnt_SecondaryMk<<"\tMarkov: " << ((double)pf_hitcnt_Markov/pf_totalcnt_Markov)*100 << "% \tStride: " << ((double)pf_hitcnt_Stride/pf_totalcnt_Stride)*100 << "%" << endl;
 
-    cout << "\n\n\nMissHit"<< hypoHitCnt << "MissCnt" << hypoPfCnt << " " << ((double)hypoHitCnt/hypoPfCnt)*100 << "%" << endl;     
+    //cout << "\n\n\nMissHit"<< hypoHitCnt << "MissCnt" << hypoPfCnt << " " << ((double)hypoHitCnt/hypoPfCnt)*100 << "%" << endl;     
     
 }

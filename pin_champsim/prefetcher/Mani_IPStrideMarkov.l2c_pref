@@ -20,10 +20,10 @@
 #define MAX_PF_L2 8
 
 // MARKOV
-#define MK_SIZE 64 
-#define MK_TMAX 64
-#define MK_TMIN 32
-#define PTHRESH 13
+#define MK_SIZE 256 
+#define MK_TMAX 16
+#define MK_TMIN 0
+#define PTHRESH 11
 
 #include <map>
 #include <unordered_map>
@@ -231,6 +231,12 @@ void CACHE::l2c_prefetcher_initialize()
 
 uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
 {
+    if (cnt < 250000){
+        return metadata_in;
+    }
+    if (cnt==250000){
+        cout << "PF_STARTED!!!!!"<< endl;
+    }
     uint64_t aligned_addr = addr >> LOG2_BLOCK_SIZE;
     std::vector<std::pair<int64_t, int>> markov_predictions = markov_prefetcher.operate(aligned_addr, ip, cache_hit, type);
 

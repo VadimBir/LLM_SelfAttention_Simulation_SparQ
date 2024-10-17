@@ -7,7 +7,8 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
 # Define the directory containing the log files
-LOG_DIR = './000-simstats/percentTTT'  # Replace with your actual path
+#LOG_DIR = './000-simstats/MSHR_Degree/IPStrideMarkov_BF'  # Replace with your actual path
+LOG_DIR = './000-simstats/MSHR_Degree'  # Replace with your actual path
 
 # Initialize a list to hold all parsed data
 data = []
@@ -22,6 +23,10 @@ manual = [
 content_pattern = re.compile(
     r'EzSearch AVG IPC\s*:\s*(?P<ipc>[\d.]+)\s*:\s*L2-Pf-HR\s*:\s*(?P<l2_pf_hr>[\d.]+)\s*:\s*L2-HR\s*:\s*(?P<l2_hr>[\d.]+)'
 )
+
+# content_pattern_without_usefulness = re.compile(
+#     r'EzSearch AVG IPC\s*:\s*(?P<ipc>[\d.]+)\s*:\s*L2-Pf-HR\s*:\s*(?P<l2_pf_hr>[\d.]+)\s*:\s*L2-HR\s*:\s*(?P<l2_hr>[\d.]+)'
+# )
 
 def parse_filename(filename):
     """
@@ -92,66 +97,103 @@ def parse_filename(filename):
                     print(f"Invalid Pthresh value in {filename}: {value}")
             else:
                 # Handle unexpected keys or skip
+                
                 pass
             i += 2
         else:
             # Handle cases where there's an odd number of elements
             i += 1
 
-    return {
-        'Prefetcher_Type': prefetcher_type,
-        'Table_Size': table_size,
-        'Min_Thresh': min_thresh,
-        'Max_Thresh': max_thresh,
-        'Pthresh': pthresh
-    }
-
-# Iterate over all files in the directory
-for filename in os.listdir(LOG_DIR):
-    if filename.endswith('.log'):
-        filepath = os.path.join(LOG_DIR, filename)
-        
-        # Parse the filename
-        parsed_filename = parse_filename(filename)
-        if not parsed_filename:
-            continue  # Skip files that couldn't be parsed
-
-        # Read the file content
-        try:
-            with open(filepath, 'r') as file:
-                lines = file.readlines()
-        except Exception as e:
-            print(f"Error reading {filename}: {e}")
-            continue
-
-        # Extract metrics from the file content
-        metrics = {}
-        for line in lines:
-            content_match = content_pattern.search(line)
-            if content_match:
-                metrics = content_match.groupdict()
-                break  # Stop after finding the first matching line
-
-        if not metrics:
-            print(f"No matching metrics found in {filename}.")
-            continue  # Skip files without the expected content
-
-        # Combine filename data and metrics
-        combined_data = {
-            'Prefetcher_Type': parsed_filename.get('Prefetcher_Type'),
-            'Table_Size': parsed_filename.get('Table_Size'),
-            'Min_Thresh': parsed_filename.get('Min_Thresh'),
-            'Max_Thresh': parsed_filename.get('Max_Thresh'),
-            'AVG_IPC': float(metrics.get('ipc')),
-            'L2_Pf_HR': float(metrics.get('l2_pf_hr')),
-            'L2_HR': float(metrics.get('l2_hr')),
-            'Pthresh': float(parsed_filename.get('Pthresh')),
+    try: 
+        return {
+            'Prefetcher_Type': prefetcher_type,
+            'Table_Size': table_size,
+            'Min_Thresh': min_thresh,
+            'Max_Thresh': max_thresh,
+            'Pthresh': pthresh
         }
+    except UnboundLocalError:
+        return {
+            'Prefetcher_Type': prefetcher_type,
+            'Table_Size': table_size,
+            'Min_Thresh': min_thresh,
+            'Max_Thresh': max_thresh,
+            'Pthresh': 0
+        }
+extra_dirs = []
 
-        data.append(combined_data)
+def parse_directory(directory):
+    """
+    Recursively parse all .log files in a given directory and its subdirectories.
+
+    Args:
+        directory (str): The directory to search for log files.
+
+    Returns:
+        list: A list of dictionaries containing parsed data from the log files.
+    """
+    parsed_data = []
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith('.log'):
+                filepath = os.path.join(root, filename)
+                
+                # Parse the filename
+                parsed_filename = parse_filename(filename)
+                if not parsed_filename:
+                    continue  # Skip files that couldn't be parsed
+
+                # Read the file content
+                try:
+                    with open(filepath, 'r') as file:
+                        lines = file.readlines()
+                except Exception as e:
+                    print(f"Error reading {filename}: {e}")
+                    continue
+
+                # Extract metrics from the file content
+                metrics = {}
+                for line in lines:
+                    content_match = content_pattern.search(line)
+                    if content_match:
+                        metrics = content_match.groupdict()
+                        break  # Stop after finding the first matching line
+
+                if not metrics:
+                    print(f"No matching metrics found in {filename}.")
+                    continue  # Skip files without the expected content
+
+                # Combine filename data and metrics
+                combined_data = {
+                    'Prefetcher_Type': parsed_filename.get('Prefetcher_Type'),
+                    'Table_Size': parsed_filename.get('Table_Size'),
+                    'Min_Thresh': parsed_filename.get('Min_Thresh'),
+                    'Max_Thresh': parsed_filename.get('Max_Thresh'),
+                    'AVG_IPC': float(metrics.get('ipc')),
+                    'L2_Pf_HR': float(metrics.get('l2_pf_hr')),
+                    'L2_HR': float(metrics.get('l2_hr')),
+                    'Pthresh': float(parsed_filename.get('Pthresh')),
+                    #'Usefulness': float(metrics.get('usefulness'))
+                }
+
+                parsed_data.append(combined_data)
+
+        # Recursively parse all subdirectories
+        for subdir in dirs:
+            subdir_path = os.path.join(root, subdir)
+            parsed_data += parse_directory(subdir_path)
+
+    return parsed_data
 
 
-# append manual points 
+# Parse all files in the directory and its subdirectories
+data = parse_directory(LOG_DIR)
+
+for directory in extra_dirs:
+    data.append(parse_directory(directory))
+
+
+# Append manual points 
 # for i in manual:
 #     data.append(i)
     
@@ -165,9 +207,18 @@ print(df)
 unique_table_sizes = df['Table_Size'].dropna().unique()
 unique_table_sizes_sorted = sorted(unique_table_sizes)  # Ensure sizes are sorted
 
+colList = []
+# for loop to create a list of colors iterated from 0 0 0 to 10 10 10
+for i in range(0, 2):
+    for j in range(0, 2):
+        for k in range(0, 2):
+
+            colList.append((i / 1, j / 1, k / 1))
+
+
 bright_cmap = LinearSegmentedColormap.from_list(
-    'bright_red_yellow_blue',
-    [(1, 0, 0), (1, 1, 0), (0, 0, 1)],  # RGB for red, yellow, blue
+    'bright_red_yellow_blue_green_orange',
+    colList,  # RGB for red, yellow, blue
     N=len(unique_table_sizes_sorted)  # Number of unique table sizes
 )
 
@@ -183,16 +234,19 @@ color_mapping = dict(zip(unique_table_sizes_sorted, colors))
 
 # Map colors to each row based on Table_Size
 df['Color'] = df['Table_Size'].map(color_mapping)
+print(len(df['Color']))
+input("Press Enter to continue...")
 
 # Define the metrics to plot
 metrics_to_plot = [
     {'column': 'AVG_IPC', 'title': 'Average IPC Ranked by Performance', 'ylabel': 'Average IPC'},
-    {'column': 'L2_Pf_HR', 'title': 'Average L2 Prefetch Hit Rate Ranked by Performance', 'ylabel': 'Average L2_Pf_HR'},
-    {'column': 'L2_HR', 'title': 'Average L2_HR Ranked by Performance', 'ylabel': 'Average L2_HR'}
+    #{'column': 'L2_Pf_HR', 'title': 'Average L2 Prefetch Hit Rate Ranked by Performance', 'ylabel': 'Average L2_Pf_HR'},
+    {'column': 'L2_HR', 'title': 'Average L2_HR Ranked by Performance', 'ylabel': 'Average L2_HR'},
+    #{'column': 'Usefulness', 'title': 'Prefetch Usefulness Ranked by Performance', 'ylabel': 'Usefulness'}
 ]
 
-# Create a figure with three subplots
-fig, axes = plt.subplots(3, 1, figsize=(18, 24))  # Adjust figsize as needed
+# Create a figure with four subplots
+fig, axes = plt.subplots(4, 1, figsize=(18, 32))  # Adjust figsize as needed
 
 for ax, metric in zip(axes, metrics_to_plot):
     # Sort the DataFrame by the current metric in descending order
@@ -217,12 +271,12 @@ for ax, metric in zip(axes, metrics_to_plot):
     # Filter the DataFrame to keep only the relevant prefetcher types, e.g. ['IPDelta', 'DeltaDelta']
     #df_sorted = df_sorted[df_sorted['Prefetcher_Type'].isin(['', 'ZeroDelta', 'DeltaDelta', 'IPDeltaDelta'])]
     # Filter the DataFrame to keep only table sizes less than N 
-    #df_sorted = df_sorted[df_sorted['Table_Size'] <= 128]
+    #df_sorted = df_sorted[df_sorted['Table_Size'] < 512]
     # Filter the DataFrame to keep only MIN Greter than N
-    df_sorted = df_sorted[df_sorted['Min_Thresh'] >= 0]
+    #df_sorted = df_sorted[df_sorted['Min_Thresh'] >=0]
     # Filter the DataFrame to keep only MAX Greter than N
-    df_filtered = df_sorted[df_sorted['Max_Thresh'] <= 64]
-    df_sorted = df_sorted[df_sorted['Pthresh'] >=0]
+    #df_sorted = df_sorted[df_sorted['Max_Thresh'] <= 4]
+    #df_sorted = df_sorted[df_sorted['Pthresh'] >=1]
     
     # append at front the manual points back to the df_sorted
     df_sorted = pd.concat([tmp, df_sorted])
@@ -254,6 +308,11 @@ for ax, metric in zip(axes, metrics_to_plot):
         ax.scatter(0, 0.88552, color='green', s=100, label='NXTLN', zorder=5)
         # Annotate the point with the label 'NXTLN'
         ax.text(0, 0.88552, 'NXTLN', fontsize=12, color='green', ha='center', va='bottom')
+    # if metric['column'] == 'Usefulness':
+    #     # manually add a green point at X=0 and Y=0.08326
+    #     ax.scatter(0, 0.08326, color='green', s=100, label='NXTLN', zorder=5)
+    #     # annotate the point with the label 'NXTLN'
+    #     ax.text(0, 0.08326, 'NXTLN', fontsize=12, color='green', ha='center', va='bottom')
 
     # BASE PF 
     if metric['column'] == 'AVG_IPC':

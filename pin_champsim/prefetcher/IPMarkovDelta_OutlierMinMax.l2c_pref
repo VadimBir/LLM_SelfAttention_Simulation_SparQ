@@ -8,11 +8,11 @@
 
 // define debugger 
 #define FORCEALLHITS false
-#define MK_TMAX 16
-#define MK_TMIN 0
 #define MK_SIZE 256
+#define MK_TMAX 4
+#define MK_TMIN 0
 
-#define PTHRESH 7
+#define PTHRESH 40
 
 /*
 1 to print prefetch deltas 
@@ -43,7 +43,8 @@ DEBUG_FLAGS array indexes:
 #include <numeric>
 
 // popular offset 
-std::vector<int> popular_prefetch_offset = {1, 2};
+std::vector<int> popular_prefetch_offset = {1, 2, 4};
+
 
 double occupancyRatio_MSHR = 0;
 int wType = 0;
@@ -97,7 +98,9 @@ public:
             
             if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)){
             //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
-                markov_table[key_delta][val_delta]++;
+                if (val_delta != -1 && val_delta != -2 && val_delta != -4) {
+                    markov_table[key_delta][val_delta]++;
+                }
             }
             if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 2) != DEBUG_FLAGS.end()) {
                 // print markov table
@@ -115,7 +118,10 @@ public:
             if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)) {
 
             //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
-                val_it = key_it->second.find(val_delta);
+                if (val_delta != -1 && val_delta != -2 && val_delta != -4) {
+                    val_it = key_it->second.find(val_delta);
+                }
+                
             }
         }
         // get Markov delta predictions and return vector<int64_t> top_predictions
@@ -379,10 +385,10 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
     uint64_t pf_addr = 0;
     uint64_t aligned_addr = addr >> LOG2_BLOCK_SIZE;
     // nxt line via offset vector 
-    for (int offset : popular_prefetch_offset) {
-        pf_addr = (aligned_addr + offset) << LOG2_BLOCK_SIZE;
-        prefetch_line(ip, addr, pf_addr, FILL_L2, metadata_in);
-    }
+    // for (int offset : popular_prefetch_offset) {
+    //     pf_addr = (aligned_addr + offset) << LOG2_BLOCK_SIZE;
+    //     prefetch_line(ip, addr, pf_addr, FILL_L2, metadata_in);
+    // }
     
     set_force_all_hits(FORCEALLHITS);
     wType = type;

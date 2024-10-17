@@ -12,7 +12,7 @@ def run_benchmark(trace_name):
 
     # build champsim prefetcher "debugger"
     os.chdir(champsim_dir)
-    subprocess.run(["./build_champsim.sh", "debugger"], check=True)
+    subprocess.run(["./build_champsim.sh", "foo"], check=True)
 
     # make champsim
     subprocess.run(["make"], check=True)

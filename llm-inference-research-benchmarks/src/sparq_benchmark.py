@@ -1,3 +1,16 @@
+import argparse
+
+parser = argparse.ArgumentParser(description='Set configuration for the Benchmark.')
+
+# Adding arguments for n_head, sequence_length, and head_dim
+parser.add_argument('--n_head', type=int, required=True, help='Number of attention heads')
+parser.add_argument('--sequence_length', type=int, required=True, help='Length of each sequence')
+parser.add_argument('--head_dim', type=int, required=True, help='Dimensionality of each attention head')
+
+# Parse command line arguments
+args = parser.parse_args()
+
+
 import os
 os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['MKL_NUM_THREADS'] = '1'
@@ -433,24 +446,42 @@ def main_benchmarkExec():
 
 
     # # Pythia-70
+    # benchmark_config = Benchmark(
+    #     method="dense",  # Use 'dense' for typical self-attention
+    #     kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
+    #     # how many times heads = batch size
+    #     batch_size=1,  
+    #     # how many times seq = num heads
+    #     n_head=8,  # Number of attention heads
+    #     # how many times dimentions = seq
+    #     sequence_length=1024,  # Length of each sequence
+    #     # num elements per vector = dimention
+    #     head_dim=64,  # Dimensionality of each attention head
+    #     dtype="float32",  # Precision of computation
+    #     device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
+    #     reps=2,  # EMULATE NUM OF Transformer LAYERS
+    #     warmup=0,  # Number of warmup runs before timing
+    # )
+
+    # MULTI Config
     benchmark_config = Benchmark(
         method="dense",  # Use 'dense' for typical self-attention
         kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
         # how many times heads = batch size
-        batch_size=1,  # Number of sequences
+        batch_size=1,  
         # how many times seq = num heads
-        n_head=8,  # Number of attention heads
+        n_head=args.n_head,  # Number of attention heads
         # how many times dimentions = seq
-        sequence_length=1024,  # Length of each sequence
+        sequence_length=args.sequence_length,  # Length of each sequence
         # num elements per vector = dimention
-        head_dim=64,  # Dimensionality of each attention head
+        head_dim=args.head_dim,  # Dimensionality of each attention head
         dtype="float32",  # Precision of computation
         device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-        reps=2,  # EMULATE NUM OF Transformer LAYERS
+        reps=1,  # EMULATE NUM OF Transformer LAYERS
         warmup=0,  # Number of warmup runs before timing
     )
     VERBOSE = 0
-    print(f"Pythia-70 Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
+    print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
     # # Running the benchmark
     
     results = custom_run_full_self_attention(benchmark_config)

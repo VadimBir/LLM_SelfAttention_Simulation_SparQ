@@ -540,7 +540,7 @@ VOID Fini(INT32 code, VOID *v)
         output_file_closed = true;
     }
     //cout<<"total generate : " << icount_inside << endl;
-    cout << "Captured: " << instrCaptured << " Of: "<<instrCount<< endl;
+    cout << "FLAG_Instr_Captured:" << instrCaptured << ":Of: "<<instrCount<< endl;
 }
 
 /*!

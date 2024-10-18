@@ -5,10 +5,23 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
+import argparse
+
+parser = argparse.ArgumentParser(description='Where to look')
+# Adding arguments for n_head, sequence_length, and head_dim
+parser.add_argument('--dir', type=int, required=True, help='Number of attention heads')
 
 # Define the directory containing the log files
 #LOG_DIR = './000-simstats/MSHR_Degree/IPStrideMarkov_BF'  # Replace with your actual path
-LOG_DIR = './000-simstats/MSHR_Degree'  # Replace with your actual path
+
+args = parser.parse_args()
+
+LOG_DIR = args.dir
+if not os.path.isdir(LOG_DIR):
+    print(f"Directory {LOG_DIR} does not exist.")
+    exit(1)
+#LOG_DIR = './000-simstats/MSHR_Degree'  # Replace with your actual path
+
 
 # Initialize a list to hold all parsed data
 data = []
@@ -369,4 +382,8 @@ for ax, metric in zip(axes, metrics_to_plot):
 plt.tight_layout(rect=[0, 0, 1, 1])
 
 # Show the plot
-plt.show()
+#plt.show()
+
+# Save the plot as a PNG file in the current directory
+curr_time = time.strftime("%Y%m%d-%H%M%S")
+plt.savefig(f'IPC_{curr_time}.png', dpi=900)

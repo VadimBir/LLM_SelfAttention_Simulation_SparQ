@@ -8,6 +8,10 @@ import numpy as np
 
 from matplotlib.colors import LinearSegmentedColormap
 # Define the directory containing the log files
+
+import argparse
+
+
 LOG_DIR = './000-simstats/'  # Replace with your actual path
 
 # Initialize a list to hold all parsed data

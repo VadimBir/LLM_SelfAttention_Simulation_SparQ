@@ -1,7 +1,11 @@
-Prefetcher Debugging 
-dir ./SparQ/pin_champsim$ 
+# ONE CLICK INSTALL:
+> git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/pin_champsim/ && ./000-install_env.sh
+
+## Debug A prefetcher example: 
+>dir ./SparQ/pin_champsim$ 
 gdb ./bin/perceptron-no-foo-no-lru-1core
 COMMAND: r -warmup_instructions 2000000 -simulation_instructions 10000000 -traces ../LLM_Traces/2B_Traces_SelfAttention_Phythia-70M-Seq1024-07-08-0125.champsim.xz
+
 
 
 

@@ -1060,25 +1060,28 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
 
                 //if (pf_guess_cnt[i] > 0){
                     // if debugger has 1 then print 
+                    pf_nxtH_acc[i] = (double)nxtH_cnt[i]/(double)WINDOW;
                     if (find(debugger.begin(), debugger.end(), 1) != debugger.end()){
-                        cout << " " << i << ":" << setw(9) <<std::left<< nxtH_cnt[i]/(double)WINDOW << " C:"<<(isPfActive[i]?"T":"F")<<setw(8)<<pf_guess_cnt[i] ;
+                        cout << " " << i << ":" << setw(7) <<std::left<< (double)pf_nxtH_acc[i] << " C:"<<(isPfActive[i]?"T":"F")<<setw(3)<<pf_guess_cnt[i] <<std::left<<" H"<<std::left<<setw(2)<<(pf_nxtH_acc[i]>0.001) << " iR:"<<number_of_inRowPfInactivity[i];
+                        //cout << "\nT/F:"<<i <<":"<< isPfActive[i] << " accu: " << pf_nxtH_acc[i] ;;
                     }
                     //cout << " " << i << ":" << setw(9) <<std::left<< nxtH_cnt[i]/(double)WINDOW << " C:"<<(isPfActive[i]?"T":"F")<<setw(8)<<pf_guess_cnt[i] ;
                     //cout << " iR "<< number_of_inRowPfInactivity[i] << " iR ";
-                    pf_nxtH_acc[i] = nxtH_cnt[i]/(double)WINDOW;
-                    if (pf_nxtH_acc[i] > 0.00076 ){
+                    if (((double)pf_nxtH_acc[i]) > (double)0.001 ){
                         isPfActive[i] = true;
-                        number_of_inRowPfInactivity[i] = 0;
+                        number_of_inRowPfInactivity[i]=0;
                     } else {
-                        if ((number_of_inRowPfInactivity[i] > 12)){
-                            isPfActive[i] = false;
-                        }
                         number_of_inRowPfInactivity[i]++;
+                        if ((number_of_inRowPfInactivity[i] == 10) || (number_of_inRowPfInactivity[i] == 7) || (number_of_inRowPfInactivity[i] >= 14) && (number_of_inRowPfInactivity[i] < 16)){
+                            isPfActive[i] = false;
+                        } else {
+                            isPfActive[i] = true;
+                        }
                         //cout << " iR "<< number_of_inRowPfInactivity[i] << " iR ";
 
                     }
-                    nxtH_cnt[i] = 0;
-                    pf_guess_cnt[i] = 0;
+                nxtH_cnt[i] = 0;
+                pf_guess_cnt[i] = 0;
                 //}                
             }
             if (find(debugger.begin(), debugger.end(), 1) != debugger.end()){
@@ -1216,7 +1219,7 @@ uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache
             else{
                 if (isPfActive[MK1_ID]==true){
                     prefetch_line(ip, addr, (pf_addr), FILL_LLC, metadata_in);
-                    number_of_inRowPfInactivity[MK1_ID] = 0;
+                    //number_of_inRowPfInactivity[MK1_ID] = 0;
                 }
                 currentRound_prefetches.push_back(std::make_pair(pf_addr, MK1_ID));
             }  

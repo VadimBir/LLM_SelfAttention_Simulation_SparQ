@@ -5,7 +5,11 @@ import time
 
 
 
+
 base_Stats_Dir = "./000-simstats/comparisons"
+base_Trace_Dir = "./777-comparisonScript_memoryTraces"
+tracesPath_logger = base_Trace_Dir+"/050-collectedTracesPath.log"
+
 # ORDER: MY DESIGN, THEN SOTA DESIGNS: IPCP, ISB, BERTI, BINGO, SPP
 L1D_Design = [
     "next_line",
@@ -35,11 +39,14 @@ LLM_Architecture_Design = [
 
 instr_Captured = 0
 
+traceFileNames = []
+
 def run_benchmark(excluded_steps):
 
     # mem the original dir
     base_dir = os.getcwd()
     if not 1 in excluded_steps:
+        print("Epoch 1")
         # nav to pin_champsim
         champsim_dir = os.path.join(base_dir, "pin_champsim")
 
@@ -80,7 +87,7 @@ def run_benchmark(excluded_steps):
         # make champsim
         # subprocess.run(["make"], check=True)
     if 2 not in excluded_steps:
-
+        print("Epoch 2")
         print("### Capturing LLM Arch Config Traces:")
         print("   > cd:", base_dir)
         os.chdir(base_dir)
@@ -95,8 +102,7 @@ def run_benchmark(excluded_steps):
             name += arch["model_name"] + "_heads" + str(arch["n_head"]) + "_cntxtSize" + str(arch["sequence_length"]) + "_perHeadDim" + str(arch["head_dim"])
             arch_names.append(name)
             print("   > Capturing Traces for:", name)
-            
-            trace_path = f"./LLM_Traces/{name}.champsim"
+            trace_path = f"{base_Trace_Dir}/{name}.champsim"
 
             pin_command = [
                 "./pin_champsim/pin-3.17-98314-g0c048d619-gcc-linux/pin",
@@ -124,39 +130,62 @@ def run_benchmark(excluded_steps):
                 except FileNotFoundError:
                     print("    > ERROR: File not found")
                     exit(1)
+                traceFileNames.append(new_name)
+                
+                
+                
             
             if result.returncode != 0:
                 print("    > ERROR: ", result.stderr)
                 exit(1)
 
-            
+        print("### Compress the Trace Fules:")
+        try:
+            for i, trace_path in enumerate(traceFileNames):
+                print(f"    > Compressing {trace_path}")
+                subprocess.run(["xz", "-2", "--verbose", "-k", trace_path], check=True)
+                print(f"    > File {trace_path} compressed.")
+        except Exception as e:
+            print("    > ERROR COMPRESSING: ", e)
+            exit(1)
         
+
+        # log the location of all the trace file that are being captured and compressed into a file 
+        for file in traceFileNames:
+            file = file.replace(".champsim", ".champsim.xz")
+            print(f"    > File: {file}")
+            with open(tracesPath_logger, "a") as f:
+                f.write(file + "\n")
+     
+    if 3 not in excluded_steps:
+        print("Epoch 3")
+        # Simulate the trace and create the address history file access-<TRACE_NAME>.txt in the root dir
+        os.chdir(base_dir)
+        print("### Simulating Traces:")
+
+        with open(tracesPath_logger, "r") as f:
+            trace_files = [line.strip() for line in f.readlines()]
+
+
+        # chmod 
+        subprocess.run(["chmod", "+x", "./500-SOTA_PrefetcherSim_Runner.sh"], check=True)
+
+        # run another script to simulate the traces ./500-SOTA.sh <traces_base_path> <trace_file_log> 
+        subprocess.run(["./500-SOTA_PrefetcherSim_Runner.sh"]+trace_files, check=True)
+        
+        
+        print("DONE")
         exit(0)
-    ###########################
+        subprocess.run([
+            f"./pin_champsim/bin/perceptron-{L1D_Design[j]}-{L2C_Design[j]}-no-lru-1core",
+            "-warmup", "2000000",
+            "-simulation_instructions", str(instr_Captured),
+            "-traces", f"./LLM_Traces/{trace_name}.champsim.xz"
+        ], check=True)
 
-    # EXTRACT THE NUMBER OF TRACES BEING CAPTURED FROM THE OUTPUT
-
-    ###########################
-
-    # Navigate to traces directory and compress the trace file
-    os.chdir(os.path.join(base_dir, "LLM_Traces"))
-    subprocess.run(["xz", "-2", "--verbose", "-k", f"{trace_name}.champsim"], check=True)
-
-    # Simulate the trace and create the address history file access-<TRACE_NAME>.txt in the root dir
-    os.chdir(base_dir)
-    
-
-    
-    subprocess.run([
-        f"./pin_champsim/bin/perceptron-{L1D_Design[j]}-{L2C_Design[j]}-no-lru-1core",
-        "-warmup", "2000000",
-        "-simulation_instructions", str(instr_Captured),
-        "-traces", f"./LLM_Traces/{trace_name}.champsim.xz"
-    ], check=True)
-
-    # generate graphs from access-<TRACE_NAME>.txt
-    os.chdir(base_dir)
-    subprocess.run(["python", "simstatGrapher.py",  f"./000-simstats/comparison"], check=True)
+        # generate graphs from access-<TRACE_NAME>.txt
+        os.chdir(base_dir)
+        subprocess.run(["python", "simstatGrapher.py",  f"./000-simstats/comparison"], check=True)
 
 
 if __name__ == "__main__":
@@ -173,6 +202,6 @@ if __name__ == "__main__":
     # 1. Build the prefetchers
     # 2. Capture the traces
     # 3. Simulate the traces
-    excluded_steps = [1]
+    excluded_steps = []
     
     run_benchmark(excluded_steps)

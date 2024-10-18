@@ -1,5 +1,5 @@
 # ONE CLICK INSTALL:
-> git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/ && ./000-install_env.sh
+> sudo apt-get install git && git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/ && ./000-install_env.sh
 
 ## Debug A prefetcher example: 
 >dir ./SparQ/pin_champsim$ 

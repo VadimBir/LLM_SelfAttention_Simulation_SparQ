@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo apt-get update && sudo apt upgrade -y && sudo apt-get install -y libxkbcommon-x11-0 pkg-config curl zip unzip tar libegl1 libxcb1 libxcb-render0 libxcb-xinerama0 libxcb-cursor0 libxcb-xfixes0 libwayland-client0 libwayland-cursor0 libwayland-egl1 ccache build-essential git
+sudo apt-get update && sudo apt upgrade -y && sudo apt-get install -y libxkbcommon-x11-0 pkg-config curl zip unzip tar libegl1 libxcb1 libxcb-render0 libxcb-xinerama0 libxcb-cursor0 libxcb-xfixes0 libwayland-client0 libwayland-cursor0 libwayland-egl1 ccache build-essential
 
 echo "Cloning the project"
 #git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git

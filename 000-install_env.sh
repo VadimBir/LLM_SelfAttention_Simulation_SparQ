@@ -2,14 +2,15 @@
 sudo apt-get update && sudo apt upgrade -y && sudo apt-get install -y libxkbcommon-x11-0 pkg-config curl zip unzip tar libegl1 libxcb1 libxcb-render0 libxcb-xinerama0 libxcb-cursor0 libxcb-xfixes0 libwayland-client0 libwayland-cursor0 libwayland-egl1 ccache build-essential git
 
 echo "Cloning the project"
-git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git
-cd LLM_SelfAttention_Simulation_SparQ/pin_champsim/
+#git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git
+#cd LLM_SelfAttention_Simulation_SparQ/pin_champsim/
 
 echo "making Pin tool"
 cd pin-3.17-98314-g0c048d619-gcc-linux/source/tools/ManualExamples/
 make
 
 cd ../../../..
+
 
 # Set the PIN_ROOT environment variable
 #export PIN_ROOT=$(pwd)/pin-3.22-98547-g7a303a835-gcc-linux

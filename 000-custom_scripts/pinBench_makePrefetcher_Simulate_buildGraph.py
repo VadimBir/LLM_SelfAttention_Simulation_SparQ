@@ -111,7 +111,7 @@ def run_benchmark(excluded_steps):
                 "-o", f"{trace_path}",
                 "-s", "0",
                 "-t", "44674407370955",
-                "--", "python", f"{base_dir}/llm-inference-research-benchmarks/src/sparq_benchmark.py", "--n_head", str(arch["n_head"]), "--sequence_length", str(arch["sequence_length"]), "--head_dim", str(arch["head_dim"])
+                "--", "python", f".{base_dir}/llm-inference-research-benchmarks/src/sparq_benchmark.py", "--n_head", str(arch["n_head"]), "--sequence_length", str(arch["sequence_length"]), "--head_dim", str(arch["head_dim"])
 
             ]
             
@@ -136,14 +136,14 @@ def run_benchmark(excluded_steps):
                 
             
             if result.returncode != 0:
-                print("    > ERROR: ", result.stderr)
+                print("    > ERROR2: ", result.stderr)
                 exit(1)
 
         print("### Compress the Trace Fules:")
         try:
             for i, trace_path in enumerate(traceFileNames):
                 print(f"    > Compressing {trace_path}")
-                subprocess.run(["xz", "-2", "--verbose", "-k", trace_path], check=True)
+                subprocess.run(["xz", "-2", "--verbose", "-k", "-t", trace_path], check=True)
                 print(f"    > File {trace_path} compressed.")
         except Exception as e:
             print("    > ERROR COMPRESSING: ", e)

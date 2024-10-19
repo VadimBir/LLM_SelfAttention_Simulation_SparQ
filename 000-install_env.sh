@@ -17,7 +17,7 @@ cd ../../../..
 #echo "export PIN_ROOT=$(pwd)/pin-3.22-98547-g7a303a835-gcc-linux" >> ~/.bashrc
 
 echo "exporting PIN_ROOT, adding to ssh loging and making the tracer"
-export PIN_ROOT=$(pwd)/pin-3.17-98314-g0c048d619-gcc-linux
+export PIN_ROOT=$(pwd)/pin_champsim/pin-3.17-98314-g0c048d619-gcc-linux
 echo "export PIN_ROOT=$(pwd)/pin-3.17-98314-g0c048d619-gcc-linux" >> ~/.bashrc
 
 cd tracer/
@@ -31,7 +31,7 @@ chmod +x make_tracer.sh
 
 cd ..
 
-ehco "Building ChampSim simulator"
+echo "Building ChampSim simulator"
 
 chmod +x ./build_champsim.sh && ./build_champsim.sh no no no
 

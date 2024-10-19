@@ -1,5 +1,10 @@
 # ONE CLICK INSTALL:
-> sudo apt-get install git && git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/ && ./000-install_env.sh
+> sudo apt-get install git && git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/ && chmod +x ./000-install_env.sh && sudo ./000-install_env.sh && alias python=python3 && python -m venv ./venv && source ./venv/bin/activate && pip install -r ./requirements.txt && pip install python-manilaclient && cd ./pin_champsim && make && export PIN_ROOT=.${pwd}pin-3.17-98314-g0c048d619-gcc-linux && cd ./pin-3.17-98314-g0c048d619-gcc-linux/source/tools/ManualExamples && make && cd ../../.. && cd tracer && ./make_tracer.sh && chmod +x 500-SOTA_PrefetcherSim_Runner.sh && chmod +x pin_champsim/build_champsim.sh && sudo chmod -R +x LLM_SelfAttention_Simulation_SparQ/
+
+
+
+# Simulate Everything:
+>
 
 ## Debug A prefetcher example: 
 >dir ./SparQ/pin_champsim$ 

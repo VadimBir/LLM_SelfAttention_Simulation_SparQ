@@ -398,22 +398,22 @@ def main_benchmarkExec():
     global VERBOSE
 
     #Debugger
-    benchmark_config = Benchmark(
-        method="dense",  # Use 'dense' for typical self-attention
-        kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
-        # how many times heads = batch size (SIMULATE THE PARALLEL PROCESSING OF MULTIPLE SEQUENCES)
-        batch_size=1,  # Number of sequences
-        # how many times seq = num heads
-        n_head=1,  # Number of attention heads
+#    benchmark_config = Benchmark(
+ #       method="dense",  # Use 'dense' for typical self-attention
+  #      kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
+   #     # how many times heads = batch size (SIMULATE THE PARALLEL PROCESSING OF MULTIPLE SEQUENCES)
+    #    batch_size=1,  # Number of sequences
+     #   # how many times seq = num heads
+      #  n_head=1,  # Number of attention heads
         # how many times dimentions = seq
-        sequence_length=1,  # Length of each sequence
-        # num elements per vector = dimention
-        head_dim=1,  # Dimensionality of each attention head
-        dtype="float32",  # Precision of computation
-        device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-        reps=1,  # Number of repetitions for the benchmark
-        warmup=0,  # Number of warmup runs before timing
-    )
+#        sequence_length=1,  # Length of each sequence
+ #       # num elements per vector = dimention
+  #      head_dim=1,  # Dimensionality of each attention head
+   #     dtype="float32",  # Precision of computation
+    #    device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
+     #   reps=1,  # Number of repetitions for the benchmark
+      #  warmup=0,  # Number of warmup runs before timing
+   # )
     # VERBOSE = 0
     # print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
     # # Running the benchmark
@@ -464,22 +464,22 @@ def main_benchmarkExec():
     # )
 
     # MULTI Config
-    # benchmark_config = Benchmark(
-    #     method="dense",  # Use 'dense' for typical self-attention
-    #     kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
-    #     # how many times heads = batch size
-    #     batch_size=1,  
-    #     # how many times seq = num heads
-    #     n_head=args.n_head,  # Number of attention heads
-    #     # how many times dimentions = seq
-    #     sequence_length=args.sequence_length,  # Length of each sequence
-    #     # num elements per vector = dimention
-    #     head_dim=args.head_dim,  # Dimensionality of each attention head
-    #     dtype="float32",  # Precision of computation
-    #     device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
-    #     reps=1,  # EMULATE NUM OF Transformer LAYERS
-    #     warmup=0,  # Number of warmup runs before timing
-    # )
+    benchmark_config = Benchmark(
+        method="dense",  # Use 'dense' for typical self-attention
+        kernel="vanilla",  # 'vanilla' for basic implementation, 'compiled' if using compiled layers
+        # how many times heads = batch size
+        batch_size=1,  
+        # how many times seq = num heads
+        n_head=args.n_head,  # Number of attention heads
+        # how many times dimentions = seq
+        sequence_length=args.sequence_length,  # Length of each sequence
+        # num elements per vector = dimention
+        head_dim=args.head_dim,  # Dimensionality of each attention head
+        dtype="float32",  # Precision of coputation
+        device="cpu",  # Use 'cuda' for GPU or 'cpu' for CPU
+        reps=1,  # EMULATE NUM OF Transformer LAYERS
+        warmup=0,  # Number of warmup runs before timing
+    )
     VERBOSE = 0
     print(f"Config:\t Head_dim {benchmark_config.head_dim}\t Seq_len {benchmark_config.sequence_length}\t Num_heads {benchmark_config.n_head}\t Batch_size {benchmark_config.batch_size}")
     # # Running the benchmark

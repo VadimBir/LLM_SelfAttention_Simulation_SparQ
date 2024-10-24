@@ -1,0 +1,12 @@
+Current pid is 3621552
+Config:	 Head_dim 128	 Seq_len 256	 Num_heads 16	 Batch_size 1
+Intel(R) Xeon(R) CPU E5-2670 v3 @ 2.30GHz (1 threads)
+	K: torch.Size([1, 16, 256, 128]) V: torch.Size([1, 16, 256, 128]) Q: torch.Size([1, 16, 256, 128])
+PIN_attn instead of attn
+Transformed Layer:  1 PINSTART:  2 PINEND:  1
+	Duration List: [59.369415283203125]
+	Transformer: 59.369415283203125 Avg Per Layer: 59.369415283203125
+_GLOBAL__sub_I_cShared_PinFlags.cpp----------------------------------------- 0 	 1
+_GLOBAL__sub_I_cShared_PinFlags.cpp----------------------------------------- 75692582 	 0
+FLAG_Instr_Captured:75692582:Of: 75692582
+FLAG_Instr_Captured:0:Of: 0

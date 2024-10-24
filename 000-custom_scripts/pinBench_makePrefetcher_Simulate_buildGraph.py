@@ -6,35 +6,44 @@ import time
 
 
 
-base_Stats_Dir = "./000-simstats/comparisons"
-base_Trace_Dir = "./777-comparisonScript_memoryTraces"
-tracesPath_logger = base_Trace_Dir+"/050-collectedTracesPath.log"
+#base_Stats_Dir = "./000-simstats/comparisons"
+S_LEN=256      
+base_Stats_Dir = f"770-tot_simstats_v3_HMS_conf_Skylake"
+base_Trace_Dir = f"770-tot_memTraces_v3"
+tracesPath_logger = base_Trace_Dir+"/050-collectedTracesPath_v2_QK.log"
 
 # ORDER: MY DESIGN, THEN SOTA DESIGNS: IPCP, ISB, BERTI, BINGO, SPP
 L1D_Design = [
+    "next_line",
     "next_line",
     "ipcp",
     "isb_ideal",
     "berti",
     "bingo_dpc3",
     "no"
+    "no"
+    "next_line"
 ]
 L2C_Design = [
-    "030-L2-MultiMarkovDelta_ip_stride_L1-nextLine-1-2-4_vTTT",
+    "next_line 029-TOPTOP-L2-MultiMarkovDelta_ip_stride_v3"
+    "next_line 029-SecTOP-L2-MultiMarkovDelta_ip_stride_v4"
     "ipcp",
     "isb_ideal",
     "berti",
     "bingo_dpc3",
     "spp_berti_src"
+    "no"
+    "next_line"
+    "no"
 ] # L1 and L2 designs must be the same size
 
 LLM_Architecture_Design = [
-    {"model_name": "Pythia-70M", "n_head": 8, "sequence_length": 1024, "head_dim": 64 }, #, "num_tokens": 2_000_000},
-    {"model_name": "OPT-125M", "n_head": 12, "sequence_length": 1024, "head_dim": 64 }, #, "num_tokens": 2_000_000},
-    {"model_name": "OPT-350M", "n_head": 16, "sequence_length": 1024, "head_dim": 64 }, #, "num_tokens": 2_000_000},
-    {"model_name": "OPT-1_3B", "n_head": 16, "sequence_length": 1024, "head_dim": 128 }, #, "num_tokens": 2_000_000},
-    {"model_name": "OPT-2_7B", "n_head": 32, "sequence_length": 1024, "head_dim": 80 }, #, "num_tokens": 2_000_000},
-    {"model_name": "OPT-6_7B", "n_head": 32, "sequence_length": 1024, "head_dim": 128 }, #, "num_tokens": 2_000_000},
+    {"model_name": "Pythia-70M", "n_head": 8, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
+    {"model_name": "GPT-Neo-125M", "n_head": 12, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
+    {"model_name": "OPT-350M", "n_head": 16, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
+    {"model_name": "GPT-Neo-1_3B", "n_head": 16, "sequence_length": S_LEN, "head_dim": 128 }, #, "num_tokens": 2_000_000},
+    {"model_name": "GPT-Neo-2_7B", "n_head": 32, "sequence_length": S_LEN, "head_dim": 80 }, #, "num_tokens": 2_000_000},
+    {"model_name": "OPT-6_7B", "n_head": 32, "sequence_length": S_LEN, "head_dim": 128 }, #, "num_tokens": 2_000_000},
 ]
 
 instr_Captured = 0
@@ -96,14 +105,16 @@ def run_benchmark(excluded_steps):
 
         #print("## Traces Capture:")
         arch_names = []
-        pin_commands = []
+        pin_command = None
         for i, arch in enumerate(LLM_Architecture_Design):
-            name = "memTraces::_"
-            name += arch["model_name"] + "_heads" + str(arch["n_head"]) + "_cntxtSize" + str(arch["sequence_length"]) + "_perHeadDim" + str(arch["head_dim"])
+            name = "memTraces[]_FE_"
+            name += "["+arch["model_name"] +"]"+ "_[h" + str(arch["n_head"]) + "]_[s" + str(arch["sequence_length"]) + "]_[d" + str(arch["head_dim"])+"]"
             arch_names.append(name)
             print("   > Capturing Traces for:", name)
-            trace_path = f"{base_Trace_Dir}/{name}.champsim"
-
+            trace_path = f"./{base_Trace_Dir}/{name}.champsim"
+            logf_name = f"./{base_Trace_Dir}/memTraces[]_FE_[{arch['model_name']}].log"
+            
+            
             pin_command = [
                 "./pin_champsim/pin-3.17-98314-g0c048d619-gcc-linux/pin",
                 "-follow_execv",
@@ -112,50 +123,66 @@ def run_benchmark(excluded_steps):
                 "-s", "0",
                 "-t", "44674407370955",
                 "--", "python", f"{base_dir}/llm-inference-research-benchmarks/src/sparq_benchmark.py", "--n_head", str(arch["n_head"]), "--sequence_length", str(arch["sequence_length"]), "--head_dim", str(arch["head_dim"])
-
+                
             ]
             
-            pin_commands.append(pin_command)
 
-            result = subprocess.run(pin_command, capture_output=True, text=True)
+            with open(logf_name, 'a') as log_file:
+                if pin_command is None:
+                    print("   > TTT PinCommand")
+                else:
+                    result = subprocess.run(pin_command, stdout=log_file, stderr=log_file, text=True)
             #print(result.stdout) 
-            if "FLAG_Instr_Captured" in result.stdout:
-                instr_Captured = int(result.stdout.split(":")[-1].strip())
-                truncated_instr = (instr_Captured//1_000_000)* 1_000_000
-                print("    > ## Instr Captured:", instr_Captured, "Truncated:", truncated_instr) 
-                original_name = trace_path  # Assuming this is where the output name is set
-                new_name = original_name.replace("memTraces::_", f"memTraces:{truncated_instr}:_")  
-                try:
-                    os.rename(f"{trace_path}", f"{new_name}")
-                except FileNotFoundError:
-                    print("    > ERROR: File not found")
-                    exit(1)
-                traceFileNames.append(new_name)
-                
-                
-                
+            num_traces = 0
+            model_arch = arch['model_name']
+            with open(logf_name, 'r') as log_file:
+                for line in log_file:
+                    if 'FLAG_Instr_Captured' in line:
+                        # Split the line by ':' and get the value at index 1
+                        parts = line.split(':')
+                        if len(parts) > 1:
+                            num_traces = int(parts[1].strip()) // 1000000 * 1000000
+                            
+                            print(f"    > Captured value: {num_traces}")
+                            break
+            #print ("FList: ", os.listdir(base_Trace_Dir))
+            for file_name in os.listdir(base_Trace_Dir):
+                if model_arch in file_name:
+                    old_path = os.path.join(base_Trace_Dir, file_name)
+                    new_file_name = file_name.replace('[]', f'[{num_traces}]')
+                    new_path = os.path.join(base_Trace_Dir, new_file_name)
+                    print(f"     > Renaming {old_path} to {new_path}")
+                    os.rename(old_path, new_path)
+                    if '.champsim' in new_path:
+                        traceFileNames.append(new_path)
+            #new_log_file = logf_name.replace('[]', f'[{num_traces}]')
+            #print(f"   > Renaming {logf_name} to {new_log_file}")
             
-            if result.returncode != 0:
-                print("    > ERROR: ", result.stderr)
-                exit(1)
+            
+            
+            
 
+
+            
+            
         print("### Compress the Trace Fules:")
         try:
             for i, trace_path in enumerate(traceFileNames):
-                print(f"    > Compressing {trace_path}")
-                subprocess.run(["xz", "-2", "--verbose", "-k", trace_path], check=True)
+                print(f"   > Compressing {trace_path}")
+                subprocess.run(["xz", "-2", "--verbose", "-k", "-T8" ,trace_path], check=True)
                 print(f"    > File {trace_path} compressed.")
         except Exception as e:
-            print("    > ERROR COMPRESSING: ", e)
+            print("     > ERROR COMPRESSING: ", e)
             exit(1)
         
 
         # log the location of all the trace file that are being captured and compressed into a file 
-        for file in traceFileNames:
-            file = file.replace(".champsim", ".champsim.xz")
-            print(f"    > File: {file}")
-            with open(tracesPath_logger, "a") as f:
-                f.write(file + "\n")
+        # for file in traceFileNames:
+        #     file = file.replace(".champsim", ".champsim.xz")
+        #     print(f"    > File: {file}")
+        #     pathTracesLogger = "./"+tracesPath_logger
+        #     with open(pathTracesLogger, "a") as f:
+        #         f.write(file + "\n")
      
     if 3 not in excluded_steps:
         print("Epoch 3")
@@ -163,29 +190,31 @@ def run_benchmark(excluded_steps):
         os.chdir(base_dir)
         print("### Simulating Traces:")
 
-        with open(tracesPath_logger, "r") as f:
-            trace_files = [line.strip() for line in f.readlines()]
+        # with open(tracesPath_logger, "r") as f:
+        #     trace_files = [line.strip() for line in f.readlines()]
 
 
         # chmod 
         subprocess.run(["chmod", "+x", "./500-SOTA_PrefetcherSim_Runner.sh"], check=True)
 
         # run another script to simulate the traces ./500-SOTA.sh <traces_base_path> <trace_file_log> 
-        subprocess.run(["./500-SOTA_PrefetcherSim_Runner.sh"]+trace_files, check=True)
+        print ("giving args: ", base_Trace_Dir, base_Stats_Dir)
+        subprocess.run(["./500-SOTA_PrefetcherSim_Runner.sh"] + [base_Trace_Dir] + [base_Stats_Dir], check=True)
+ 
         
         
         print("DONE")
         exit(0)
-        subprocess.run([
-            f"./pin_champsim/bin/perceptron-{L1D_Design[j]}-{L2C_Design[j]}-no-lru-1core",
-            "-warmup", "2000000",
-            "-simulation_instructions", str(instr_Captured),
-            "-traces", f"./LLM_Traces/{trace_name}.champsim.xz"
-        ], check=True)
+        # subprocess.run([
+        #     f"./pin_champsim/bin/perceptron-{L1D_Design[j]}-{L2C_Design[j]}-no-lru-1core",
+        #     "-warmup", "2000000",
+        #     "-simulation_instructions", str(instr_Captured),
+        #     "-traces", f"./LLM_Traces/{trace_name}.champsim.xz"
+        # ], check=True)
 
-        # generate graphs from access-<TRACE_NAME>.txt
-        os.chdir(base_dir)
-        subprocess.run(["python", "simstatGrapher.py",  f"./000-simstats/comparison"], check=True)
+        # # generate graphs from access-<TRACE_NAME>.txt
+        # os.chdir(base_dir)
+        # subprocess.run(["python", "simstatGrapher.py",  f"./000-simstats/comparison"], check=True)
 
 
 if __name__ == "__main__":
@@ -202,6 +231,6 @@ if __name__ == "__main__":
     # 1. Build the prefetchers
     # 2. Capture the traces
     # 3. Simulate the traces
-    excluded_steps = []
+    excluded_steps = [1,2]
     
     run_benchmark(excluded_steps)

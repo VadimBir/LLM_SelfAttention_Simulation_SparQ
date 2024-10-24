@@ -5,11 +5,23 @@
  */
 
 #include "pin.H"
+using namespace std;
+using namespace std;
 #include <iostream>
+using namespace std;
+using namespace std;
 #include <fstream>
+using namespace std;
+using namespace std;
 #include <stdlib.h>
+using namespace std;
+using namespace std;
 #include <string.h>
+using namespace std;
+using namespace std;
 #include <string>
+using namespace std;
+using namespace std;
 using namespace std;
 #define NUM_INSTR_DESTINATIONS 2
 #define NUM_INSTR_SOURCES 4

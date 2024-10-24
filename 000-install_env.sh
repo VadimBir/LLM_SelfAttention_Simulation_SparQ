@@ -31,7 +31,7 @@ chmod +x make_tracer.sh
 
 cd ..
 
-ehco "Building ChampSim simulator"
+echo "Building ChampSim simulator"
 
 chmod +x ./build_champsim.sh && ./build_champsim.sh no no no
 

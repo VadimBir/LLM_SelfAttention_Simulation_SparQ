@@ -35,7 +35,7 @@
 // CPU
 #define NUM_CPUS 1
 #define CPU_FREQ 4000
-#define DRAM_IO_FREQ 2400 // DDR4-2400
+#define DRAM_IO_FREQ 2400 // same as Hermes DRAM IO frequency 3200 Pythia is 2400
 #define PAGE_SIZE 4096
 #define LOG2_PAGE_SIZE 12
 

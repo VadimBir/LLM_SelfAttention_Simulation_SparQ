@@ -14,18 +14,18 @@
 using namespace std;
 
 // CORE PROCESSOR
-#define FETCH_WIDTH 6
-#define DECODE_WIDTH 6
-#define EXEC_WIDTH 4
-#define LQ_WIDTH 2
-#define SQ_WIDTH 2
-#define RETIRE_WIDTH 4
-#define SCHEDULER_SIZE 128
-#define BRANCH_MISPREDICT_PENALTY 20
+#define FETCH_WIDTH 6                   // FLAG_CONFIG same as Pythia
+#define DECODE_WIDTH 6                  // FLAG_CONFIG same as Pythia
+#define EXEC_WIDTH 4                    // FLAG_CONFIG same as Pythia
+#define LQ_WIDTH 2                      // FLAG_CONFIG same as Hermes
+#define SQ_WIDTH 2                      // FLAG_CONFIG same as Hermes
+#define RETIRE_WIDTH 4                  // FLAG_CONFIG same as Pythia
+#define SCHEDULER_SIZE 128              // FLAG_CONFIG same as Pythia
+#define BRANCH_MISPREDICT_PENALTY 20    // FLAG_CONFIG same as Pythia
 //#define SCHEDULING_LATENCY 6
 //#define EXEC_LATENCY 1
 
-#define STA_SIZE (ROB_SIZE*NUM_INSTR_DESTINATIONS_SPARC)
+#define STA_SIZE (ROB_SIZE*NUM_INSTR_DESTINATIONS_SPARC)    // Unchanged FLAG_CONFIG same as Hermes
 
 extern uint32_t SCHEDULING_LATENCY, EXEC_LATENCY;
 

@@ -1,54 +1,129 @@
 #!/bin/bash
 
 # Check if at least one trace file was passed
-if [ "$#" -lt 1 ]; then
-    echo "Usage: $0 <trace_file_1> [<trace_file_2> ... <trace_file_n>]"
+
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 <trace dir> <output dir>"
     exit 1
 fi
 
-# The arguments are the trace file paths
-TRACES_FILE=("$@")
-echo ""
-echo "Epoch 4"
-echo "> Using the following trace files:"
-for trace in "${TRACES_FILE[@]}"; do
-    echo "$trace"
-    # Process each trace file
-    echo "Processing $trace ..."
-done
-
-for trace in "${TRACES_FILE[@]}"; do
-    # Extract the number between the colons (::)
-    number=$(echo "$trace" | cut -d':' -f2)
-    
-    # Output the extracted number or use it in further processing
-    echo "> Extracted number from $trace: $number"
-done
-
-
-
+MAX_PROCESSES=42
 BASE=$(pwd)
-OUTPUT_BASE_dir=$BASE/777-simstats
+
+OUT_STAT_DIR="$2"
+TRACE_BASE_DIR="$1"
+OUTPUT_BASE_dir="$BASE/$OUT_STAT_DIR"
+echo "TRACE_BASE_DIR: $TRACE_BASE_DIR"
+echo "OUTPUT_BASE_dir: $OUTPUT_BASE_dir"
+# The arguments are the trace file paths
+
+# Check if the directory exists
+if [ ! -d "$TRACE_BASE_DIR" ]; then
+    echo "Error: Directory '$TRACE_BASE_DIR' does not exist."
+    exit 1
+fi
+
+# Find all .xz files in the base directory and subdirectories
+TRACES_FILE=($(find "$TRACE_BASE_DIR" -type f -name "*.xz"))
+echo "Found ${#TRACES_FILE[@]} .xz files in the directory '$TRACE_BASE_DIR'."
+
+# Check if any .xz files were found
+if [ ${#TRACES_FILE[@]} -eq 0 ]; then
+    echo "Error: No .xz files found in the directory '$TRACE_BASE_DIR'."
+    exit 1
+fi
+
+# Print out the array of trace files for verification (optional)
+
+echo "Processing trace files:"
+declare -A file_trace_map
+# values_array=()
+# # Assuming TRACES_FILE is already populated with file paths
+# for trace in "${TRACES_FILE[@]}"; do
+#     # Extract the value between []
+#     #value=$(echo "$trace" | grep -oP '\[\K[^\]]+(?=\])')
+
+#     echo "Found file with value between []: $trace"
+#     # # Check if the value between [] exists
+#     # if [ -n "$value" ]; then
+#     #     #echo "Value between []: $value"
+        
+#     #     # Populate the associative array: file path as the key, value as the value
+#     #     #file_trace_map["$trace"]="$value"
+    
+#     # else
+#     #     echo "> Skipping file (no value between []): $trace"
+#     # fi
+#     values_array+=("$trace")
+# done
+
+
+values_array=()
+for trace in "${TRACES_FILE[@]}"; do
+    echo "Found file with value between []: $trace"
+    values_array+=("$trace") # Correctly appending to array
+done
+
+# for trace in "${TRACES_FILE[@]}"; do
+#     # Extract the value between []
+#     value=$(echo "$trace" | grep -oP '\[\K[^\]]+(?=\])')
+
+#     # Check if the value between [] exists
+#     if [ -n "$value" ]; then
+#         echo "Found file with value between []: $trace"
+#         echo "Value between []: $value"
+#         # Here you can process the file as needed
+#     else
+#         echo "Skipping file (no value between []): $trace"
+#     fi
+# done
+
+# # TRACES_FILE=("$@")
+# echo ""
+# echo "Epoch 4"
+# echo "> Using the following trace files:"
+# # for trace in "${TRACES_FILE[@]}"; do
+# #     echo "$trace"
+# #     # Process each trace file
+# #     echo "Processing $trace ..."
+# # done
+
+# for trace in "${TRACES_FILE[@]}"; do
+#     # Extract the number between the colons (::)
+#     number=$(echo "$trace" | cut -d':' -f2)
+    
+#     # Output the extracted number or use it in further processing
+#     echo "> Extracted number from $trace: $number"
+# done
+
+
+
 
 #!/bin/bash
 
 # Set the maximum number of concurrent processes
-MAX_PROCESSES=6
+
 
 # Define the prefetcher's configuration file path
 FILE_PATH="$BASE/pin_champsim/prefetcher/ZeroMarkovDelta_OutlierMinMax.l2c_pref"
 BASE_Pf_PATH="$BASE/pin_champsim/prefetcher"
 prefetcher_designs=(
-    "next_line 030-L2-MultiMarkovDelta_ip_stride_L1-nextLine-1-2-4_vTTT"
-    "ipcp ipcp"
-    "isb_ideal isb_ideal"
     "berti berti"
+    "isb_ideal isb_ideal"
+    # "next_line 030-L2-MultiMarkovDelta_ip_stride_L1-nextLine-1-2-4_vTTT"
+    "next_line 029-SecTOP-L2-MultiMarkovDelta_ip_stride_v4"
     "bingo_dpc3 bingo_dpc3"
+    "bingo_dpc3_PHT1k bingo_dpc3_PHT1k"
+    "ipcp ipcp"
     "no spp_berti_src"
+    "next_line 029-TOPTOP-L2-MultiMarkovDelta_ip_stride_v3"
+    "no no"
+    "next_line no"
+    # "no next_line"
 )
 
 # Define the ChampSim directory
-CHAMPSIM_DIR="$BASE/SparQ/pin_champsim"
+CHAMPSIM_DIR="$BASE/pin_champsim"
 
 # Define the traces to be used
 # TRACES_FILE=(
@@ -59,8 +134,13 @@ CHAMPSIM_DIR="$BASE/SparQ/pin_champsim"
 
 
 # Define the MAX and MIN threshold values
-# MAX_THRESHOLDS=(4 8 16 32 64 128) #FTR 8192 16384 32768 65536 131072 262144 524288 1048576)
-# MIN_THRESHOLDS=(0 4 8 32 64) #FTR 4096 8192)
+P_Thresh=(0 2 5 10 15 20 25 30 35 40) #FTR 8192 16384 32768 65536 131072 262144 524288 1048576)
+Degree=(12 13 14 15 16)
+D_SKIP_AT=(2 5 8 10 12 15 17 21 23 25)
+D_SKIP_AMOUNT=(1 2 4 6 8 10 12 14 16 18 20)
+
+
+#MIN_THRESHOLDS=(0 4 8 32 64) #FTR 4096 8192)
 # SIZES=(8 16)
 # Initialize the number of running processes
 running=0
@@ -84,21 +164,33 @@ for trace in "${TRACES_FILE[@]}"; do
         ((total_runs++))
     done
 done
+
 current_run=0
 echo ""
 echo "> Total runs: $total_runs"
 
 
+# echo "Populated file_trace_map:"
+# for file in "${!file_trace_map[@]}"; do
+#     echo "> File: $file, Value: ${file_trace_map[$file]}"
+# done
+
+
 # Iterate over all MAX and MIN threshold combinations
-for trace in "${TRACES_FILE[@]}"; do
+for trace_file in "${TRACES_FILE[@]}"; do
+    echo "Processing trace: $trace_file"
     for prefetcher in "${prefetcher_designs[@]}"; do
-        for ((i=0; i<${#TRACES_FILE[@]}; i++)); do
-            trace="${TRACES_FILE[$i]}"
-            simTraces_num=$(echo "$trace" | cut -d':' -f2)
+        #for file in "${!file_trace_map[@]}"; do
+            #echo "MAP:${file_trace_map[@]}"
+            echo "F:${trace_file}"
+
+            # exit 0
+            trace=$file
+            simTraces_num=$(echo "$trace_file" | grep -oP '\[\K[0-9]+(?=\])')
             eachTraceFile=$trace
             
             # Determine the trace type based on the index
-            model_name=$(echo "$trace" | cut -d':' -f3 | cut -d'_' -f1)
+            model_name=$(echo "$trace_file" | cut -d':' -f3 | cut -d'_' -f1)
             output_type=$model_name
 
             prefetcher_L1=$(echo $prefetcher | awk '{print $1}')
@@ -107,48 +199,49 @@ for trace in "${TRACES_FILE[@]}"; do
             # DONE PREPROCESSING
             ((current_run++))
             echo "## Actual Simulations:"
-            echo ">> Run: ${current_run} of ${total_runs} runs on Trace: ${output_type}..."
 
+            traceConfig=$(basename "${trace_file}" | sed 's/memTraces//' | sed 's/\..*//')
+
+            
+            echo " > Run: ${current_run} of ${total_runs} Sim: ${simTraces_num} Trace: ${traceConfig} ..."
+            echo "  > Config: $traceConfig"
             # Define the output log file with MIN and MAX in its name
-            OUTPUT_FILE="$OUTPUT_BASE_dir/100-L2-${prefetcher_L2}_L1-${prefetcher_L1}.log"
-            echo ">> Output log file: $OUTPUT_FILE"
+            OUTPUT_FILE="$OUTPUT_BASE_dir/100-${traceConfig}-[L2-${prefetcher_L2}]_[L1-${prefetcher_L1}]-$EPOCHSECONDS.log"
+            echo "   > Output log file: $OUTPUT_FILE"
             # Create the directory if it doesn't exist
             chmod +w $OUTPUT_BASE_dir
             # Create or truncate the output file
+            
             > "$OUTPUT_FILE"
 
-            # Extract num of traces from the trace file name 
-            number=$(echo "$trace" | cut -d':' -f2)
-    
-            # Output the extracted number or use it in further processing
-            echo ">> Extracted number: $number"
 
             
-            BINARY_FILE="$CHAMPSIM_DIR/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-1core"
+            BINARY_FILE="./pin_champsim/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-1core"
             actual_trace_name="${TRACES_FILE[-1]}"
             actual_trace_name="${actual_trace_name%.champsim.xz}"
-            echo "TRACE: $actual_trace_name Warmup: $default_Warmup Sim: $number"  >> $OUTPUT_FILE
+            echo "TRACE: $traceConfig Warmup: $default_Warmup NumTraces: $simTraces_num"  >> $OUTPUT_FILE
             echo "L1:$prefetcher_L1:L2:$prefetcher_L2" >> $OUTPUT_FILE 
-            echo ">> Simulating: L1:$prefetcher_L1:L2:$prefetcher_L2"
+            echo "  > Simulating: L1:$prefetcher_L1:L2:$prefetcher_L2"
             # Run the simulation in the background
+
             (
                 
                 # Check if the binary file exists
                 if [ ! -f "$BINARY_FILE" ]; then
-                    echo ">>> Creating Binary file ..."
+                    echo "   > Creating Binary file ..."
                     cd "$CHAMPSIM_DIR" && sudo nice -n -39 ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no && cd .. || cd ..
                 else
-                    echo ">>> Binary exists, build skipped!"
+                    echo "   > Binary exists, build skipped!"
                 fi
-                
-                Run the binary
+                echo "    > Running simulation... (${current_run})"
+                #Run the binary
                 sudo nice -n -39 \
                     ./pin_champsim/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-1core \
                         -warmup ${default_Warmup} \
-                        -simulation_instructions ${number}-${default_Warmup} \
-                        -traces "$TRACES_FILE" >> "$OUTPUT_FILE" 2>&1
+                        -simulation_instructions $((simTraces_num-default_Warmup-3000000)) \
+                        -traces "$trace_file" >> "$OUTPUT_FILE" 2>&1
 
-                echo "Finished combination: TraceType=${output_type} Prefetcher=${prefetcher_L2} L1=${prefetcher_L1}" >> "$OUTPUT_FILE"
+                echo "     > Finished combination: TraceType=${output_type} Sim:$((simTraces_num-default_Warmup-3000000)) Prefetcher=L2${prefetcher_L2} L1=${prefetcher_L1}" >> "$OUTPUT_FILE"
             ) &
 
             # Increment the running process count
@@ -156,7 +249,7 @@ for trace in "${TRACES_FILE[@]}"; do
 
             # If the number of running processes reaches MAX_PROCESSES, wait for any to finish
             if (( running >= MAX_PROCESSES )); then
-                echo ">> Waiting for running processes to finish..."
+                echo " > Waiting for running processes to finish..."
                 wait -n
                 ((running--))
             fi
@@ -168,7 +261,7 @@ for trace in "${TRACES_FILE[@]}"; do
                 # Get the current number of lines in the OUTPUT_FILE
                 line_count=$(wc -l < "$OUTPUT_FILE")
                 
-                if (( line_count > 20 )); then
+                if (( line_count > 5 )); then
                     # Proceed to start the next process
                     break
                 fi
@@ -180,8 +273,8 @@ for trace in "${TRACES_FILE[@]}"; do
                 sleep 1
             done
             
-            done
-        done
+            #done
+        #done
     done
 done
 

@@ -1,12 +1,21 @@
+/******************************************************************
+ * This file defines all core+uncore configutation parameters
+ * The core parameters are closely modeled after Intel Golden Cove architecture.
+ * 
+ * https://en.wikichip.org/wiki/intel/microarchitectures/golden_cove
+ * https://www.anandtech.com/show/16881/a-deep-dive-into-intels-alder-lake-microarchitectures/3 
+ *
+ ******************************************************************/
+
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
 
 
 // instruction format
-#define ROB_SIZE 256
-#define LQ_SIZE 72
-#define SQ_SIZE 56
-#define NUM_INSTR_DESTINATIONS_SPARC 4
+#define ROB_SIZE 256                    // FLAG_CONFIG same as Pythia
+#define LQ_SIZE 72                      // FLAG_CONFIG same as Pythia
+#define SQ_SIZE 56                      // FLAG_CONFIG same as Pythia
+#define NUM_INSTR_DESTINATIONS_SPARC 4  
 #define NUM_INSTR_DESTINATIONS 2
 #define NUM_INSTR_SOURCES 4
 

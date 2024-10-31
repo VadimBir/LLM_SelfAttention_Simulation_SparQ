@@ -1,0 +1,47 @@
+#include "cache.h"
+
+#include <vector>
+int builI = 64;
+
+void CACHE::l2c_prefetcher_initialize() 
+{
+  cout << "------------FULL HIT HUGE DEGREE------------" << endl;
+  cout << "------------"<<builI<<"------------" << endl;
+}
+
+// vector stroing aligned addresses 
+std::vector<uint64_t> aligned_addresses;
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+  //set_force_all_hits(true);
+  // next address prefetch from 1 to n via a for loop 
+  // append a new aligned addr
+  // aligned_addresses.push_back(addr>> LOG2_BLOCK_SIZE);
+
+
+  // prefetch all the past addresses 
+  // for (auto x : aligned_addresses) 
+  // {
+  //   uint64_t pf_addr = ((x) << LOG2_BLOCK_SIZE);
+  //   prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+  // }
+
+  // for (int i = 1; i < builI; i++) 
+  // {
+  //   uint64_t pf_addr = ((addr ) -x   i) << LOG2_BLOCK_SIZE;
+  //   prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+  // }
+  
+  return metadata_in;
+}
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+  return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+  cout << "------------FULL HIT HUGE DEGREE------------" << endl;
+  cout << "------------"<<builI<<"------------" << endl;
+}

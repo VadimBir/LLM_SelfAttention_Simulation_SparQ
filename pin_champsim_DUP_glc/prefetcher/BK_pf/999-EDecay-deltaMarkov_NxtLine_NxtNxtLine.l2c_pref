@@ -1,0 +1,201 @@
+#include "cache.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
+
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+
+std::ofstream addressFile;
+
+
+
+int64_t cnt = 0;
+
+int DBGER = 0;
+/*
+ * 0 no debug,
+ * 1 debug sizes,
+ * 2 debug tables and LRU,
+ * 3 debug with all details
+ * 4 only pf_Values
+ * 5 LRU_IT K:V and PREDICTIONS
+ */
+
+
+int popular_prefetch_offset[] = {1,2,4};
+
+std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
+const int MARKOV_LRU_SIZE = 1 + 4096;
+using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
+std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
+int markov_LRU_front = 0;
+const int MAX_PREDICTIONS = 10;
+const int MARKOV_PREDICTION_THRESHOLD = 16;
+
+
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+uint64_t pf_addr = 0;
+
+void CACHE::l2c_prefetcher_initialize() {
+    cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+}
+
+
+std::unordered_map<int64_t, int>::iterator markov_evict_lru() {
+    std::unordered_map<int64_t, int>::iterator val_it = markov_LRU[0];
+    for (size_t i = 1; i < markov_LRU_front; i++) {
+        markov_LRU[i - 1] = markov_LRU[i];
+    }
+    return val_it;
+}
+
+void markov_update_lru(int index) {
+    auto tmpVal = markov_LRU[index];
+    for (size_t i = 0; i < markov_LRU_front; i++) {
+        if (i < index) {
+            continue;
+        }
+        markov_LRU[i] = markov_LRU[i + 1];
+    }
+
+
+    markov_LRU[markov_LRU_front - 1] = tmpVal;
+
+}
+
+std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
+    // Get topP
+
+    std::vector<int64_t> top_predictions;
+    auto it = markov_table.find(previous_addr - addr);
+    if (it != markov_table.end()) {
+        auto &next_blocks = it->second;
+        std::vector<std::pair<uint64_t, double>> predictions;
+
+        // Initialize the decay factor (e.g., 0.9 as an example)
+        double decayFactor = 0.9;
+        double weight = 1.0;
+
+        // Iterate over the entries with recency decay applied
+        for (auto &prediction : next_blocks) {
+            predictions.push_back({prediction.first, prediction.second * weight});
+            weight *= decayFactor;  // Apply decay factor to reduce the weight of older entries
+        }
+
+        // Sort by the weighted counts in descending order
+        std::sort(predictions.begin(), predictions.end(),
+                [](const std::pair<uint64_t, double> &a, const std::pair<uint64_t, double> &b) {
+                    return a.second > b.second;
+                });
+
+        for (auto &prediction : predictions) {
+            if (top_predictions.size() >= MAX_PREDICTIONS) break;
+            if (prediction.second > MARKOV_PREDICTION_THRESHOLD) {
+                pf_addr = prediction.first;
+                top_predictions.push_back(pf_addr);
+            }
+        }
+    }
+
+
+    // MTable processing
+    auto lru_it = std::find(markov_LRU.begin(), markov_LRU.end(), val_it);
+    if (lru_it != markov_LRU.end()) {
+        int index = lru_it - markov_LRU.begin();
+        markov_update_lru(index);
+    } else {
+        if (markov_LRU_front != MARKOV_LRU_SIZE - 1) {
+            markov_LRU[markov_LRU_front] = val_it;
+            markov_LRU_front++;
+        } else {
+            auto toDel = markov_evict_lru();
+            for (auto &outer_pair: markov_table) {
+                auto &inner_map = outer_pair.second;
+                for (auto it = inner_map.begin(); it != inner_map.end();) {
+                    if (it == toDel) {
+                        it = inner_map.erase(it);
+                        break;
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+            for (auto it = markov_table.begin(); it != markov_table.end();) {
+                if (it->second.empty()) {
+                    it = markov_table.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+
+            markov_LRU[markov_LRU_front - 1] = val_it;
+        }
+    }
+    return top_predictions;
+}
+
+
+
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in) {
+
+
+    // USING NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE START
+       for (int offset : popular_prefetch_offset) {
+           pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
+           prefetch_line(ip, addr, pf_addr, FILL_L3, 0);
+       }
+    // END OF NXT LINE PREFETCHER ---------------------------------------------------------------------------------------------- NXT LINE END
+    
+
+    // USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
+    int64_t key_delta = 0;
+    int64_t val_delta = 0;
+
+    addr = addr >> LOG2_BLOCK_SIZE;
+    addr = addr << LOG2_BLOCK_SIZE;
+    if (pre_previous_addr != 0) {
+        key_delta = (pre_previous_addr) - (previous_addr);
+        val_delta = (previous_addr) - (addr);
+    }
+    IteratorType key_it;
+    std::unordered_map<int64_t, int>::iterator val_it;
+    if (pre_previous_addr != 0) {
+
+
+        markov_table[key_delta][val_delta]++;
+
+        key_it = markov_table.find(key_delta);
+        val_it = key_it->second.find(val_delta);
+
+    }
+
+
+    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
+
+    for (int64_t pf_offset: pf_topP) {
+
+        pf_addr = ((addr) - pf_offset);
+        prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+    }
+    // DONE USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- DONE MARKOV
+
+    pre_previous_addr = previous_addr;
+    previous_addr = addr;
+    cnt++;
+    return metadata_in;
+}
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr,
+                                 uint32_t metadata_in) {
+    return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats() {
+    cout << "CPU " << cpu << " L2C next line prefetcher final stats" << endl;
+}

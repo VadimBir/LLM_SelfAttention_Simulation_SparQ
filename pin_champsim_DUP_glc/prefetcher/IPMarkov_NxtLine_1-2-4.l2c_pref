@@ -1,0 +1,247 @@
+#include "cache.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <functional> 
+#include <cstdint>
+
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+std::ofstream addressFile;
+
+void CACHE::l2c_prefetcher_initialize()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+
+}
+int ADDR_TO_SKIP = 1;
+int BULK_FETCH_ADDR = 4;
+int64_t cnt = 0;
+int DBGER = 0;
+/*
+ * 0 no debug,
+ * 1 debug sizes,
+ * 2 debug tables and LRU,
+ * 3 debug with all details
+ * 4 only pf_Values
+ * 5 LRU_IT K:V and PREDICTIONS
+ */
+
+int popular_prefetch_offset[] = {1,2,4};
+
+std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
+const int MARKOV_LRU_SIZE = 1+ 16384;
+using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
+std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};  
+int markov_LRU_front = 0;
+const int MAX_PREDICTIONS = 32;
+const int MARKOV_PREDICTION_THRESHOLD = 4;
+
+uint64_t pre_pre_previous_addr = 0;
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+uint64_t pf_addr = 0;
+
+int64_t combine_hashes(int64_t pre_key_delta, int64_t key_delta) {
+    std::hash<int64_t> hasher;
+    int64_t hash1 = hasher(pre_key_delta);
+    int64_t hash2 = hasher(key_delta);
+
+    return hash1 ^ (hash2 << 1); 
+}
+std::unordered_map<int64_t, int>::iterator markov_evict_lru(){
+    
+    std::unordered_map<int64_t, int>::iterator  val_it = markov_LRU[0];
+    
+    for (size_t i = 1; i < markov_LRU_front; i++) {
+        markov_LRU[i-1] = markov_LRU[i];    
+    }
+    return val_it;
+}
+void markov_update_lru(int index) {
+    auto tmpVal = markov_LRU[index];
+    for (size_t i = 0; i < markov_LRU_front; i++) {
+        if (i<index){
+            continue;
+        }
+        markov_LRU[i] = markov_LRU[i+1];
+    }
+        markov_LRU[markov_LRU_front - 1] = tmpVal;
+}
+
+std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
+    std::vector<int64_t> top_predictions;
+   
+    //int64_t doubleDeltaKey = combine_hashes(ip, previous_addr-addr);
+    auto it = markov_table.find(ip);
+    if (it != markov_table.end()) {        
+        auto& next_blocks = it->second;
+        std::vector<std::pair<uint64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        if (DBGER == 5) {
+            for (auto& prediction : predictions) {
+                std::cout << "allPred:"<<prediction.first << ":" << prediction.second << "\t";
+            }
+            std::cout << std::endl;
+        }
+        std::sort(predictions.begin(), predictions.end(),
+                  [](const std::pair<uint64_t, int>& a, const std::pair<uint64_t, int>& b) {
+                      return a.second > b.second;  
+                  });
+        for (auto& prediction : predictions) {
+            if (top_predictions.size() >= MAX_PREDICTIONS) break; 
+            if (prediction.second > MARKOV_PREDICTION_THRESHOLD){
+                pf_addr = prediction.first; 
+                if (DBGER == 5) {
+                    std::cout << "pfPred: " << prediction.first << ":" << prediction.second << std::endl<<std::endl;
+                }
+                top_predictions.push_back(pf_addr); 
+            }
+        }
+    }
+    auto lru_it = std::find(markov_LRU.begin(), markov_LRU.end(), val_it);
+    int foo = 0;
+    if (lru_it != markov_LRU.end()) { 
+        int index = lru_it - markov_LRU.begin();
+        markov_update_lru(index);
+        if (markov_table.size() > 60 && DBGER == 2){
+            for (size_t i = 0; i < markov_LRU_front; i++) {
+                cout << "48 "<< markov_LRU[48]->first<<" Front:"<< markov_LRU_front<< endl;
+                cout <<i<<":"<<markov_LRU[i]->first << " "<<endl;
+                cout<<  markov_table.size() << endl;
+            }
+            cout << endl;
+            cout << "if (lru_it != markov_LRU.end()) {:158 \tLRUfront " << markov_LRU_front << " Mkv_T_Size: " << markov_table.size() << endl;
+        }
+    } else { 
+        if (markov_table.size() > 60 && DBGER == 2){
+            for (size_t i = 0; i < markov_LRU_front; i++) {
+                cout << "48 " << markov_LRU[48]->first<<" Front:"<< markov_LRU_front<<endl;
+                cout <<i<<":"<<markov_LRU[i]->first << " "<<endl;
+                cout<<  markov_table.size() << endl;
+            }
+            cout << endl;
+            cout << "    } else {:166 \tLRUfront " << markov_LRU_front << " Mkv_T_Size: " << markov_table.size() << endl;
+            
+        }
+        if (markov_LRU_front != MARKOV_LRU_SIZE - 1) { 
+            markov_LRU[markov_LRU_front] = val_it; 
+            markov_LRU_front++; 
+        } else { 
+            if (DBGER == 5) {
+                for (size_t i = 0; i < markov_LRU_front; i++) {
+                    cout <<"i:"<<i<<"K:"<<markov_LRU[i]->first << " V:" <<markov_LRU[i]->second<< " ";
+                }
+                cout << endl;
+            }
+            auto toDel = markov_evict_lru(); 
+
+            for (auto& outer_pair : markov_table) {
+                auto& inner_map = outer_pair.second;
+
+                for (auto it = inner_map.begin(); it != inner_map.end();) {
+                    if (it == toDel) {                        
+                        it = inner_map.erase(it);
+                        break;
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+            for (auto it = markov_table.begin(); it != markov_table.end(); ) {
+                if (it->second.empty()) {
+                    
+                    it = markov_table.erase(it);
+                } else {
+                    
+                    ++it;
+                }
+            }
+            markov_LRU[markov_LRU_front - 1] = val_it; 
+        }
+    }
+        return top_predictions;
+}
+std::vector<int64_t> prev_top_P_fetch = {};
+uint64_t preIP = 0;
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+    for (int offset : popular_prefetch_offset) {
+        pf_addr = ((addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE;
+        prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+    }
+
+    int64_t pre_key_delta = 0;
+    int64_t key_delta = 0;
+    int64_t val_delta = 0;
+    
+    addr = addr >> LOG2_BLOCK_SIZE;
+    addr = addr << LOG2_BLOCK_SIZE;
+    
+    if (pre_pre_previous_addr !=0){
+        pre_key_delta = pre_pre_previous_addr - pre_previous_addr;
+        key_delta = (pre_previous_addr) - (previous_addr);
+        val_delta = (previous_addr) - (addr);
+        
+        if (DBGER == 5) {
+            std::cout << pre_previous_addr << " d: "
+                      << std::setw(16) << key_delta << " >"
+                      << std::setw(16) << previous_addr << " d: "
+                      << std::setw(16) << val_delta << " > "
+                      << std::setw(16) << addr << std::endl;
+        }
+    }
+    IteratorType key_it;
+    std::unordered_map<int64_t, int>::iterator val_it;
+    if (pre_pre_previous_addr != 0) {
+        //int64_t final_hash_value = combine_hashes(ip, key_delta);
+        key_delta = preIP;
+        val_delta = addr;
+        // {ip:{nextDelta:count}}
+        markov_table[key_delta][val_delta]++;
+        
+        key_it = markov_table.find(key_delta);
+        val_it = key_it->second.find(val_delta);
+
+        
+        if (DBGER == 3) {
+            cout << "\t Mkv: " << markov_table[key_delta][val_delta] << endl;
+        }
+        
+    }   
+    std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
+        for (int64_t pf_offset : pf_topP) {
+            pf_addr = (((addr) - pf_offset )>> LOG2_BLOCK_SIZE << LOG2_BLOCK_SIZE);
+            if (DBGER == 5) {
+                cout << addr << " offset: "<< pf_offset<<" prefetchingAddr: " << pf_addr << endl;
+            }
+            prefetch_line(ip, addr, (pf_addr), FILL_L2, 0);
+            //std::vector<int64_t> recursive_pf_offset = 
+        }
+    if (DBGER == 1) {
+        size_t totalCount = 0;
+        for (const auto& pair : markov_table) {
+            totalCount += pair.second.size();
+        }
+        
+        cout << "MkT_size: " << totalCount << "Mk_LRU_size: " << markov_LRU_front << endl;
+    }
+    prev_top_P_fetch = pf_topP;
+    
+    pre_pre_previous_addr = pre_previous_addr;
+    pre_previous_addr = previous_addr;
+    previous_addr = addr;
+    preIP = ip;
+    cnt++;
+    return metadata_in;
+}
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+    return metadata_in;
+}
+void CACHE::l2c_prefetcher_final_stats()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher final stats" << endl;
+}

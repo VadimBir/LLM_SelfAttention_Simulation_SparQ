@@ -1,0 +1,15 @@
+TRACE: [1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64] Warmup: 2000000 NumTraces: 1319000000
+L1:ipcp:L2:ipcp
+*************************************************
+   ChampSim Multicore Out-of-Order Simulator
+   Last compiled: Oct 30 2024 21:10:10
+*************************************************
+
+trace_0 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+trace_1 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+trace_2 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+trace_3 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+MAIN.cc ln 751 stats print skipped
+fetch_index: 512 ROB.head: 144 ROB.tail: 546
+perceptron-ipcp-ipcp-no-lru-4core: src/ooo_cpu.cc:484: void O3_CPU::fetch_instruction(): Assertion `0' failed.
+     > Finished combination: TraceType=770-tot Sim:1314000000 Prefetcher=L2ipcp L1=ipcp

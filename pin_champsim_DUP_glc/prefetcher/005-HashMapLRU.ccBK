@@ -1,0 +1,58 @@
+#include <unordered_map>
+#include <list>
+#include <iostream>
+
+template <typename ValueType>
+class LRUCache {
+public:
+    using KeyType = std::pair<uint64_t, int64_t>;
+    LRUCache(size_t capacity) : capacity(capacity) {}
+
+    // Insert or update a key-value pair
+    void put(const KeyType& key, const ValueType& value) {
+        auto it = map.find(key);
+        if (it != map.end()) {
+            // Key already exists, update the value and move it to the front
+            it->second.first = value;
+            move_to_front(it->second.second);
+        } else {
+            // Key does not exist, insert it
+            if (cache.size() >= capacity) {
+                // Cache is full, remove the least recently used item
+                auto lru = cache.back();
+                map.erase(lru);
+                cache.pop_back();
+            }
+            cache.push_front(key);
+            map[key] = {value, cache.begin()};
+        }
+    }
+
+    // Retrieve a value by key
+    ValueType get(const KeyType& key) {
+        auto it = map.find(key);
+        if (it == map.end()) {
+            throw std::runtime_error("Key not found");
+        }
+        // Move the accessed item to the front of the list
+        move_to_front(it->second.second);
+        return it->second.first;
+    }
+
+    // Print the current cache state (for debugging)
+    void print() const {
+        for (const auto& key : cache) {
+            std::cout << "IP: " << key.first << ", Delta: " << key.second << ": " << map.at(key).first << std::endl;
+        }
+    }
+
+private:
+    size_t capacity;
+    std::list<KeyType> cache; // Doubly linked list to maintain the order of elements
+    std::unordered_map<KeyType, std::pair<ValueType, typename std::list<KeyType>::iterator>> map;
+
+    // Move the accessed node to the front of the list
+    void move_to_front(typename std::list<KeyType>::iterator it) {
+        cache.splice(cache.begin(), cache, it);
+    }
+};

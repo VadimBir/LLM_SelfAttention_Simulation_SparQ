@@ -8,8 +8,8 @@
 #define DRAM_WQ_SIZE 64
 #define DRAM_RQ_SIZE 64
 
-#define tRP_DRAM_NANOSECONDS  15              // FLAG_CONFIG same as Pythia
-#define tRCD_DRAM_NANOSECONDS 15              // FLAG_CONFIG same as Pythia
+#define tRP_DRAM_NANOSECONDS  12.5              // FLAG_CONFIG same as Hermes
+#define tRCD_DRAM_NANOSECONDS 12.5              // FLAG_CONFIG same as Hermes
 #define tCAS_DRAM_NANOSECONDS 12.5
 
 // the data bus must wait this amount of time when switching between reads and writes, and vice versa

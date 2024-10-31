@@ -1,0 +1,280 @@
+#include "cache.h"
+#include <iostream>
+#include <unistd.h>
+
+#include <fstream>
+#include <iomanip>
+
+// for double linked list
+#include <list>
+#include <cstdint>
+
+// for design
+#include <vector>
+#include <algorithm>
+
+
+uint64_t NUM_CACHELINES = 0;
+uint64_t SLIDING_WINDOW_SIZE = 8;
+
+struct fn_node
+{
+    uint64_t yHeight = 0;        // when the coefficient is calculated, the y-axis height is stored here
+    uint64_t xPosition = 0;            // when the coefficient is calculated, the x position is stored here
+    int64_t coefficient = 0;                  // when the coefficient is calculated, the coefficient is stored here
+    int64_t groupSize = 0;
+    int64_t treeHeight = 0;
+};
+
+// class GlobalGrowthFunctions: public std::list<uint64_t> {
+// public:
+//     fn_node* w1 = new fn_node();
+//     fn_node* w2 = new fn_node();
+
+//     std::vector<std::list<uint64_t>::iterator> next_elements;
+//     GlobalCoefficientBranchableBuffer() : std::list<uint64_t>() {}
+
+//     uint64_t pop() {
+//         if (this->empty()) {
+//             throw std::out_of_range("List is empty");
+//         }
+//         uint64_t value = this->front();
+//         this->pop_front();
+//         return value;
+//     }
+
+//     friend std::ostream& operator<<(std::ostream& os, const UInt64List& list);
+
+//     void append(uint64_t value, int_64_t thecoefficient, uint64_t the_y_Height) {
+//         if (this->size() == 0) {
+//             this->w1->coefficient = thecoefficient;
+//             this->w1->yHeight = the_y_Height;
+            
+//         }
+//         this->push_back(value);
+//     }
+
+//     // Helper method to calculate quartiles and IQR from a sorted vector
+//     void calculateQuartiles(const std::vector<uint64_t>& values, double& q1, double& q3, double& iqr) {
+//         size_t n = values.size();
+//         q1 = values[n / 4]; // First quartile
+//         q3 = values[3 * n / 4]; // Third quartile
+//         iqr = q3 - q1;
+//     }
+
+//     void filterOutliers(UInt64List& small_outliers, UInt64List& non_outliers, UInt64List& large_outliers) {
+//         if (this->empty()) return;
+
+//         // Temporary vector to hold values for calculation
+//         std::vector<uint64_t> sorted_lst(this->begin(), this->end());
+//         std::sort(sorted_lst.begin(), sorted_lst.end());
+
+//         double q1, q3, iqr;
+//         calculateQuartiles(sorted_lst, q1, q3, iqr);
+
+//         double lower_bound = q1 - 1.5 * iqr;
+//         double upper_bound = q3 + 1.5 * iqr;
+
+//         // Iterate through the original list
+//         for (uint64_t value : *this) {
+//             if (value < lower_bound) {
+//                 small_outliers.append(value); // Use append method if specific to UInt64List
+//             } else if (value > upper_bound) {
+//                 large_outliers.append(value);
+//             } else {
+//                 non_outliers.append(value);
+//             }
+//         }
+//     }
+// };
+
+class UInt64List : public std::list<uint64_t> {
+public:
+    uint64_t pop() {
+        if (this->empty()) {
+            throw std::out_of_range("List is empty");
+        }
+        uint64_t value = this->front();
+        this->pop_front();
+        return value;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const UInt64List& list);
+
+    void append(uint64_t value) {
+        this->push_back(value);
+    }
+
+    // Helper method to calculate quartiles and IQR from a sorted vector
+    void calculateQuartiles(const std::vector<uint64_t>& values, double& q1, double& q3, double& iqr) {
+        size_t n = values.size();
+        q1 = values[n / 4]; // First quartile
+        q3 = values[3 * n / 4]; // Third quartile
+        iqr = q3 - q1;
+    }
+
+    void filterOutliers(UInt64List& small_outliers, UInt64List& non_outliers, UInt64List& large_outliers) {
+        if (this->empty()) return;
+
+        // Temporary vector to hold values for calculation
+        std::vector<uint64_t> sorted_lst(this->begin(), this->end());
+        std::sort(sorted_lst.begin(), sorted_lst.end());
+
+        double q1, q3, iqr;
+        calculateQuartiles(sorted_lst, q1, q3, iqr);
+
+        double lower_bound = q1 - 1.5 * iqr;
+        double upper_bound = q3 + 1.5 * iqr;
+
+        // Iterate through the original list
+        for (uint64_t value : *this) {
+            if (value < lower_bound) {
+                small_outliers.append(value); // Use append method if specific to UInt64List
+            } else if (value > upper_bound) {
+                large_outliers.append(value);
+            } else {
+                non_outliers.append(value);
+            }
+        }
+    }
+};
+// Overload the << operator
+// std::ostream& operator<<(std::ostream& os, const UInt64List& list) {
+//     os << "HEAD->";
+//     for (auto val : list) {
+//         os << val << "->";
+//     }
+//     os << "NULL";
+//     return os;
+// }
+
+std::ostream& operator<<(std::ostream& os, const UInt64List& list) {
+    int64_t pre=0;
+    uint64_t min = uint64_t(-1);
+    os << "HEAD->";
+    int64_t cnt = 0;
+    int64_t sum = 0;
+    for (auto val : list) {
+        
+    }
+    for (auto val : list) {
+        uint64_t alignedVal = (val);
+        if (pre != 0) {
+            os << (int64_t) (min) - (int64_t)alignedVal<<"->";
+        }
+        //os << alignedVal << "->";
+        pre = alignedVal;
+    }
+    os << "NULL";
+    return os;
+}
+
+uint64_t total_accesses = 0;  
+uint64_t total_hits = 0;      
+
+
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+uint64_t pf_addr = 0;
+
+uint64_t preIP = 0;
+
+UInt64List* llist = new UInt64List();
+UInt64List* small_outliers = new UInt64List();
+UInt64List* non_outliers = new UInt64List();;
+UInt64List* large_outliers = new UInt64List();
+
+// GlobalGrowthFunctions *functionHistory = new GlobalGrowthFunctions();
+fn_node *pre_w2 = new fn_node();
+
+
+
+
+void CACHE::l2c_prefetcher_initialize()
+{
+    uint64_t cache_size = (L2C_SET*L2C_WAY*BLOCK_SIZE)/1024;
+    cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+    cout << "\n\nCache Size: " << cache_size << endl;
+    cout << "number of cache lines: " << L2C_SET*L2C_WAY << endl;
+    NUM_CACHELINES = L2C_SET*L2C_WAY;
+}
+
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+    total_accesses++; // will count the window 
+    if (cache_hit) total_hits++; 
+    
+    addr = addr >> LOG2_BLOCK_SIZE;
+    //addr = addr << LOG2_BLOCK_SIZE;
+
+    llist->append(addr);
+    
+    if (total_accesses % SLIDING_WINDOW_SIZE == 0) {
+        llist->filterOutliers(*small_outliers, *non_outliers, *large_outliers);
+        
+    }
+    cout << "List: "<< *llist << endl;
+
+
+
+    if (total_accesses % SLIDING_WINDOW_SIZE == 0) {
+
+        // cout << "Small Outliers: " << *small_outliers << endl << endl;
+        // cout << "Non Outliers: " << *non_outliers << endl << endl;
+        // cout << "Large Outliers: " << *large_outliers << endl << endl;
+    }
+    // uint64_t cache_size = static_cast<uint64_t>(L2C_SET) * L2C_WAY * LOG2_BLOCK_SIZE;
+    // cout << "cache size: " << cache_size << "SET: " << L2C_SET << "WAY: " << L2C_WAY << "LINE: " << LOG2_BLOCK_SIZE; << endl;
+
+
+    
+    
+    if (cache_hit) {
+        
+    } else {
+        
+        
+    }
+    
+   
+    // after processing finish updating variables. 
+    if (llist->size() > SLIDING_WINDOW_SIZE) { // does a sliding window of size
+        llist->pop();
+    }
+    // after list has a fresh adjesent future addresss, above we have calculated the 3 lists with outliers here we reset that 
+        if (total_accesses % SLIDING_WINDOW_SIZE == 0) {
+            delete small_outliers;
+            delete non_outliers;
+            delete large_outliers;
+            
+            small_outliers = new UInt64List();
+            non_outliers = new UInt64List();
+            large_outliers = new UInt64List();
+    }
+    pre_previous_addr = previous_addr;
+    previous_addr = addr;
+    preIP = ip;
+    return metadata_in;
+}
+
+
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+
+    return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher final stats" << endl;
+    cout << "Total L2 Accesses: " << total_accesses << endl;
+    cout << "Total L2 Hits: " << total_hits << endl;
+    if (total_accesses > 0) {
+        double hit_ratio = static_cast<double>(total_hits) / total_accesses;
+        cout << "L2 Hit Ratio: " << hit_ratio << endl;
+    } else {
+        cout << "L2 Hit Ratio: N/A (no accesses)" << endl;
+    }
+
+}

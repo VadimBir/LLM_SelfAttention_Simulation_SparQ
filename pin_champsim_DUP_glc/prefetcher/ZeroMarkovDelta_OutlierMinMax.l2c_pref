@@ -1,0 +1,463 @@
+// cache.cpp
+#include "cache.h"
+
+
+#include "100-AddrHitTracker.h"
+#include "001_nxtln.cc"
+//#include "Pf_LRU_Cache.h"
+
+// define debugger 
+#define FORCEALLHITS false
+#define MK_TMAX 128
+#define MK_TMIN 64
+#define MK_SIZE 16
+
+/*
+1 to print prefetch deltas 
+2 to print markov table 
+3 to print prefetch deltas and markov table
+4 to print MSHR occupancy
+5 print misses delta 
+*/
+// Define an array for debug flags
+std::vector<int> DEBUG_FLAGS = {};  // initialize to zero
+/*
+DEBUG_FLAGS array indexes:
+1 - print prefetch deltas
+2 - print markov table
+3 - print prefetch deltas and markov table
+4 - print MSHR occupancy
+*/
+
+// MARKOV PREFETCHER CLASS ----------------------------------------------------------------------------------------------
+
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+// #include <array>
+// #include <iostream>
+#include <numeric>
+
+int wType = 0;
+class IPDelta_Markov_Delta {
+
+public:
+    static const int MARKOV_LRU_SIZE = MK_SIZE;
+    static const int MAX_PREDICTIONS = 9999;
+    static constexpr double MARKOV_PREDICTION_PERCENTTHRESHOLD = 0;
+
+    // filter outliers
+    static const int32_t OUTLIERS_THRESHOLD_Max = MK_TMAX; 
+    static const int32_t OUTLIERS_THRESHOLD_Min = MK_TMIN;
+    IPDelta_Markov_Delta() : markov_LRU_front(0), pre_previous_addr(0), previous_addr(0), pf_addr(0), pre_ip(0) {}
+
+    std::vector<int64_t> operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type) {
+        // USING MARKOV PREFETCHER ---------------------------------------------------------------------------------------------- MARKOV START
+
+        // markov preprocessing
+        int64_t key_delta = 0;
+        int64_t val_delta = 0;
+
+        addr = addr ;
+        //addr = addr ;
+        if (pre_previous_addr != 0) {
+            key_delta = (int64_t)(pre_previous_addr) - (int64_t)(previous_addr);
+            val_delta = (int64_t)(previous_addr) - (int64_t)(addr);
+        }
+
+        IteratorType key_it;
+        std::unordered_map<int64_t, int>::iterator val_it;
+
+        // filter out val_delta that were part of popular_prefetch_offset
+        
+        // markov table update
+        if (pre_previous_addr != 0) {
+            //int64_t final_hash_value = combine_hashes(pre_ip, key_delta);
+            //final_hash_value = combine_hashes(wType,final_hash_value);
+
+            key_delta = 0;
+            // int64_t final_hash_value = combine_hashes(pre_ip, key_delta);
+            // key_delta = final_hash_value;
+            
+            if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)){
+            //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
+                markov_table[key_delta][val_delta]++;
+            }
+            if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 2) != DEBUG_FLAGS.end()) {
+                // print markov table
+                for (auto &outer_pair : markov_table) {
+                    auto &inner_map = outer_pair.second;
+                    for (auto &inner_pair : inner_map) {
+                        std::cout << "Key: " << outer_pair.first << " Val: " << inner_pair.first << " Count: " << inner_pair.second << std::endl;
+                    }
+                }
+            }
+             //       markov_table[key_delta][val_delta]++;
+
+
+            key_it = markov_table.find(key_delta);
+            if ((std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max)) {
+
+            //if (std::abs(val_delta) >= -OUTLIERS_THRESHOLD_Max && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
+                val_it = key_it->second.find(val_delta);
+            }
+        }
+        // get Markov delta predictions and return vector<int64_t> top_predictions
+        std::vector<int64_t> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
+
+        // update previous address and previous IP
+        pre_previous_addr = previous_addr;
+        previous_addr = addr;
+        pre_ip = ip;
+
+        
+        return pf_topP;
+        }
+        
+    
+
+    
+
+
+private:
+
+    // Markov table and LRU
+    std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
+    
+    using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
+    std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
+    int markov_LRU_front;
+
+
+
+    // Address tracking
+    uint64_t pre_previous_addr;
+    uint64_t previous_addr;
+    uint64_t pf_addr;
+    uint64_t pre_ip;
+    //int64_t cnt = 0;
+
+
+    // Helper methods
+    int64_t combine_hashes(int64_t pre_key_delta, int64_t key_delta) {
+        std::hash<int64_t> hasher;
+        int64_t hash1 = hasher(pre_key_delta);
+        int64_t hash2 = hasher(key_delta);
+
+        return hash1 ^ (hash2 << 1);
+    }
+
+    std::unordered_map<int64_t, int>::iterator markov_evict_lru() {
+        std::unordered_map<int64_t, int>::iterator val_it = markov_LRU[0];
+        for (int i = 1; i < markov_LRU_front; i++) {
+            markov_LRU[i - 1] = markov_LRU[i];
+        }
+        return val_it;
+    }
+
+    void markov_update_lru(int index) {
+        auto tmpVal = markov_LRU[index];
+        for (int i = 0; i < markov_LRU_front; i++) {
+            if (i < index) {
+                continue;
+            }
+            markov_LRU[i] = markov_LRU[i + 1];
+        }
+
+        markov_LRU[markov_LRU_front - 1] = tmpVal;
+    }
+
+    std::vector<int64_t> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
+        std::vector<int64_t> top_predictions;
+        int64_t doubleDeltaKey = 0;
+        //doubleDeltaKey = combine_hashes(wType, doubleDeltaKey);
+        // int64_t doubleDeltaKey = combine_hashes(ip, static_cast<int64_t>(previous_addr) - static_cast<int64_t>(addr));
+        // auto it = markov_table.find(doubleDeltaKey);
+
+        auto it = markov_table.find(doubleDeltaKey);
+
+        if (it != markov_table.end()) {
+            //cout << "Found in Markov Table" << endl;
+            auto &next_blocks = it->second;
+            std::vector<std::pair<int64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+            std::sort(predictions.begin(), predictions.end(),
+                      [](std::pair<int64_t, int> &a, std::pair<int64_t, int> &b) {
+                          return a.second > b.second;
+                      });
+            int total_count = std::accumulate(predictions.begin(), predictions.end(), 0,
+                [](int sum, std::pair<int64_t, int>& p) {
+                    return sum + p.second;
+                });
+            for (auto &prediction : predictions) {
+                //if (top_predictions.size() >= MAX_PREDICTIONS) break;
+                if ((static_cast<double>(prediction.second) * 100 / total_count) >= MARKOV_PREDICTION_PERCENTTHRESHOLD) {
+                    pf_addr = prediction.first;
+                    top_predictions.push_back(pf_addr);
+                    //std::cout << "Markov Prediction: " << prediction.second << " total: " <<  total_count << " percent: " << (((double)prediction.second)*100/total_count) << std::endl;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        auto lru_it = std::find(markov_LRU.begin(), markov_LRU.end(), val_it);
+        if (lru_it != markov_LRU.end()) {
+            int index = static_cast<int>(lru_it - markov_LRU.begin());
+            markov_update_lru(index);
+        } else {
+            if (markov_LRU_front != MARKOV_LRU_SIZE - 1) {
+                markov_LRU[markov_LRU_front] = val_it;
+                markov_LRU_front++;
+            } else {
+                auto toDel = markov_evict_lru();
+                for (auto &outer_pair : markov_table) {
+                    auto &inner_map = outer_pair.second;
+                    for (auto it_inner = inner_map.begin(); it_inner != inner_map.end();) {
+                        if (it_inner == toDel) {
+                            it_inner = inner_map.erase(it_inner);
+                            break;
+                        } else {
+                            ++it_inner;
+                        }
+                    }
+                }
+                for (auto it_outer = markov_table.begin(); it_outer != markov_table.end();) {
+                    if (it_outer->second.empty()) {
+                        it_outer = markov_table.erase(it_outer);
+                    } else {
+                        ++it_outer;
+                    }
+                }
+
+                markov_LRU[markov_LRU_front - 1] = val_it;
+            }
+        }
+        return top_predictions;
+    }    
+};
+
+// END MARKOV PREFETCHER CLASS ----------------------------------------------------------------------------------------------
+
+/*
+class NxtAddrHitTracker {
+    public: 
+
+    // access addr 
+    uint32_t addr;
+
+    // if hit, we wanna know where: one of pfs? LRU? who? 
+    bool hit;
+    
+    // track window of current pattern hit ratio 
+    int windowSize = 8;
+    int windowCnt = 0;
+    int hitCnt = 0;
+
+    // track total hit ratio
+    int totCnt = 0;
+    int totHitCnt = 0;
+
+    // nxt addr pf 2d-arr  
+    std::vector<std::vector<uint32_t>> nxtAddrPf; // index is pf id and each sub element is that index pf addr prefetchers 
+
+    // window hit contribution sum cnt (window), vector index is same pf id but +1 element is if its LRU hit
+    std::vector<int> pfHitCnt_window; // e.g. [pfA,pfB,LRU]
+
+    // pf hit contribution sum cnt (total hit cnt), vector index is same pf id but +1 element is if its LRU hit
+    std::vector<int> pfHitCnt_total; // e.g. [pfA,pfB,LRU]
+
+
+    std::vector<int> operate(uint32_t addr, uint8_t cache_hit, std::vector<std::vector<uint32_t>> pf_prefetchedNxtAddrs) {
+        totCnt++;
+
+        // if hit, update hit cnt 
+        if (cache_hit) {
+            totHitCnt++;
+            windowCnt++;
+            hitCnt++;
+        }
+        // if window is full, update window hit ratio 
+        if (windowCnt == windowSize) {
+            // update window hit ratio 
+            windowCnt = 0;
+            // update window hit ratio 
+            int hitRatio = hitCnt/windowSize;
+            // update hit ratio for each prefetcher 
+            for (int i = 0; i < pfAddr.size(); i++) {
+                // if hit, update hit cnt 
+                if (cache_hit) {
+                    pfHitCnt_window[i] += hitRatio;
+                }
+            }
+            // if hit, update hit cnt 
+            if (cache_hit) {
+                pfHitCnt_window[pfAddr.size()] += hitRatio;
+            }
+        }
+        // update total hit ratio 
+        int hitRatio = totHitCnt/totCnt;
+        // update hit ratio for each prefetcher 
+        for (int i = 0; i < pfAddr.size(); i++) {
+            // if hit, update hit cnt 
+            if (cache_hit) {
+                pfHitCnt_total[i] += hitRatio;
+            }
+        }
+        // if hit, update hit cnt 
+        if (cache_hit) {
+            pfHitCnt_total[pfAddr.size()] += hitRatio;
+        }
+    }
+};
+
+*/
+
+void CACHE::l2c_prefetcher_initialize() 
+{
+    
+    // Access the static variables of the IPDelta_Markov_Delta class
+    int lru_size = IPDelta_Markov_Delta::MARKOV_LRU_SIZE;
+    int max_predictions = IPDelta_Markov_Delta::MAX_PREDICTIONS;
+    double prediction_threshold = IPDelta_Markov_Delta::MARKOV_PREDICTION_PERCENTTHRESHOLD;
+    int outlier_threshold = IPDelta_Markov_Delta::OUTLIERS_THRESHOLD_Max;
+    int outlier_threshold_min = IPDelta_Markov_Delta::OUTLIERS_THRESHOLD_Min;
+    std:cout<<"-----------MARKOV PREFETCHER INITIALIZED-----------"<<std::endl;
+    // You can now use these variables in your initialization code
+    std::cout << "\t\tMarkov LRU Size: " << lru_size << std::endl;
+    //std::cout << "\t\tMax Predictions: " << max_predictions << std::endl;
+    std::cout << "\t\tPrediction Threshold: " << prediction_threshold << std::endl;
+    std::cout << "\t\tOutlier ThresholdMax: " << outlier_threshold << std::endl;
+    std::cout << "\t\tOutlier ThresholdMin: " << outlier_threshold_min << std::endl;
+    std::cout<<"----------------------------------------------------"<<std::endl;
+}   
+    
+
+
+uint64_t pre_ip = 0;
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+std::vector<std::vector<uint32_t>> all_prefetcher; // each prefetcher pfs must be different index
+
+int64_t cnt = 0;
+
+uint64_t pf_addr;
+  // Include the prefetch function
+
+// vector addr history 
+
+// track hit ratio of each prefetcher 
+AddrHitTracker hitTracker(1);
+
+// Instantiate the prefetcher
+IPDelta_Markov_Delta markov_prefetcher = IPDelta_Markov_Delta();
+//Nxtln* nxtln_prefetcher = new Nxtln();
+Nxtln nxtln_prefetcher;
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in) {
+    //cout << "addr:"<< addr <<endl;
+    set_force_all_hits(FORCEALLHITS);
+    wType = type;
+    // if (!markov_prefetcher) {
+    //     markov_prefetcher = new IPDeltaMarkovDelta(MARKOV_LRU_SIZE, MARKOV_PREDICTION_PERCENTTHRESHOLD);
+    // }
+    // Call the prefetch function from nxtln.h
+    
+    uint64_t aligned_addr = addr >> LOG2_BLOCK_SIZE;
+    
+    
+    // Call the Nxtln prefetcher operate function
+    // std::vector<uint64_t> prefetch_addresses = nxtln_prefetcher.operate(aligned_addr);
+
+    // // Issue prefetches based on the returned addresses
+    // for (uint64_t& pf_addr : prefetch_addresses) {
+    //     pf_addr = pf_addr << LOG2_BLOCK_SIZE;  // Align the prefetch address if necessary
+    //     prefetch_line(ip, addr, pf_addr, FILL_L2, metadata_in);  // Issue the prefetch request
+    //     //cout << "Prefetched: " << pf_addr << "\n";
+    // }
+    
+    // FUTURE <std::pair<int64_t, int>>
+    //std::vector<std::pair<int64_t, int> predictions = markov_prefetcher.operate(addr, ip, cache_hit, type);
+    
+    
+    std::vector<int64_t> markov_predictions = markov_prefetcher.operate(aligned_addr, ip, cache_hit, type);
+    // Use the predicted addresses for prefetching
+
+    // if (!markov_predictions.empty()) {
+    //     cout << endl;
+    //     //cout << "\nPrePre:"<<(pre_previous_addr) <<"\tPre:"<<(previous_addr)<<"\tAddress:" << aligned_addr << "\t";
+    // }
+    
+
+    // markov pf addr vector uint32_t 
+    std::vector<uint32_t> markov_pf_addr;
+
+    for (auto offset : markov_predictions) {
+        uint64_t pf_addr = ((aligned_addr - offset) << LOG2_BLOCK_SIZE);
+        
+        // if ((pf_addr >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE)){
+        //     continue;;
+        // }
+        //pf_addr >> 
+        prefetch_line(ip, pf_addr, pf_addr, FILL_L2, metadata_in);
+        markov_pf_addr.push_back(pf_addr);
+        if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 1) != DEBUG_FLAGS.end()) {
+            cout << "Δ" << offset << " ";
+        }
+    }
+    if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 4) != DEBUG_FLAGS.end()) {
+        if (cache_hit==0){
+            if (cnt%512==0){
+                cout << endl;
+            }
+            cout <<"maxP:"<<markov_predictions.size()<< " MSHR:"<<std::setprecision(2)<<setw(6)<<(double)MSHR.occupancy/(double)MSHR.SIZE*100 << "% ";
+        }
+    }
+    if (std::find(DEBUG_FLAGS.begin(), DEBUG_FLAGS.end(), 5) != DEBUG_FLAGS.end()) {
+        int premDelta = (int64_t)pre_previous_addr-(int64_t)previous_addr;
+        int mDelta = (int64_t)aligned_addr-(int64_t)previous_addr;
+
+
+        if (cache_hit==0 && abs(mDelta)<256){
+            cout << setw(4)<<"pM:"<<premDelta<<"M:"<<mDelta<<" ";
+        }
+    }
+
+
+
+
+    // Prefetcher Perfomance Stats
+    std::vector<double> current_total_hits = hitTracker.operate(aligned_addr, cache_hit, all_prefetcher);
+    // update old parmov prefetchesto new markov prefetch to see if currnet prefetch hit the next prefetch 
+    all_prefetcher.clear();
+    all_prefetcher.push_back(markov_pf_addr);
+    // if (!markov_predictions.empty()) {
+    //     all_prefetcher[0]=markov_predictions;
+    // }
+    
+    
+    // // print hit ratio of each prefetcher
+    // for (auto &hit : current_total_hits) {
+    //     cout << hit << "H";
+    // }
+
+
+    pre_ip = ip;
+    pre_previous_addr = previous_addr;
+    previous_addr = aligned_addr;
+    cnt++;
+
+    return metadata_in;
+}
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+    // You may want to interact with the prefetcher here as well
+    return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+    // Clean up the prefetcher (optional, depending on your system’s lifecycle)
+    
+}

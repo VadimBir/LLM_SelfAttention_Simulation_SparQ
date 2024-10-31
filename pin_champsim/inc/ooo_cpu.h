@@ -14,14 +14,14 @@
 using namespace std;
 
 // CORE PROCESSOR
-#define FETCH_WIDTH 6                   // FLAG_CONFIG same as Pythia
-#define DECODE_WIDTH 6                  // FLAG_CONFIG same as Pythia
-#define EXEC_WIDTH 4                    // FLAG_CONFIG same as Pythia
+#define FETCH_WIDTH 8                   // FLAG_CONFIG same as Hermes A14 Firestorm
+#define DECODE_WIDTH 8                  // FLAG_CONFIG same as Hermes A14 Firestorm
+#define EXEC_WIDTH 8                    // FLAG_CONFIG same as Hermes A14 Firestorm
 #define LQ_WIDTH 2                      // FLAG_CONFIG same as Hermes
 #define SQ_WIDTH 2                      // FLAG_CONFIG same as Hermes
-#define RETIRE_WIDTH 4                  // FLAG_CONFIG same as Pythia
-#define SCHEDULER_SIZE 128              // FLAG_CONFIG same as Pythia
-#define BRANCH_MISPREDICT_PENALTY 20    // FLAG_CONFIG same as Pythia
+#define RETIRE_WIDTH 6                  // FLAG_CONFIG same as Hermes      
+#define SCHEDULER_SIZE ROB_SIZE         // FLAG_CONFIG same as Hermes  
+#define BRANCH_MISPREDICT_PENALTY 17    // FLAG_CONFIG best-case penalty in Golden Cove is 17 cycles and A14 // same as Hermes     
 //#define SCHEDULING_LATENCY 6
 //#define EXEC_LATENCY 1
 

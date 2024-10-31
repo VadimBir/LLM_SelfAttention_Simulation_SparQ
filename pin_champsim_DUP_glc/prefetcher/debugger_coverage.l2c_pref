@@ -1,0 +1,123 @@
+#include "cache.h"
+#include <iostream>
+
+#include <fstream>
+#include <iomanip>
+
+
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+
+std::ofstream addressFile;
+
+
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+uint64_t pf_addr = 0;
+
+int popular_prefetch_offset[] = {1};
+uint32_t i = 0;
+uint64_t cnt = 0;
+uint64_t totalAddr = 0;
+uint64_t totalMisses = 0;
+std::unordered_map<int64_t, int> deltaRecords;
+
+std::string addressFilePath = "/home/ubuntu/Directory/SparQ/002-addressesHistory/addresses-Inst20M_LOW_IPC_Phythia-70M_S1_08-13.txt"; // addresses-<TRACE_NAME>.txt
+void CACHE::l2c_prefetcher_initialize()
+{
+    cout << "CPU " << cpu << " L2C next line prefetcher initialized" << endl;
+//    addressFile.open(addressFilePath, std::ios::app);
+//    if (!addressFile.is_open()) {
+//        cout << "Failed to open file for writing addresses." << endl;
+//    }
+}
+
+//uint32_t CACHE::get_l2_cache_occupancy() const {
+//    uint32_t count = 0;
+//    for (const auto& line : sets) {  // Assuming `sets` is the data structure holding cache lines
+//        for (const auto& entry : line) {
+//            if (entry.valid) {  // Assuming `valid` is a member indicating if the cache line is valid
+//                count++;
+//            }
+//        }
+//    }
+//    return count;
+//}
+
+
+
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+
+    bool predicted = false;
+    for (int offset : popular_prefetch_offset) {
+        uint64_t predicted_addr= (((pre_previous_addr >> LOG2_BLOCK_SIZE) + offset) << LOG2_BLOCK_SIZE);
+        uint64_t curBlockAddr = ((addr >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE);
+        //cout << "P:"<<predicted_addr<<" C:"<<curBlockAddr<<" "<< (predicted_addr==curBlockAddr)<<endl;
+        if (predicted_addr == curBlockAddr) {
+            predicted = true;
+            //cout<<"true"<<endl;
+            
+        }
+        //prefetch_line(ip, addr, pf_addr, FILL_L2, 0);
+    }
+    uint64_t align_pre = pre_previous_addr >> LOG2_BLOCK_SIZE;
+    uint64_t align_cur = addr >> LOG2_BLOCK_SIZE;
+    //cout << "B:"<<predicted<<endl;
+    if (predicted == false) {
+        deltaRecords[align_cur - align_pre]++;
+        cout <<"R:"<<i<<"Δ" << align_cur - align_pre << " \n";
+        i=0;
+        totalMisses++;
+    } else { 
+        //cout << "P:"<<align_pre<<" C:"<<align_cur<<" ";
+        i++;
+    }
+    predicted = false;
+    
+    pre_previous_addr = previous_addr;
+    previous_addr = addr;
+    totalAddr++;
+    cnt++;
+    return metadata_in;
+}
+
+
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+    // Outputting detailed fill information
+    //cout << "[" << NAME << "] " << __func__ << " addr: " << hex << addr << " set: " << dec << set;
+    //cout << " way: " << way << " prefetch: " << +prefetch << " evicted_addr: " << hex << evicted_addr << dec <<endl;
+
+
+//    if (addressFile.is_open()) {
+//        addressFile << std::hex << addr << std::dec << std::endl;
+//    }
+
+    return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+    // sort(deltaRecords.begin(), deltaRecords.end()) by value in descending order and print top 10 elements
+    std::vector<std::pair<int, int>> vec(deltaRecords.begin(), deltaRecords.end());
+    std::sort(vec.begin(), vec.end(), [](const std::pair<int, int>& l, const std::pair<int, int>& r) {
+        return l.second > r.second;
+    });
+    cout << "Top 10 deltas: " << endl;
+    for (int i = 0; i < 10; i++) {
+        cout <<"Δ"<<std::setw(13)<<vec[i].first << " :" << vec[i].second << endl;
+    } 
+
+    cout << "Total Misses: " << totalMisses << " Total Addr: " << totalAddr << " Miss Rate: " << (double)totalMisses / totalAddr << endl;
+    cout << "CPU " << cpu << " L2C next line prefetcher final stats" << endl;
+//    if (addressFile.is_open()) {
+//        addressFile.close();
+//    } else {
+//        cout << "File was never opened for writing." << endl;
+//    }
+}

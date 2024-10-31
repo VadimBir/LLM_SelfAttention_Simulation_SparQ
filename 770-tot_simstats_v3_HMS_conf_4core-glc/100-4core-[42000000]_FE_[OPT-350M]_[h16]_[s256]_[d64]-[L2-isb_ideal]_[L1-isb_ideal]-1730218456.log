@@ -1,0 +1,986 @@
+TRACE: [42000000]_FE_[OPT-350M]_[h16]_[s256]_[d64] Warmup: 2000000 NumTraces: 42000000
+L1:isb_ideal:L2:isb_ideal
+*************************************************
+   ChampSim Multicore Out-of-Order Simulator
+   Last compiled: Oct 29 2024 16:14:38
+*************************************************
+
+trace_0 770-tot_memTraces_v3_rexz/memTraces[42000000]_FE_[OPT-350M]_[h16]_[s256]_[d64].champsim.9.xz
+trace_1 770-tot_memTraces_v3_rexz/memTraces[42000000]_FE_[OPT-350M]_[h16]_[s256]_[d64].champsim.9.xz
+trace_2 770-tot_memTraces_v3_rexz/memTraces[42000000]_FE_[OPT-350M]_[h16]_[s256]_[d64].champsim.9.xz
+trace_3 770-tot_memTraces_v3_rexz/memTraces[42000000]_FE_[OPT-350M]_[h16]_[s256]_[d64].champsim.9.xz
+L1D: Ideal ISB Prefetching
+Ideal ISB Prefetching
+L1D: Ideal ISB Prefetching
+Ideal ISB Prefetching
+L1D: Ideal ISB Prefetching
+Ideal ISB Prefetching
+L1D: Ideal ISB Prefetching
+Ideal ISB Prefetching
+MAIN.cc ln 751 stats print skipped
+CPU  0 inst:    1000002 cyc:     500844 now IPC :1.99663: AVG IPC :1.99663: L2-Pf-HR :1.00000: L2-HR :0.76998: (Sim:0h0m55s) 
+CPU  1 inst:    1000002 cyc:     500922 now IPC :1.99632: AVG IPC :1.99632: L2-Pf-HR :1.00000: L2-HR :0.77723: (Sim:0h0m55s) 
+CPU  2 inst:    1000002 cyc:     500932 now IPC :1.99628: AVG IPC :1.99628: L2-Pf-HR :1.00000: L2-HR :0.77061: (Sim:0h0m55s) 
+CPU  3 inst:    1000002 cyc:     501162 now IPC :1.99537: AVG IPC :1.99537: L2-Pf-HR :1.00000: L2-HR :0.78580: (Sim:0h0m55s) 
+CPU  0 inst:    2000000 cyc:     988945 now IPC :2.04875: AVG IPC :2.02236: L2-Pf-HR :0.99949: L2-HR :0.79845: (Sim:0h1m59s) 
+CPU  1 inst:    2000000 cyc:     988953 now IPC :2.04905: AVG IPC :2.02234: L2-Pf-HR :0.99951: L2-HR :0.80104: (Sim:0h1m59s) 
+CPU  2 inst:    2000000 cyc:     988966 now IPC :2.04903: AVG IPC :2.02231: L2-Pf-HR :0.99953: L2-HR :0.79776: (Sim:0h1m59s) 
+CPU  3 inst:    2000000 cyc:     989154 now IPC :2.04921: AVG IPC :2.02193: L2-Pf-HR :0.99906: L2-HR :0.80997: (Sim:0h1m59s) 
+
+Warmup complete CPU  0 instructions:    2000363 cycles:     989155 (Simulation time: 0 hr 1 min 59 sec) 
+Warmup complete CPU  1 instructions:    2000346 cycles:     989155 (Simulation time: 0 hr 1 min 59 sec) 
+Warmup complete CPU  2 instructions:    2000312 cycles:     989155 (Simulation time: 0 hr 1 min 59 sec) 
+Warmup complete CPU  3 instructions:    2000002 cycles:     989155 (Simulation time: 0 hr 1 min 59 sec) 
+
+CPU  2 inst:    3000002 cyc:    1789892 now IPC :1.24856: AVG IPC :1.24846: L2-Pf-HR :1.00000: L2-HR :0.82987: (Sim:0h3m1s) 
+CPU  3 inst:    3000003 cyc:    1792551 now IPC :1.24472: AVG IPC :1.24472: L2-Pf-HR :1.00000: L2-HR :0.82885: (Sim:0h3m1s) 
+CPU  0 inst:    3000003 cyc:    1793259 now IPC :1.24330: AVG IPC :1.24317: L2-Pf-HR :1.00000: L2-HR :0.82806: (Sim:0h3m1s) 
+CPU  1 inst:    3000003 cyc:    1793667 now IPC :1.24268: AVG IPC :1.24256: L2-Pf-HR :1.00000: L2-HR :0.82642: (Sim:0h3m1s) 
+CPU  2 inst:    4000003 cyc:    2586334 now IPC :1.25559: AVG IPC :1.25201: L2-Pf-HR :1.00000: L2-HR :0.82571: (Sim:0h4m1s) 
+CPU  1 inst:    4000003 cyc:    2589993 now IPC :1.25577: AVG IPC :1.24913: L2-Pf-HR :1.00000: L2-HR :0.82352: (Sim:0h4m1s) 
+CPU  0 inst:    4000003 cyc:    2590197 now IPC :1.25480: AVG IPC :1.24896: L2-Pf-HR :1.00000: L2-HR :0.82348: (Sim:0h4m1s) 
+CPU  3 inst:    4000003 cyc:    2593548 now IPC :1.24844: AVG IPC :1.24658: L2-Pf-HR :1.00000: L2-HR :0.82495: (Sim:0h4m1s) 
+CPU  2 inst:    5000005 cyc:    3368260 now IPC :1.27890: AVG IPC :1.26085: L2-Pf-HR :1.00000: L2-HR :0.82437: (Sim:0h5m1s) 
+CPU  0 inst:    5000005 cyc:    3371543 now IPC :1.27985: AVG IPC :1.25909: L2-Pf-HR :1.00000: L2-HR :0.82198: (Sim:0h5m1s) 
+CPU  1 inst:    5000005 cyc:    3375649 now IPC :1.27282: AVG IPC :1.25693: L2-Pf-HR :1.00000: L2-HR :0.82238: (Sim:0h5m1s) 
+CPU  3 inst:    5000005 cyc:    3375853 now IPC :1.27828: AVG IPC :1.25697: L2-Pf-HR :1.00000: L2-HR :0.82388: (Sim:0h5m1s) 
+CPU  2 inst:    6000000 cyc:    4175113 now IPC :1.23938: AVG IPC :1.25541: L2-Pf-HR :1.00000: L2-HR :0.82389: (Sim:0h6m2s) 
+CPU  0 inst:    6000000 cyc:    4178776 now IPC :1.23879: AVG IPC :1.25395: L2-Pf-HR :1.00000: L2-HR :0.82232: (Sim:0h6m2s) 
+CPU  3 inst:    6000000 cyc:    4179284 now IPC :1.24466: AVG IPC :1.25387: L2-Pf-HR :0.99859: L2-HR :0.82100: (Sim:0h6m2s) 
+CPU  1 inst:    6000000 cyc:    4182555 now IPC :1.23930: AVG IPC :1.25248: L2-Pf-HR :1.00000: L2-HR :0.82197: (Sim:0h6m3s) 
+CPU  2 inst:    7000002 cyc:    5019581 now IPC :1.18418: AVG IPC :1.24049: L2-Pf-HR :1.00000: L2-HR :0.82369: (Sim:0h7m2s) 
+CPU  3 inst:    7000002 cyc:    5026657 now IPC :1.18012: AVG IPC :1.23839: L2-Pf-HR :0.99835: L2-HR :0.81997: (Sim:0h7m3s) 
+CPU  1 inst:    7000002 cyc:    5030190 now IPC :1.17976: AVG IPC :1.23722: L2-Pf-HR :1.00000: L2-HR :0.82190: (Sim:0h7m3s) 
+CPU  0 inst:    7000002 cyc:    5030494 now IPC :1.17410: AVG IPC :1.23712: L2-Pf-HR :1.00000: L2-HR :0.82223: (Sim:0h7m3s) 
+CPU  2 inst:    8000003 cyc:    6012695 now IPC :1.00693: AVG IPC :1.19432: L2-Pf-HR :1.00000: L2-HR :0.82360: (Sim:0h8m13s) 
+CPU  1 inst:    8000003 cyc:    6067349 now IPC :0.96417: AVG IPC :1.18145: L2-Pf-HR :1.00000: L2-HR :0.82195: (Sim:0h8m18s) 
+CPU  0 inst:    8000003 cyc:    6071508 now IPC :0.96060: AVG IPC :1.18048: L2-Pf-HR :1.00000: L2-HR :0.82153: (Sim:0h8m18s) 
+CPU  3 inst:    8000003 cyc:    6078069 now IPC :0.95110: AVG IPC :1.17903: L2-Pf-HR :0.99863: L2-HR :0.82009: (Sim:0h8m19s) 
+CPU  2 inst:    9000005 cyc:    6913658 now IPC :1.10993: AVG IPC :1.18148: L2-Pf-HR :1.00000: L2-HR :0.82585: (Sim:0h9m20s) 
+CPU  1 inst:    9000005 cyc:    7120145 now IPC :0.94985: AVG IPC :1.14168: L2-Pf-HR :1.00000: L2-HR :0.82284: (Sim:0h9m34s) 
+CPU  0 inst:    9000005 cyc:    7148631 now IPC :0.92840: AVG IPC :1.13640: L2-Pf-HR :1.00000: L2-HR :0.82238: (Sim:0h9m37s) 
+CPU  3 inst:    9000005 cyc:    7154574 now IPC :0.92893: AVG IPC :1.13537: L2-Pf-HR :0.99885: L2-HR :0.82153: (Sim:0h9m37s) 
+CPU  2 inst:   10000004 cyc:    7852588 now IPC :1.06504: AVG IPC :1.16555: L2-Pf-HR :1.00000: L2-HR :0.82672: (Sim:0h10m25s) 
+CPU  1 inst:   10000005 cyc:    8244658 now IPC :0.88927: AVG IPC :1.10256: L2-Pf-HR :1.00000: L2-HR :0.82371: (Sim:0h10m51s) 
+CPU  3 inst:   10000005 cyc:    8334632 now IPC :0.84742: AVG IPC :1.08911: L2-Pf-HR :0.99901: L2-HR :0.82261: (Sim:0h10m57s) 
+CPU  0 inst:   10000005 cyc:    8342237 now IPC :0.83780: AVG IPC :1.08793: L2-Pf-HR :1.00000: L2-HR :0.82343: (Sim:0h10m57s) 
+CPU  2 inst:   11000005 cyc:    8931587 now IPC :0.92679: AVG IPC :1.13312: L2-Pf-HR :1.00000: L2-HR :0.82834: (Sim:0h11m39s) 
+CPU  1 inst:   11000005 cyc:    9226130 now IPC :1.01888: AVG IPC :1.09259: L2-Pf-HR :1.00000: L2-HR :0.82450: (Sim:0h11m58s) 
+CPU  3 inst:   11000005 cyc:    9448539 now IPC :0.89774: AVG IPC :1.06391: L2-Pf-HR :0.99915: L2-HR :0.82376: (Sim:0h12m13s) 
+CPU  0 inst:   11000005 cyc:    9487905 now IPC :0.87285: AVG IPC :1.05894: L2-Pf-HR :1.00000: L2-HR :0.82433: (Sim:0h12m17s) 
+CPU  2 inst:   12000001 cyc:   10070438 now IPC :0.87807: AVG IPC :1.10113: L2-Pf-HR :1.00000: L2-HR :0.82885: (Sim:0h13m3s) 
+CPU  1 inst:   12000001 cyc:   10236241 now IPC :0.98999: AVG IPC :1.08138: L2-Pf-HR :1.00000: L2-HR :0.82537: (Sim:0h13m16s) 
+CPU  3 inst:   12000001 cyc:   10496588 now IPC :0.95415: AVG IPC :1.05181: L2-Pf-HR :0.99924: L2-HR :0.82436: (Sim:0h13m36s) 
+CPU  0 inst:   12000001 cyc:   10568287 now IPC :0.92559: AVG IPC :1.04390: L2-Pf-HR :1.00000: L2-HR :0.82502: (Sim:0h13m42s) 
+CPU  2 inst:   13000002 cyc:   11206522 now IPC :0.88022: AVG IPC :1.07657: L2-Pf-HR :1.00000: L2-HR :0.82987: (Sim:0h14m27s) 
+CPU  1 inst:   13000002 cyc:   11314679 now IPC :0.92727: AVG IPC :1.06529: L2-Pf-HR :1.00000: L2-HR :0.82631: (Sim:0h14m34s) 
+CPU  3 inst:   13000002 cyc:   11650632 now IPC :0.86652: AVG IPC :1.03175: L2-Pf-HR :0.99932: L2-HR :0.82511: (Sim:0h14m57s) 
+CPU  0 inst:   13000002 cyc:   11730576 now IPC :0.86037: AVG IPC :1.02404: L2-Pf-HR :1.00000: L2-HR :0.82573: (Sim:0h15m3s) 
+CPU  2 inst:   14000004 cyc:   12398984 now IPC :0.83860: AVG IPC :1.05170: L2-Pf-HR :1.00000: L2-HR :0.83083: (Sim:0h15m48s) 
+CPU  1 inst:   14000004 cyc:   12479211 now IPC :0.85872: AVG IPC :1.04435: L2-Pf-HR :1.00000: L2-HR :0.82754: (Sim:0h15m54s) 
+CPU  3 inst:   14000004 cyc:   12800705 now IPC :0.86951: AVG IPC :1.01595: L2-Pf-HR :0.99939: L2-HR :0.82612: (Sim:0h16m20s) 
+CPU  0 inst:   14000004 cyc:   12908431 now IPC :0.84900: AVG IPC :1.00674: L2-Pf-HR :1.00000: L2-HR :0.82701: (Sim:0h16m27s) 
+CPU  2 inst:   15000000 cyc:   13619638 now IPC :0.81923: AVG IPC :1.02923: L2-Pf-HR :0.99999: L2-HR :0.83074: (Sim:0h17m19s) 
+CPU  1 inst:   15000000 cyc:   13657801 now IPC :0.84847: AVG IPC :1.02613: L2-Pf-HR :0.99999: L2-HR :0.82781: (Sim:0h17m22s) 
+CPU  3 inst:   15000000 cyc:   13959076 now IPC :0.86328: AVG IPC :1.00232: L2-Pf-HR :0.99944: L2-HR :0.82660: (Sim:0h17m43s) 
+CPU  0 inst:   15000000 cyc:   14083106 now IPC :0.85130: AVG IPC :0.99280: L2-Pf-HR :0.99999: L2-HR :0.82748: (Sim:0h17m54s) 
+CPU  2 inst:   16000001 cyc:   14755023 now IPC :0.88076: AVG IPC :1.01699: L2-Pf-HR :0.99999: L2-HR :0.83096: (Sim:0h18m49s) 
+CPU  1 inst:   16000001 cyc:   14803070 now IPC :0.87316: AVG IPC :1.01345: L2-Pf-HR :0.99999: L2-HR :0.82861: (Sim:0h18m53s) 
+CPU  3 inst:   16000001 cyc:   14977690 now IPC :0.98173: AVG IPC :1.00082: L2-Pf-HR :0.99949: L2-HR :0.82737: (Sim:0h19m7s) 
+CPU  0 inst:   16000001 cyc:   15131198 now IPC :0.95412: AVG IPC :0.98993: L2-Pf-HR :0.99999: L2-HR :0.82812: (Sim:0h19m19s) 
+CPU  2 inst:   17000003 cyc:   16011410 now IPC :0.79593: AVG IPC :0.99850: L2-Pf-HR :0.99997: L2-HR :0.82996: (Sim:0h20m24s) 
+CPU  1 inst:   17000003 cyc:   16076241 now IPC :0.78544: AVG IPC :0.99421: L2-Pf-HR :0.99997: L2-HR :0.82786: (Sim:0h20m26s) 
+CPU  3 inst:   17000003 cyc:   16215408 now IPC :0.80794: AVG IPC :0.98514: L2-Pf-HR :0.99950: L2-HR :0.82662: (Sim:0h20m29s) 
+CPU  0 inst:   17000003 cyc:   16461108 now IPC :0.75193: AVG IPC :0.96947: L2-Pf-HR :0.99997: L2-HR :0.82758: (Sim:0h20m34s) 
+CPU  2 inst:   18000001 cyc:   29228110 now IPC :0.07566: AVG IPC :0.56658: L2-Pf-HR :0.99990: L2-HR :0.75572: (Sim:0h28m29s) 
+CPU  1 inst:   18000001 cyc:   29309198 now IPC :0.07557: AVG IPC :0.56496: L2-Pf-HR :0.99996: L2-HR :0.75335: (Sim:0h28m30s) 
+CPU  3 inst:   18000001 cyc:   29444413 now IPC :0.07559: AVG IPC :0.56229: L2-Pf-HR :0.99949: L2-HR :0.75242: (Sim:0h28m32s) 
+CPU  0 inst:   18000001 cyc:   29558164 now IPC :0.07635: AVG IPC :0.56003: L2-Pf-HR :0.99996: L2-HR :0.75304: (Sim:0h28m33s) 
+CPU  2 inst:   19000000 cyc:   34954244 now IPC :0.17464: AVG IPC :0.50050: L2-Pf-HR :0.99989: L2-HR :0.74091: (Sim:0h29m48s) 
+CPU  1 inst:   19000000 cyc:   35077952 now IPC :0.17335: AVG IPC :0.49869: L2-Pf-HR :0.99996: L2-HR :0.73849: (Sim:0h29m50s) 
+CPU  3 inst:   19000000 cyc:   35175534 now IPC :0.17449: AVG IPC :0.49727: L2-Pf-HR :0.99945: L2-HR :0.73760: (Sim:0h29m51s) 
+CPU  0 inst:   19000000 cyc:   35265337 now IPC :0.17522: AVG IPC :0.49596: L2-Pf-HR :0.99996: L2-HR :0.73817: (Sim:0h29m52s) 
+CPU  2 inst:   20000000 cyc:   40675969 now IPC :0.17477: AVG IPC :0.45354: L2-Pf-HR :0.99973: L2-HR :0.72711: (Sim:0h31m9s) 
+CPU  1 inst:   20000000 cyc:   40794104 now IPC :0.17494: AVG IPC :0.45220: L2-Pf-HR :0.99995: L2-HR :0.72464: (Sim:0h31m11s) 
+CPU  3 inst:   20000000 cyc:   40899074 now IPC :0.17472: AVG IPC :0.45102: L2-Pf-HR :0.99931: L2-HR :0.72380: (Sim:0h31m12s) 
+CPU  0 inst:   20000000 cyc:   40996347 now IPC :0.17449: AVG IPC :0.44991: L2-Pf-HR :0.99996: L2-HR :0.72432: (Sim:0h31m14s) 
+CPU  2 inst:   21000000 cyc:   46271282 now IPC :0.17872: AVG IPC :0.41958: L2-Pf-HR :0.99959: L2-HR :0.71422: (Sim:0h32m54s) 
+CPU  1 inst:   21000000 cyc:   46385924 now IPC :0.17883: AVG IPC :0.41852: L2-Pf-HR :0.99990: L2-HR :0.71172: (Sim:0h32m57s) 
+CPU  3 inst:   21000000 cyc:   46482588 now IPC :0.17910: AVG IPC :0.41764: L2-Pf-HR :0.99924: L2-HR :0.71090: (Sim:0h32m59s) 
+CPU  0 inst:   21000000 cyc:   46600754 now IPC :0.17843: AVG IPC :0.41655: L2-Pf-HR :0.99996: L2-HR :0.71138: (Sim:0h33m2s) 
+CPU  2 inst:   22000000 cyc:   51750043 now IPC :0.18252: AVG IPC :0.39400: L2-Pf-HR :0.99845: L2-HR :0.70218: (Sim:0h35m10s) 
+CPU  1 inst:   22000000 cyc:   51845127 now IPC :0.18318: AVG IPC :0.39326: L2-Pf-HR :0.99894: L2-HR :0.69965: (Sim:0h35m12s) 
+CPU  3 inst:   22000000 cyc:   51956374 now IPC :0.18269: AVG IPC :0.39241: L2-Pf-HR :0.99886: L2-HR :0.69885: (Sim:0h35m15s) 
+CPU  0 inst:   22000000 cyc:   52064786 now IPC :0.18302: AVG IPC :0.39157: L2-Pf-HR :0.99943: L2-HR :0.69930: (Sim:0h35m18s) 
+CPU  2 inst:   23000000 cyc:   57176850 now IPC :0.18427: AVG IPC :0.37374: L2-Pf-HR :0.99756: L2-HR :0.69088: (Sim:0h37m25s) 
+CPU  1 inst:   23000000 cyc:   57277458 now IPC :0.18408: AVG IPC :0.37307: L2-Pf-HR :0.99800: L2-HR :0.68833: (Sim:0h37m27s) 
+CPU  3 inst:   23000000 cyc:   57379297 now IPC :0.18440: AVG IPC :0.37241: L2-Pf-HR :0.99760: L2-HR :0.68757: (Sim:0h37m30s) 
+CPU  0 inst:   23000000 cyc:   57518939 now IPC :0.18335: AVG IPC :0.37148: L2-Pf-HR :0.99846: L2-HR :0.68798: (Sim:0h37m33s) 
+CPU  2 inst:   24000000 cyc:   62608976 now IPC :0.18409: AVG IPC :0.35702: L2-Pf-HR :0.99645: L2-HR :0.68027: (Sim:0h39m40s) 
+CPU  1 inst:   24000000 cyc:   62691552 now IPC :0.18470: AVG IPC :0.35654: L2-Pf-HR :0.99663: L2-HR :0.67772: (Sim:0h39m42s) 
+CPU  3 inst:   24000000 cyc:   62803291 now IPC :0.18437: AVG IPC :0.35591: L2-Pf-HR :0.99638: L2-HR :0.67698: (Sim:0h39m45s) 
+CPU  0 inst:   24000000 cyc:   62919291 now IPC :0.18517: AVG IPC :0.35523: L2-Pf-HR :0.99674: L2-HR :0.67738: (Sim:0h39m48s) 
+CPU  2 inst:   25000000 cyc:   68037576 now IPC :0.18421: AVG IPC :0.34303: L2-Pf-HR :0.99513: L2-HR :0.67028: (Sim:0h41m56s) 
+CPU  1 inst:   25000000 cyc:   68122502 now IPC :0.18413: AVG IPC :0.34260: L2-Pf-HR :0.99516: L2-HR :0.66773: (Sim:0h41m59s) 
+CPU  3 inst:   25000000 cyc:   68229123 now IPC :0.18430: AVG IPC :0.34206: L2-Pf-HR :0.99500: L2-HR :0.66702: (Sim:0h42m1s) 
+CPU  0 inst:   25000000 cyc:   68367123 now IPC :0.18356: AVG IPC :0.34135: L2-Pf-HR :0.99493: L2-HR :0.66741: (Sim:0h42m5s) 
+CPU  2 inst:   26000001 cyc:   73113763 now IPC :0.19700: AVG IPC :0.33275: L2-Pf-HR :0.99423: L2-HR :0.66385: (Sim:0h43m37s) 
+CPU  1 inst:   26000001 cyc:   73267280 now IPC :0.19437: AVG IPC :0.33205: L2-Pf-HR :0.99441: L2-HR :0.66094: (Sim:0h43m41s) 
+CPU  3 inst:   26000001 cyc:   73414085 now IPC :0.19287: AVG IPC :0.33138: L2-Pf-HR :0.99390: L2-HR :0.66001: (Sim:0h43m48s) 
+CPU  0 inst:   26000001 cyc:   73555151 now IPC :0.19275: AVG IPC :0.33073: L2-Pf-HR :0.99362: L2-HR :0.66027: (Sim:0h43m56s) 
+CPU  2 inst:   27000000 cyc:   74192894 now IPC :0.92667: AVG IPC :0.34151: L2-Pf-HR :0.99477: L2-HR :0.68478: (Sim:0h44m39s) 
+CPU  1 inst:   27000000 cyc:   74298469 now IPC :0.96975: AVG IPC :0.34102: L2-Pf-HR :0.99492: L2-HR :0.68194: (Sim:0h44m48s) 
+CPU  3 inst:   27000000 cyc:   74449897 now IPC :0.96543: AVG IPC :0.34032: L2-Pf-HR :0.99443: L2-HR :0.68097: (Sim:0h45m1s) 
+CPU  0 inst:   27000000 cyc:   74594404 now IPC :0.96223: AVG IPC :0.33964: L2-Pf-HR :0.99414: L2-HR :0.68108: (Sim:0h45m14s) 
+CPU  2 inst:   28000002 cyc:   75198821 now IPC :0.99411: AVG IPC :0.35035: L2-Pf-HR :0.99514: L2-HR :0.70211: (Sim:0h46m13s) 
+CPU  1 inst:   28000002 cyc:   75286527 now IPC :1.01209: AVG IPC :0.34994: L2-Pf-HR :0.99530: L2-HR :0.69970: (Sim:0h46m20s) 
+CPU  3 inst:   28000002 cyc:   75467660 now IPC :0.98255: AVG IPC :0.34909: L2-Pf-HR :0.99488: L2-HR :0.69879: (Sim:0h46m35s) 
+CPU  0 inst:   28000002 cyc:   75573141 now IPC :1.02173: AVG IPC :0.34860: L2-Pf-HR :0.99466: L2-HR :0.69921: (Sim:0h46m45s) 
+CPU  2 inst:   29000003 cyc:   76181423 now IPC :1.01771: AVG IPC :0.35908: L2-Pf-HR :0.99549: L2-HR :0.71774: (Sim:0h47m43s) 
+CPU  1 inst:   29000001 cyc:   76252677 now IPC :1.03503: AVG IPC :0.35873: L2-Pf-HR :0.99567: L2-HR :0.71564: (Sim:0h47m47s) 
+CPU  3 inst:   29000003 cyc:   76458526 now IPC :1.00922: AVG IPC :0.35776: L2-Pf-HR :0.99528: L2-HR :0.71483: (Sim:0h48m4s) 
+CPU  0 inst:   29000003 cyc:   76569085 now IPC :1.00407: AVG IPC :0.35723: L2-Pf-HR :0.99509: L2-HR :0.71524: (Sim:0h48m11s) 
+CPU  2 inst:   30000004 cyc:   77231516 now IPC :0.95230: AVG IPC :0.36725: L2-Pf-HR :0.99580: L2-HR :0.73107: (Sim:0h49m0s) 
+CPU  1 inst:   30000004 cyc:   77279261 now IPC :0.97411: AVG IPC :0.36702: L2-Pf-HR :0.99596: L2-HR :0.72900: (Sim:0h49m2s) 
+CPU  3 inst:   30000004 cyc:   77532024 now IPC :0.93154: AVG IPC :0.36581: L2-Pf-HR :0.99562: L2-HR :0.72842: (Sim:0h49m14s) 
+CPU  0 inst:   30000004 cyc:   77597633 now IPC :0.97225: AVG IPC :0.36549: L2-Pf-HR :0.99544: L2-HR :0.72883: (Sim:0h49m20s) 
+CPU  2 inst:   31000003 cyc:   78356963 now IPC :0.88853: AVG IPC :0.37483: L2-Pf-HR :0.99608: L2-HR :0.74261: (Sim:0h50m25s) 
+CPU  1 inst:   31000003 cyc:   78396161 now IPC :0.89533: AVG IPC :0.37464: L2-Pf-HR :0.99622: L2-HR :0.74054: (Sim:0h50m30s) 
+CPU  3 inst:   31000005 cyc:   78656947 now IPC :0.88895: AVG IPC :0.37339: L2-Pf-HR :0.99592: L2-HR :0.74019: (Sim:0h50m47s) 
+CPU  0 inst:   31000003 cyc:   78688632 now IPC :0.91659: AVG IPC :0.37323: L2-Pf-HR :0.99577: L2-HR :0.74059: (Sim:0h50m51s) 
+CPU  2 inst:   32000004 cyc:   79385326 now IPC :0.97242: AVG IPC :0.38267: L2-Pf-HR :0.99632: L2-HR :0.75274: (Sim:0h51m54s) 
+CPU  1 inst:   32000004 cyc:   79454773 now IPC :0.94463: AVG IPC :0.38233: L2-Pf-HR :0.99645: L2-HR :0.75076: (Sim:0h52m2s) 
+CPU  3 inst:   32000004 cyc:   79679537 now IPC :0.97791: AVG IPC :0.38124: L2-Pf-HR :0.99618: L2-HR :0.75048: (Sim:0h52m20s) 
+CPU  0 inst:   32000004 cyc:   79704632 now IPC :0.98425: AVG IPC :0.38111: L2-Pf-HR :0.99601: L2-HR :0.75070: (Sim:0h52m23s) 
+CPU  2 inst:   33000003 cyc:   80404366 now IPC :0.98131: AVG IPC :0.39035: L2-Pf-HR :0.99652: L2-HR :0.76169: (Sim:0h53m25s) 
+CPU  1 inst:   33000003 cyc:   80481183 now IPC :0.97427: AVG IPC :0.38997: L2-Pf-HR :0.99664: L2-HR :0.75980: (Sim:0h53m31s) 
+CPU  3 inst:   33000003 cyc:   80700650 now IPC :0.97932: AVG IPC :0.38890: L2-Pf-HR :0.99638: L2-HR :0.75960: (Sim:0h53m51s) 
+CPU  0 inst:   33000003 cyc:   80739649 now IPC :0.96617: AVG IPC :0.38871: L2-Pf-HR :0.99623: L2-HR :0.75979: (Sim:0h53m55s) 
+CPU  2 inst:   34000001 cyc:   81341136 now IPC :1.06750: AVG IPC :0.39824: L2-Pf-HR :0.99670: L2-HR :0.76979: (Sim:0h54m53s) 
+CPU  1 inst:   34000001 cyc:   81388966 now IPC :1.10158: AVG IPC :0.39801: L2-Pf-HR :0.99681: L2-HR :0.76796: (Sim:0h54m58s) 
+CPU  3 inst:   34000001 cyc:   81645859 now IPC :1.05796: AVG IPC :0.39674: L2-Pf-HR :0.99658: L2-HR :0.76787: (Sim:0h55m21s) 
+CPU  0 inst:   34000001 cyc:   81676078 now IPC :1.06788: AVG IPC :0.39659: L2-Pf-HR :0.99644: L2-HR :0.76809: (Sim:0h55m24s) 
+CPU  2 inst:   35000003 cyc:   82188861 now IPC :1.17963: AVG IPC :0.40640: L2-Pf-HR :0.99686: L2-HR :0.77736: (Sim:0h56m17s) 
+CPU  1 inst:   35000003 cyc:   82243079 now IPC :1.17081: AVG IPC :0.40613: L2-Pf-HR :0.99697: L2-HR :0.77573: (Sim:0h56m21s) 
+CPU  3 inst:   35000003 cyc:   82486587 now IPC :1.18945: AVG IPC :0.40492: L2-Pf-HR :0.99676: L2-HR :0.77567: (Sim:0h56m46s) 
+CPU  0 inst:   35000003 cyc:   82534596 now IPC :1.16480: AVG IPC :0.40468: L2-Pf-HR :0.99663: L2-HR :0.77594: (Sim:0h56m50s) 
+CPU  2 inst:   36000004 cyc:   83046293 now IPC :1.16627: AVG IPC :0.41434: L2-Pf-HR :0.99699: L2-HR :0.78394: (Sim:0h57m45s) 
+CPU  1 inst:   36000004 cyc:   83074634 now IPC :1.20257: AVG IPC :0.41420: L2-Pf-HR :0.99711: L2-HR :0.78250: (Sim:0h57m48s) 
+CPU  3 inst:   36000004 cyc:   83302770 now IPC :1.22522: AVG IPC :0.41305: L2-Pf-HR :0.99691: L2-HR :0.78242: (Sim:0h58m12s) 
+CPU  0 inst:   36000004 cyc:   83354662 now IPC :1.21942: AVG IPC :0.41279: L2-Pf-HR :0.99680: L2-HR :0.78276: (Sim:0h58m17s) 
+CPU  2 inst:   37000002 cyc:   83932472 now IPC :1.12844: AVG IPC :0.42197: L2-Pf-HR :0.99713: L2-HR :0.78991: (Sim:0h59m14s) 
+CPU  1 inst:   37000002 cyc:   83951988 now IPC :1.13979: AVG IPC :0.42187: L2-Pf-HR :0.99724: L2-HR :0.78855: (Sim:0h59m16s) 
+CPU  3 inst:   37000002 cyc:   84186216 now IPC :1.13193: AVG IPC :0.42069: L2-Pf-HR :0.99705: L2-HR :0.78842: (Sim:0h59m41s) 
+CPU  0 inst:   37000002 cyc:   84221197 now IPC :1.15402: AVG IPC :0.42051: L2-Pf-HR :0.99695: L2-HR :0.78880: (Sim:0h59m45s) 
+CPU  2 inst:   38000002 cyc:   84778617 now IPC :1.18183: AVG IPC :0.42964: L2-Pf-HR :0.99724: L2-HR :0.79529: (Sim:1h0m35s) 
+CPU  1 inst:   38000002 cyc:   84798879 now IPC :1.18079: AVG IPC :0.42954: L2-Pf-HR :0.99737: L2-HR :0.79407: (Sim:1h0m37s) 
+CPU  3 inst:   38000002 cyc:   85034300 now IPC :1.17913: AVG IPC :0.42834: L2-Pf-HR :0.99718: L2-HR :0.79402: (Sim:1h0m59s) 
+CPU  0 inst:   38000002 cyc:   85071811 now IPC :1.17562: AVG IPC :0.42815: L2-Pf-HR :0.99708: L2-HR :0.79429: (Sim:1h1m4s) 
+CPU  2 inst:   39000004 cyc:   85652220 now IPC :1.14469: AVG IPC :0.43702: L2-Pf-HR :0.99735: L2-HR :0.80039: (Sim:1h1m50s) 
+Finished CPU 2 instr: 37000001 cyc: 84664097 AVG IPC: 0.43702 (Sim time: 1h1m50s)
+CPU  1 inst:   39000005 cyc:   85679711 now IPC :1.13529: AVG IPC :0.43688: L2-Pf-HR :0.99747: L2-HR :0.79920: (Sim:1h1m52s) 
+Finished CPU 1 instr: 37000005 cyc: 84691187 AVG IPC: 0.43688 (Sim time: 1h1m52s)
+CPU  3 inst:   39000005 cyc:   85900426 now IPC :1.15457: AVG IPC :0.43575: L2-Pf-HR :0.99731: L2-HR :0.79919: (Sim:1h2m10s) 
+Finished CPU 3 instr: 37000003 cyc: 84911271 AVG IPC: 0.43575 (Sim time: 1h2m10s)
+CPU  0 inst:   39000005 cyc:   85934336 now IPC :1.15939: AVG IPC :0.43557: L2-Pf-HR :0.99721: L2-HR :0.79951: (Sim:1h2m13s) 
+Finished CPU 0 instr: 37000000 cyc: 84945714 AVG IPC: 0.43557 (Sim time: 1h2m13s)
+
+ChampSim completed all CPUs
+
+Total Simulation Statistics (not including warmup)
+
+CPU 0 cumulative IPC: 0.43557 instructions: 37000000 cycles: 84945714
+Core_0_L1D_total_access 10150277
+Core_0_L1D_total_hit 8804266
+Core_0_L1D_total_miss 1346011
+Core_0_L1D_loads 9021498
+Core_0_L1D_load_hit 7742310
+Core_0_L1D_load_miss 1279188
+Core_0_L1D_RFOs 1103954
+Core_0_L1D_RFO_hit 1037131
+Core_0_L1D_RFO_miss 66823
+Core_0_L1D_prefetches 24825
+Core_0_L1D_prefetch_hit 24825
+Core_0_L1D_prefetch_miss 0
+Core_0_L1D_writebacks 0
+Core_0_L1D_writeback_hit 0
+Core_0_L1D_writeback_miss 0
+
+Core_0_L1I_total_access 4911994
+Core_0_L1I_total_hit 4907278
+Core_0_L1I_total_miss 4716
+Core_0_L1I_loads 4911994
+Core_0_L1I_load_hit 4907278
+Core_0_L1I_load_miss 4716
+Core_0_L1I_RFOs 0
+Core_0_L1I_RFO_hit 0
+Core_0_L1I_RFO_miss 0
+Core_0_L1I_prefetches 0
+Core_0_L1I_prefetch_hit 0
+Core_0_L1I_prefetch_miss 0
+Core_0_L1I_writebacks 0
+Core_0_L1I_writeback_hit 0
+Core_0_L1I_writeback_miss 0
+
+Core_0_L2C_total_access 1828987
+Core_0_L2C_total_hit 1462285
+Core_0_L2C_total_miss 366702
+Core_0_L2C_loads 1283904
+Core_0_L2C_load_hit 983607
+Core_0_L2C_load_miss 300297
+Core_0_L2C_RFOs 66823
+Core_0_L2C_RFO_hit 1089
+Core_0_L2C_RFO_miss 65734
+Core_0_L2C_prefetches 238652
+Core_0_L2C_prefetch_hit 237986
+Core_0_L2C_prefetch_miss 666
+Core_0_L2C_writebacks 239608
+Core_0_L2C_writeback_hit 239603
+Core_0_L2C_writeback_miss 5
+
+CPU 0 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+Core_0_LLC_total_access 571049
+Core_0_LLC_total_hit 201256
+Core_0_LLC_total_miss 369793
+Core_0_LLC_loads 300198
+Core_0_LLC_load_hit 1377
+Core_0_LLC_load_miss 298821
+Core_0_LLC_RFOs 65734
+Core_0_LLC_RFO_hit 6
+Core_0_LLC_RFO_miss 65728
+Core_0_LLC_prefetches 767
+Core_0_LLC_prefetch_hit 1
+Core_0_LLC_prefetch_miss 766
+Core_0_LLC_writebacks 204350
+Core_0_LLC_writeback_hit 199872
+Core_0_LLC_writeback_miss 4478
+
+
+CPU 1 cumulative IPC: 0.43941 instructions: 37325854 cycles: 84945714
+Core_1_L1D_total_access 10236620
+Core_1_L1D_total_hit 8869803
+Core_1_L1D_total_miss 1366817
+Core_1_L1D_loads 9105954
+Core_1_L1D_load_hit 7805964
+Core_1_L1D_load_miss 1299990
+Core_1_L1D_RFOs 1104485
+Core_1_L1D_RFO_hit 1037658
+Core_1_L1D_RFO_miss 66827
+Core_1_L1D_prefetches 26181
+Core_1_L1D_prefetch_hit 26181
+Core_1_L1D_prefetch_miss 0
+Core_1_L1D_writebacks 0
+Core_1_L1D_writeback_hit 0
+Core_1_L1D_writeback_miss 0
+
+Core_1_L1I_total_access 4945301
+Core_1_L1I_total_hit 4940586
+Core_1_L1I_total_miss 4715
+Core_1_L1I_loads 4945301
+Core_1_L1I_load_hit 4940586
+Core_1_L1I_load_miss 4715
+Core_1_L1I_RFOs 0
+Core_1_L1I_RFO_hit 0
+Core_1_L1I_RFO_miss 0
+Core_1_L1I_prefetches 0
+Core_1_L1I_prefetch_hit 0
+Core_1_L1I_prefetch_miss 0
+Core_1_L1I_writebacks 0
+Core_1_L1I_writeback_hit 0
+Core_1_L1I_writeback_miss 0
+
+Core_1_L2C_total_access 1850570
+Core_1_L2C_total_hit 1482180
+Core_1_L2C_total_miss 368390
+Core_1_L2C_loads 1304705
+Core_1_L2C_load_hit 1002648
+Core_1_L2C_load_miss 302057
+Core_1_L2C_RFOs 66827
+Core_1_L2C_RFO_hit 1095
+Core_1_L2C_RFO_miss 65732
+Core_1_L2C_prefetches 239087
+Core_1_L2C_prefetch_hit 238491
+Core_1_L2C_prefetch_miss 596
+Core_1_L2C_writebacks 239951
+Core_1_L2C_writeback_hit 239946
+Core_1_L2C_writeback_miss 5
+
+CPU 1 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+Core_1_LLC_total_access 571880
+Core_1_LLC_total_hit 200235
+Core_1_LLC_total_miss 371645
+Core_1_LLC_loads 301956
+Core_1_LLC_load_hit 110
+Core_1_LLC_load_miss 301846
+Core_1_LLC_RFOs 65732
+Core_1_LLC_RFO_hit 0
+Core_1_LLC_RFO_miss 65732
+Core_1_LLC_prefetches 700
+Core_1_LLC_prefetch_hit 3
+Core_1_LLC_prefetch_miss 697
+Core_1_LLC_writebacks 203492
+Core_1_LLC_writeback_hit 200122
+Core_1_LLC_writeback_miss 3370
+
+
+CPU 2 cumulative IPC: 0.43990 instructions: 37367507 cycles: 84945714
+Core_2_L1D_total_access 10249562
+Core_2_L1D_total_hit 8879937
+Core_2_L1D_total_miss 1369625
+Core_2_L1D_loads 9117315
+Core_2_L1D_load_hit 7814515
+Core_2_L1D_load_miss 1302800
+Core_2_L1D_RFOs 1104558
+Core_2_L1D_RFO_hit 1037733
+Core_2_L1D_RFO_miss 66825
+Core_2_L1D_prefetches 27689
+Core_2_L1D_prefetch_hit 27689
+Core_2_L1D_prefetch_miss 0
+Core_2_L1D_writebacks 0
+Core_2_L1D_writeback_hit 0
+Core_2_L1D_writeback_miss 0
+
+Core_2_L1I_total_access 4950128
+Core_2_L1I_total_hit 4945411
+Core_2_L1I_total_miss 4717
+Core_2_L1I_loads 4950128
+Core_2_L1I_load_hit 4945411
+Core_2_L1I_load_miss 4717
+Core_2_L1I_RFOs 0
+Core_2_L1I_RFO_hit 0
+Core_2_L1I_RFO_miss 0
+Core_2_L1I_prefetches 0
+Core_2_L1I_prefetch_hit 0
+Core_2_L1I_prefetch_miss 0
+Core_2_L1I_writebacks 0
+Core_2_L1I_writeback_hit 0
+Core_2_L1I_writeback_miss 0
+
+Core_2_L2C_total_access 1865208
+Core_2_L2C_total_hit 1496702
+Core_2_L2C_total_miss 368506
+Core_2_L2C_loads 1307517
+Core_2_L2C_load_hit 1005400
+Core_2_L2C_load_miss 302117
+Core_2_L2C_RFOs 66825
+Core_2_L2C_RFO_hit 1094
+Core_2_L2C_RFO_miss 65731
+Core_2_L2C_prefetches 250871
+Core_2_L2C_prefetch_hit 250218
+Core_2_L2C_prefetch_miss 653
+Core_2_L2C_writebacks 239995
+Core_2_L2C_writeback_hit 239990
+Core_2_L2C_writeback_miss 5
+
+CPU 2 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+Core_2_LLC_total_access 572413
+Core_2_LLC_total_hit 200942
+Core_2_LLC_total_miss 371471
+Core_2_LLC_loads 302026
+Core_2_LLC_load_hit 264
+Core_2_LLC_load_miss 301762
+Core_2_LLC_RFOs 65731
+Core_2_LLC_RFO_hit 0
+Core_2_LLC_RFO_miss 65731
+Core_2_LLC_prefetches 745
+Core_2_LLC_prefetch_hit 1
+Core_2_LLC_prefetch_miss 744
+Core_2_LLC_writebacks 203911
+Core_2_LLC_writeback_hit 200677
+Core_2_LLC_writeback_miss 3234
+
+
+CPU 3 cumulative IPC: 0.43612 instructions: 37046222 cycles: 84945714
+Core_3_L1D_total_access 10163641
+Core_3_L1D_total_hit 8814775
+Core_3_L1D_total_miss 1348866
+Core_3_L1D_loads 9033825
+Core_3_L1D_load_hit 7751781
+Core_3_L1D_load_miss 1282044
+Core_3_L1D_RFOs 1103975
+Core_3_L1D_RFO_hit 1037153
+Core_3_L1D_RFO_miss 66822
+Core_3_L1D_prefetches 25841
+Core_3_L1D_prefetch_hit 25841
+Core_3_L1D_prefetch_miss 0
+Core_3_L1D_writebacks 0
+Core_3_L1D_writeback_hit 0
+Core_3_L1D_writeback_miss 0
+
+Core_3_L1I_total_access 4917392
+Core_3_L1I_total_hit 4912677
+Core_3_L1I_total_miss 4715
+Core_3_L1I_loads 4917392
+Core_3_L1I_load_hit 4912677
+Core_3_L1I_load_miss 4715
+Core_3_L1I_RFOs 0
+Core_3_L1I_RFO_hit 0
+Core_3_L1I_RFO_miss 0
+Core_3_L1I_prefetches 0
+Core_3_L1I_prefetch_hit 0
+Core_3_L1I_prefetch_miss 0
+Core_3_L1I_writebacks 0
+Core_3_L1I_writeback_hit 0
+Core_3_L1I_writeback_miss 0
+
+Core_3_L2C_total_access 1833012
+Core_3_L2C_total_hit 1465375
+Core_3_L2C_total_miss 367637
+Core_3_L2C_loads 1286759
+Core_3_L2C_load_hit 985533
+Core_3_L2C_load_miss 301226
+Core_3_L2C_RFOs 66822
+Core_3_L2C_RFO_hit 1061
+Core_3_L2C_RFO_miss 65761
+Core_3_L2C_prefetches 239774
+Core_3_L2C_prefetch_hit 239129
+Core_3_L2C_prefetch_miss 645
+Core_3_L2C_writebacks 239657
+Core_3_L2C_writeback_hit 239652
+Core_3_L2C_writeback_miss 5
+
+CPU 3 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+Core_3_LLC_total_access 572157
+Core_3_LLC_total_hit 201878
+Core_3_LLC_total_miss 370279
+Core_3_LLC_loads 301065
+Core_3_LLC_load_hit 1254
+Core_3_LLC_load_miss 299811
+Core_3_LLC_RFOs 65761
+Core_3_LLC_RFO_hit 30
+Core_3_LLC_RFO_miss 65731
+Core_3_LLC_prefetches 865
+Core_3_LLC_prefetch_hit 174
+Core_3_LLC_prefetch_miss 691
+Core_3_LLC_writebacks 204466
+Core_3_LLC_writeback_hit 200420
+Core_3_LLC_writeback_miss 4046
+
+
+[ROI Statistics]
+Core_0_instructions 37000000
+Core_0_cycles 84945714
+Core_0_IPC 0.43557
+
+Core_0_branch_prediction_accuracy 98.43855
+Core_0_branch_MPKI 0.50535
+Core_0_average_ROB_occupancy_at_mispredict 344.21676
+
+Core_0_L1D_total_access 10150277
+Core_0_L1D_total_hit 8804266 L1D_total_Hit Ratio: 0.86739
+Core_0_L1D_total_miss 1346011
+Core_0_L1D_loads 9021498
+Core_0_L1D_load_hit 7742310 L1D_load_Hit Ratio: 0.85821
+Core_0_L1D_load_miss 1279188
+Core_0_L1D_RFOs 1103954
+Core_0_L1D_RFO_hit 1037131 L1D_RFO_Hit Ratio: 0.93947
+Core_0_L1D_RFO_miss 66823
+Core_0_L1D_prefetches 24825
+Core_0_L1D_prefetch_hit 24825 L1D_prefetch_Hit Ratio: 1.00000
+Core_0_L1D_prefetch_miss 0
+Core_0_L1D_writebacks 0
+Core_0_L1D_writeback_hit 0 L1D_writeback_Hit Ratio: -nan
+Core_0_L1D_writeback_miss 0
+Core_0_L1D_prefetch_requested 2992171
+Core_0_L1D_prefetch_issued 393193
+Core_0_L1D_prefetch_useful 0 L1D_Useful Ratio: 0.00000
+Core_0_L1D_prefetch_useless 0
+Core_0_L1D_prefetch_late 0
+Core_0_L1D_average_miss_latency 208.44615
+
+Core_0_L1I_total_access 4911994
+Core_0_L1I_total_hit 4907278 L1I_total_Hit Ratio: 0.99904
+Core_0_L1I_total_miss 4716
+Core_0_L1I_loads 4911994
+Core_0_L1I_load_hit 4907278 L1I_load_Hit Ratio: 0.99904
+Core_0_L1I_load_miss 4716
+Core_0_L1I_RFOs 0
+Core_0_L1I_RFO_hit 0 L1I_RFO_Hit Ratio: -nan
+Core_0_L1I_RFO_miss 0
+Core_0_L1I_prefetches 0
+Core_0_L1I_prefetch_hit 0 L1I_prefetch_Hit Ratio: -nan
+Core_0_L1I_prefetch_miss 0
+Core_0_L1I_writebacks 0
+Core_0_L1I_writeback_hit 0 L1I_writeback_Hit Ratio: -nan
+Core_0_L1I_writeback_miss 0
+Core_0_L1I_prefetch_requested 0
+Core_0_L1I_prefetch_issued 0
+Core_0_L1I_prefetch_useful 0 L1I_Useful Ratio: -nan
+Core_0_L1I_prefetch_useless 0
+Core_0_L1I_prefetch_late 0
+Core_0_L1I_average_miss_latency 779.54050
+
+Core_0_L2C_total_access 1828987
+Core_0_L2C_total_hit 1462285 L2C_total_Hit Ratio: 0.79951
+Core_0_L2C_total_miss 366702
+Core_0_L2C_loads 1283904
+Core_0_L2C_load_hit 983607 L2C_load_Hit Ratio: 0.76611
+Core_0_L2C_load_miss 300297
+Core_0_L2C_RFOs 66823
+Core_0_L2C_RFO_hit 1089 L2C_RFO_Hit Ratio: 0.01630
+Core_0_L2C_RFO_miss 65734
+Core_0_L2C_prefetches 238652
+Core_0_L2C_prefetch_hit 237986 L2C_prefetch_Hit Ratio: 0.99721
+Core_0_L2C_prefetch_miss 666
+Core_0_L2C_writebacks 239608
+Core_0_L2C_writeback_hit 239603 L2C_writeback_Hit Ratio: 0.99998
+Core_0_L2C_writeback_miss 5
+Core_0_L2C_prefetch_requested 1041873
+Core_0_L2C_prefetch_issued 34
+Core_0_L2C_prefetch_useful 676 L2C_Useful Ratio: 19.88235
+Core_0_L2C_prefetch_useless 1
+Core_0_L2C_prefetch_late 99
+Core_0_L2C_average_miss_latency 719.68008
+
+Core_0_LLC_total_access 571049
+Core_0_LLC_total_hit 201256 LLC_total_Hit Ratio: 0.35243
+Core_0_LLC_total_miss 369793
+Core_0_LLC_loads 300198
+Core_0_LLC_load_hit 1377 LLC_load_Hit Ratio: 0.00459
+Core_0_LLC_load_miss 298821
+Core_0_LLC_RFOs 65734
+Core_0_LLC_RFO_hit 6 LLC_RFO_Hit Ratio: 0.00009
+Core_0_LLC_RFO_miss 65728
+Core_0_LLC_prefetches 767
+Core_0_LLC_prefetch_hit 1 LLC_prefetch_Hit Ratio: 0.00130
+Core_0_LLC_prefetch_miss 766
+Core_0_LLC_writebacks 204350
+Core_0_LLC_writeback_hit 199872 LLC_writeback_Hit Ratio: 0.97809
+Core_0_LLC_writeback_miss 4478
+Core_0_LLC_prefetch_requested 0
+Core_0_LLC_prefetch_issued 0
+Core_0_LLC_prefetch_useful 0 LLC_Useful Ratio: -nan
+Core_0_LLC_prefetch_useless 2875
+Core_0_LLC_prefetch_late 0
+Core_0_LLC_average_miss_latency 2670.58039
+
+Core_0_major_page_fault 0
+Core_0_minor_page_fault 3913
+
+Core_1_instructions 37000005
+Core_1_cycles 84691187
+Core_1_IPC 0.43688
+
+Core_1_branch_prediction_accuracy 98.44038
+Core_1_branch_MPKI 0.50123
+Core_1_average_ROB_occupancy_at_mispredict 343.78909
+
+Core_1_L1D_total_access 10151131
+Core_1_L1D_total_hit 8805186 L1D_total_Hit Ratio: 0.86741
+Core_1_L1D_total_miss 1345945
+Core_1_L1D_loads 9021473
+Core_1_L1D_load_hit 7742354 L1D_load_Hit Ratio: 0.85821
+Core_1_L1D_load_miss 1279119
+Core_1_L1D_RFOs 1103757
+Core_1_L1D_RFO_hit 1036931 L1D_RFO_Hit Ratio: 0.93946
+Core_1_L1D_RFO_miss 66826
+Core_1_L1D_prefetches 25901
+Core_1_L1D_prefetch_hit 25901 L1D_prefetch_Hit Ratio: 1.00000
+Core_1_L1D_prefetch_miss 0
+Core_1_L1D_writebacks 0
+Core_1_L1D_writeback_hit 0 L1D_writeback_Hit Ratio: -nan
+Core_1_L1D_writeback_miss 0
+Core_1_L1D_prefetch_requested 3038866
+Core_1_L1D_prefetch_issued 398982
+Core_1_L1D_prefetch_useful 0 L1D_Useful Ratio: 0.00000
+Core_1_L1D_prefetch_useless 0
+Core_1_L1D_prefetch_late 0
+Core_1_L1D_average_miss_latency 210.16677
+
+Core_1_L1I_total_access 4913096
+Core_1_L1I_total_hit 4908381 L1I_total_Hit Ratio: 0.99904
+Core_1_L1I_total_miss 4715
+Core_1_L1I_loads 4913096
+Core_1_L1I_load_hit 4908381 L1I_load_Hit Ratio: 0.99904
+Core_1_L1I_load_miss 4715
+Core_1_L1I_RFOs 0
+Core_1_L1I_RFO_hit 0 L1I_RFO_Hit Ratio: -nan
+Core_1_L1I_RFO_miss 0
+Core_1_L1I_prefetches 0
+Core_1_L1I_prefetch_hit 0 L1I_prefetch_Hit Ratio: -nan
+Core_1_L1I_prefetch_miss 0
+Core_1_L1I_writebacks 0
+Core_1_L1I_writeback_hit 0 L1I_writeback_Hit Ratio: -nan
+Core_1_L1I_writeback_miss 0
+Core_1_L1I_prefetch_requested 0
+Core_1_L1I_prefetch_issued 0
+Core_1_L1I_prefetch_useful 0 L1I_Useful Ratio: -nan
+Core_1_L1I_prefetch_useless 0
+Core_1_L1I_prefetch_late 0
+Core_1_L1I_average_miss_latency 771.11453
+
+Core_1_L2C_total_access 1826237
+Core_1_L2C_total_hit 1459520 L2C_total_Hit Ratio: 0.79920
+Core_1_L2C_total_miss 366717
+Core_1_L2C_loads 1283834
+Core_1_L2C_load_hit 983450 L2C_load_Hit Ratio: 0.76603
+Core_1_L2C_load_miss 300384
+Core_1_L2C_RFOs 66826
+Core_1_L2C_RFO_hit 1094 L2C_RFO_Hit Ratio: 0.01637
+Core_1_L2C_RFO_miss 65732
+Core_1_L2C_prefetches 235969
+Core_1_L2C_prefetch_hit 235373 L2C_prefetch_Hit Ratio: 0.99747
+Core_1_L2C_prefetch_miss 596
+Core_1_L2C_writebacks 239608
+Core_1_L2C_writeback_hit 239603 L2C_writeback_Hit Ratio: 0.99998
+Core_1_L2C_writeback_miss 5
+Core_1_L2C_prefetch_requested 1046391
+Core_1_L2C_prefetch_issued 39
+Core_1_L2C_prefetch_useful 606 L2C_Useful Ratio: 15.53846
+Core_1_L2C_prefetch_useless 1
+Core_1_L2C_prefetch_late 101
+Core_1_L2C_average_miss_latency 724.90159
+
+Core_1_LLC_total_access 570011
+Core_1_LLC_total_hit 200098 LLC_total_Hit Ratio: 0.35104
+Core_1_LLC_total_miss 369913
+Core_1_LLC_loads 300283
+Core_1_LLC_load_hit 110 LLC_load_Hit Ratio: 0.00037
+Core_1_LLC_load_miss 300173
+Core_1_LLC_RFOs 65732
+Core_1_LLC_RFO_hit 0 LLC_RFO_Hit Ratio: 0.00000
+Core_1_LLC_RFO_miss 65732
+Core_1_LLC_prefetches 700
+Core_1_LLC_prefetch_hit 3 LLC_prefetch_Hit Ratio: 0.00429
+Core_1_LLC_prefetch_miss 697
+Core_1_LLC_writebacks 203296
+Core_1_LLC_writeback_hit 199985 LLC_writeback_Hit Ratio: 0.98371
+Core_1_LLC_writeback_miss 3311
+Core_1_LLC_prefetch_requested 0
+Core_1_LLC_prefetch_issued 0
+Core_1_LLC_prefetch_useful 0 LLC_Useful Ratio: -nan
+Core_1_LLC_prefetch_useless 2875
+Core_1_LLC_prefetch_late 0
+Core_1_LLC_average_miss_latency 2669.71405
+
+Core_1_major_page_fault 0
+Core_1_minor_page_fault 3924
+
+Core_2_instructions 37000001
+Core_2_cycles 84664097
+Core_2_IPC 0.43702
+
+Core_2_branch_prediction_accuracy 98.44050
+Core_2_branch_MPKI 0.50075
+Core_2_average_ROB_occupancy_at_mispredict 343.94747
+
+Core_2_L1D_total_access 10152712
+Core_2_L1D_total_hit 8806784 L1D_total_Hit Ratio: 0.86743
+Core_2_L1D_total_miss 1345928
+Core_2_L1D_loads 9021690
+Core_2_L1D_load_hit 7742585 L1D_load_Hit Ratio: 0.85822
+Core_2_L1D_load_miss 1279105
+Core_2_L1D_RFOs 1103742
+Core_2_L1D_RFO_hit 1036919 L1D_RFO_Hit Ratio: 0.93946
+Core_2_L1D_RFO_miss 66823
+Core_2_L1D_prefetches 27280
+Core_2_L1D_prefetch_hit 27280 L1D_prefetch_Hit Ratio: 1.00000
+Core_2_L1D_prefetch_miss 0
+Core_2_L1D_writebacks 0
+Core_2_L1D_writeback_hit 0 L1D_writeback_Hit Ratio: -nan
+Core_2_L1D_writeback_miss 0
+Core_2_L1D_prefetch_requested 3132984
+Core_2_L1D_prefetch_issued 414965
+Core_2_L1D_prefetch_useful 0 L1D_Useful Ratio: 0.00000
+Core_2_L1D_prefetch_useless 0
+Core_2_L1D_prefetch_late 0
+Core_2_L1D_average_miss_latency 208.70776
+
+Core_2_L1I_total_access 4913900
+Core_2_L1I_total_hit 4909183 L1I_total_Hit Ratio: 0.99904
+Core_2_L1I_total_miss 4717
+Core_2_L1I_loads 4913900
+Core_2_L1I_load_hit 4909183 L1I_load_Hit Ratio: 0.99904
+Core_2_L1I_load_miss 4717
+Core_2_L1I_RFOs 0
+Core_2_L1I_RFO_hit 0 L1I_RFO_Hit Ratio: -nan
+Core_2_L1I_RFO_miss 0
+Core_2_L1I_prefetches 0
+Core_2_L1I_prefetch_hit 0 L1I_prefetch_Hit Ratio: -nan
+Core_2_L1I_prefetch_miss 0
+Core_2_L1I_writebacks 0
+Core_2_L1I_writeback_hit 0 L1I_writeback_Hit Ratio: -nan
+Core_2_L1I_writeback_miss 0
+Core_2_L1I_prefetch_requested 0
+Core_2_L1I_prefetch_issued 0
+Core_2_L1I_prefetch_useful 0 L1I_Useful Ratio: -nan
+Core_2_L1I_prefetch_useless 0
+Core_2_L1I_prefetch_late 0
+Core_2_L1I_average_miss_latency 817.41297
+
+Core_2_L2C_total_access 1837119
+Core_2_L2C_total_hit 1470413 L2C_total_Hit Ratio: 0.80039
+Core_2_L2C_total_miss 366706
+Core_2_L2C_loads 1283822
+Core_2_L2C_load_hit 983505 L2C_load_Hit Ratio: 0.76608
+Core_2_L2C_load_miss 300317
+Core_2_L2C_RFOs 66823
+Core_2_L2C_RFO_hit 1092 L2C_RFO_Hit Ratio: 0.01634
+Core_2_L2C_RFO_miss 65731
+Core_2_L2C_prefetches 246867
+Core_2_L2C_prefetch_hit 246214 L2C_prefetch_Hit Ratio: 0.99735
+Core_2_L2C_prefetch_miss 653
+Core_2_L2C_writebacks 239607
+Core_2_L2C_writeback_hit 239602 L2C_writeback_Hit Ratio: 0.99998
+Core_2_L2C_writeback_miss 5
+Core_2_L2C_prefetch_requested 1047262
+Core_2_L2C_prefetch_issued 33
+Core_2_L2C_prefetch_useful 661 L2C_Useful Ratio: 20.03030
+Core_2_L2C_prefetch_useless 2
+Core_2_L2C_prefetch_late 91
+Core_2_L2C_average_miss_latency 720.09901
+
+Core_2_LLC_total_access 570522
+Core_2_LLC_total_hit 200872 LLC_total_Hit Ratio: 0.35208
+Core_2_LLC_total_miss 369650
+Core_2_LLC_loads 300226
+Core_2_LLC_load_hit 264 LLC_load_Hit Ratio: 0.00088
+Core_2_LLC_load_miss 299962
+Core_2_LLC_RFOs 65731
+Core_2_LLC_RFO_hit 0 LLC_RFO_Hit Ratio: 0.00000
+Core_2_LLC_RFO_miss 65731
+Core_2_LLC_prefetches 745
+Core_2_LLC_prefetch_hit 1 LLC_prefetch_Hit Ratio: 0.00134
+Core_2_LLC_prefetch_miss 744
+Core_2_LLC_writebacks 203820
+Core_2_LLC_writeback_hit 200607 LLC_writeback_Hit Ratio: 0.98424
+Core_2_LLC_writeback_miss 3213
+Core_2_LLC_prefetch_requested 0
+Core_2_LLC_prefetch_issued 0
+Core_2_LLC_prefetch_useful 0 LLC_Useful Ratio: -nan
+Core_2_LLC_prefetch_useless 2875
+Core_2_LLC_prefetch_late 0
+Core_2_LLC_average_miss_latency 2671.61351
+
+Core_2_major_page_fault 0
+Core_2_minor_page_fault 3924
+
+Core_3_instructions 37000003
+Core_3_cycles 84911271
+Core_3_IPC 0.43575
+
+Core_3_branch_prediction_accuracy 98.43885
+Core_3_branch_MPKI 0.50475
+Core_3_average_ROB_occupancy_at_mispredict 343.96625
+
+Core_3_L1D_total_access 10151445
+Core_3_L1D_total_hit 8805448 L1D_total_Hit Ratio: 0.86741
+Core_3_L1D_total_miss 1345997
+Core_3_L1D_loads 9021761
+Core_3_L1D_load_hit 7742586 L1D_load_Hit Ratio: 0.85821
+Core_3_L1D_load_miss 1279175
+Core_3_L1D_RFOs 1103882
+Core_3_L1D_RFO_hit 1037060 L1D_RFO_Hit Ratio: 0.93947
+Core_3_L1D_RFO_miss 66822
+Core_3_L1D_prefetches 25802
+Core_3_L1D_prefetch_hit 25802 L1D_prefetch_Hit Ratio: 1.00000
+Core_3_L1D_prefetch_miss 0
+Core_3_L1D_writebacks 0
+Core_3_L1D_writeback_hit 0 L1D_writeback_Hit Ratio: -nan
+Core_3_L1D_writeback_miss 0
+Core_3_L1D_prefetch_requested 3009678
+Core_3_L1D_prefetch_issued 401377
+Core_3_L1D_prefetch_useful 0 L1D_Useful Ratio: 0.00000
+Core_3_L1D_prefetch_useless 0
+Core_3_L1D_prefetch_late 0
+Core_3_L1D_average_miss_latency 211.19939
+
+Core_3_L1I_total_access 4912849
+Core_3_L1I_total_hit 4908134 L1I_total_Hit Ratio: 0.99904
+Core_3_L1I_total_miss 4715
+Core_3_L1I_loads 4912849
+Core_3_L1I_load_hit 4908134 L1I_load_Hit Ratio: 0.99904
+Core_3_L1I_load_miss 4715
+Core_3_L1I_RFOs 0
+Core_3_L1I_RFO_hit 0 L1I_RFO_Hit Ratio: -nan
+Core_3_L1I_RFO_miss 0
+Core_3_L1I_prefetches 0
+Core_3_L1I_prefetch_hit 0 L1I_prefetch_Hit Ratio: -nan
+Core_3_L1I_prefetch_miss 0
+Core_3_L1I_writebacks 0
+Core_3_L1I_writeback_hit 0 L1I_writeback_Hit Ratio: -nan
+Core_3_L1I_writeback_miss 0
+Core_3_L1I_prefetch_requested 0
+Core_3_L1I_prefetch_issued 0
+Core_3_L1I_prefetch_useful 0 L1I_Useful Ratio: -nan
+Core_3_L1I_prefetch_useless 0
+Core_3_L1I_prefetch_late 0
+Core_3_L1I_average_miss_latency 724.89586
+
+Core_3_L2C_total_access 1829696
+Core_3_L2C_total_hit 1462270 L2C_total_Hit Ratio: 0.79919
+Core_3_L2C_total_miss 367426
+Core_3_L2C_loads 1283890
+Core_3_L2C_load_hit 982875 L2C_load_Hit Ratio: 0.76554
+Core_3_L2C_load_miss 301015
+Core_3_L2C_RFOs 66822
+Core_3_L2C_RFO_hit 1061 L2C_RFO_Hit Ratio: 0.01588
+Core_3_L2C_RFO_miss 65761
+Core_3_L2C_prefetches 239377
+Core_3_L2C_prefetch_hit 238732 L2C_prefetch_Hit Ratio: 0.99731
+Core_3_L2C_prefetch_miss 645
+Core_3_L2C_writebacks 239607
+Core_3_L2C_writeback_hit 239602 L2C_writeback_Hit Ratio: 0.99998
+Core_3_L2C_writeback_miss 5
+Core_3_L2C_prefetch_requested 1044859
+Core_3_L2C_prefetch_issued 950
+Core_3_L2C_prefetch_useful 669 L2C_Useful Ratio: 0.70421
+Core_3_L2C_prefetch_useless 1
+Core_3_L2C_prefetch_late 161
+Core_3_L2C_average_miss_latency 727.47891
+
+Core_3_LLC_total_access 571937
+Core_3_LLC_total_hit 201869 LLC_total_Hit Ratio: 0.35296
+Core_3_LLC_total_miss 370068
+Core_3_LLC_loads 300854
+Core_3_LLC_load_hit 1254 LLC_load_Hit Ratio: 0.00417
+Core_3_LLC_load_miss 299600
+Core_3_LLC_RFOs 65761
+Core_3_LLC_RFO_hit 30 LLC_RFO_Hit Ratio: 0.00046
+Core_3_LLC_RFO_miss 65731
+Core_3_LLC_prefetches 865
+Core_3_LLC_prefetch_hit 174 LLC_prefetch_Hit Ratio: 0.20116
+Core_3_LLC_prefetch_miss 691
+Core_3_LLC_writebacks 204457
+Core_3_LLC_writeback_hit 200411 LLC_writeback_Hit Ratio: 0.98021
+Core_3_LLC_writeback_miss 4046
+Core_3_LLC_prefetch_requested 0
+Core_3_LLC_prefetch_issued 0
+Core_3_LLC_prefetch_useful 0 LLC_Useful Ratio: -nan
+Core_3_LLC_prefetch_useless 2875
+Core_3_LLC_prefetch_late 0
+Core_3_LLC_average_miss_latency 2668.59586
+
+Core_3_major_page_fault 0
+Core_3_minor_page_fault 3914
+
+CPU 0 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+CPU 1 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+CPU 2 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+CPU 3 L1D next line prefetcher final stats
+Prefetcher final stats
+Training Unit Size: 4694
+Addr table size: 732830 732830
+
+
+Triggers: 1268230
+No Prediction: 733695 57.85189
+Stream end: 16341
+No translation: 12510025 986.41611
+Predictions: 1056 0.08327
+
+
+Stream divergence: 1884 0.14855
+Stream divergence -- new stream: 0
+Channel_0_RQ_row_buffer_hit 632682
+Channel_0_RQ_row_buffer_miss 835379
+Channel_0_WQ_row_buffer_hit 333127
+Channel_0_WQ_row_buffer_miss 477830
+Channel_0_WQ_full 419
+Channel_0_dbus_congested 1293799
+
+avg_congested_cycle 10
+
+EzSearch AVG IPC :0.43557: L2-Pf-HR :0.99721 : L2-HR :0.79951 Uful:19.88235
+EzSearch AVG IPC :0.43688: L2-Pf-HR :0.99747 : L2-HR :0.80093 Uful:15.53846
+EzSearch AVG IPC :0.43702: L2-Pf-HR :0.99735 : L2-HR :0.80243 Uful:20.03030
+EzSearch AVG IPC :0.43575: L2-Pf-HR :0.99731 : L2-HR :0.79944 Uful:0.70421
+     > Finished combination: TraceType=770-tot Sim:37000000 Prefetcher=L2isb_ideal L1=isb_ideal

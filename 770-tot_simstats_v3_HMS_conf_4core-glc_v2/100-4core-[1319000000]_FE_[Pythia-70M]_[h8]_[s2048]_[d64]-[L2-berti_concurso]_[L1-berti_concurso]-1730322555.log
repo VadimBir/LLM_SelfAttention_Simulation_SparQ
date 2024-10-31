@@ -1,0 +1,23 @@
+TRACE: [1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64] Warmup: 2000000 NumTraces: 1319000000
+L1:berti_concurso:L2:berti_concurso
+*************************************************
+   ChampSim Multicore Out-of-Order Simulator
+   Last compiled: Oct 30 2024 21:09:23
+*************************************************
+
+trace_0 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+trace_1 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+trace_2 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+trace_3 770-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].champsim.9SSize.xz
+CPU 0 L1D Berti prefetcher
+CPU 0 L2C Berti prefetcher
+CPU 1 L1D Berti prefetcher
+CPU 1 L2C Berti prefetcher
+CPU 2 L1D Berti prefetcher
+CPU 2 L2C Berti prefetcher
+CPU 3 L1D Berti prefetcher
+CPU 3 L2C Berti prefetcher
+MAIN.cc ln 751 stats print skipped
+fetch_index: 512 ROB.head: 205 ROB.tail: 546
+perceptron-berti_concurso-berti_concurso-no-lru-4core: src/ooo_cpu.cc:484: void O3_CPU::fetch_instruction(): Assertion `0' failed.
+     > Finished combination: TraceType=770-tot Sim:1314000000 Prefetcher=L2berti_concurso L1=berti_concurso

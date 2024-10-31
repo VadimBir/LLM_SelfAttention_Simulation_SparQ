@@ -1,0 +1,320 @@
+TRACE: [32000000]_FE_[OPT-125M]_[h12]_[s256]_[d64] Warmup: 2000000 NumTraces: 32000000
+L1:berti:L2:berti
+*************************************************
+   ChampSim Multicore Out-of-Order Simulator
+   Last compiled: Oct 29 2024 06:20:20
+*************************************************
+
+trace_0 770-tot_memTraces_v3/memTraces[32000000]_FE_[OPT-125M]_[h12]_[s256]_[d64].champsim.xz
+trace_1 770-tot_memTraces_v3/memTraces[32000000]_FE_[OPT-125M]_[h12]_[s256]_[d64].champsim.xz
+trace_2 770-tot_memTraces_v3/memTraces[32000000]_FE_[OPT-125M]_[h12]_[s256]_[d64].champsim.xz
+trace_3 770-tot_memTraces_v3/memTraces[32000000]_FE_[OPT-125M]_[h12]_[s256]_[d64].champsim.xz
+CPU 0 L1D Berti prefetcher
+CPU 0 L2C Berti prefetcher
+CPU 1 L1D Berti prefetcher
+CPU 1 L2C Berti prefetcher
+CPU 2 L1D Berti prefetcher
+CPU 2 L2C Berti prefetcher
+CPU 3 L1D Berti prefetcher
+CPU 3 L2C Berti prefetcher
+MAIN.cc ln 751 stats print skipped
+CPU  0 inst:    1000000 cyc:     498884 now IPC :2.00447: AVG IPC :2.00447: L2-Pf-HR :0.78594: L2-HR :0.75049: (Sim:0h0m57s) 
+CPU  1 inst:    1000000 cyc:     499015 now IPC :2.00395: AVG IPC :2.00395: L2-Pf-HR :0.72677: L2-HR :0.69970: (Sim:0h0m57s) 
+CPU  3 inst:    1000000 cyc:     499018 now IPC :2.00394: AVG IPC :2.00394: L2-Pf-HR :0.75304: L2-HR :0.72035: (Sim:0h0m57s) 
+CPU  2 inst:    1000000 cyc:     499285 now IPC :2.00286: AVG IPC :2.00286: L2-Pf-HR :0.75269: L2-HR :0.72608: (Sim:0h0m57s) 
+CPU  0 inst:    2000004 cyc:     986219 now IPC :2.05198: AVG IPC :2.02795: L2-Pf-HR :0.82851: L2-HR :0.80933: (Sim:0h1m58s) 
+CPU  1 inst:    2000004 cyc:     986309 now IPC :2.05216: AVG IPC :2.02777: L2-Pf-HR :0.78781: L2-HR :0.77724: (Sim:0h1m58s) 
+CPU  3 inst:    2000004 cyc:     986314 now IPC :2.05215: AVG IPC :2.02776: L2-Pf-HR :0.81172: L2-HR :0.79177: (Sim:0h1m58s) 
+CPU  2 inst:    2000004 cyc:     986556 now IPC :2.05225: AVG IPC :2.02726: L2-Pf-HR :0.80682: L2-HR :0.79131: (Sim:0h1m58s) 
+
+Warmup complete CPU  0 instructions:    2000723 cycles:     986556 (Simulation time: 0 hr 1 min 58 sec) 
+Warmup complete CPU  1 instructions:    2000467 cycles:     986556 (Simulation time: 0 hr 1 min 58 sec) 
+Warmup complete CPU  2 instructions:    2000004 cycles:     986556 (Simulation time: 0 hr 1 min 58 sec) 
+Warmup complete CPU  3 instructions:    2000452 cycles:     986555 (Simulation time: 0 hr 1 min 58 sec) 
+
+CPU  0 inst:    3000004 cyc:    1700639 now IPC :1.39974: AVG IPC :1.39939: L2-Pf-HR :0.90005: L2-HR :0.85876: (Sim:0h2m52s) 
+CPU  2 inst:    3000004 cyc:    1703616 now IPC :1.39458: AVG IPC :1.39458: L2-Pf-HR :0.88816: L2-HR :0.84969: (Sim:0h2m53s) 
+CPU  3 inst:    3000001 cyc:    1709479 now IPC :1.38281: AVG IPC :1.38265: L2-Pf-HR :0.88894: L2-HR :0.84960: (Sim:0h2m53s) 
+CPU  1 inst:    3000001 cyc:    1714074 now IPC :1.37407: AVG IPC :1.37390: L2-Pf-HR :0.86956: L2-HR :0.83820: (Sim:0h2m54s) 
+CPU  0 inst:    4000000 cyc:    2332622 now IPC :1.58231: AVG IPC :1.48527: L2-Pf-HR :0.89527: L2-HR :0.85785: (Sim:0h3m31s) 
+CPU  3 inst:    4000000 cyc:    2339409 now IPC :1.58748: AVG IPC :1.47802: L2-Pf-HR :0.88881: L2-HR :0.85041: (Sim:0h3m31s) 
+CPU  1 inst:    4000000 cyc:    2346941 now IPC :1.58011: AVG IPC :1.46983: L2-Pf-HR :0.87217: L2-HR :0.83760: (Sim:0h3m31s) 
+DEADLOCK! CPU 2 instr_id: 3259955 translated: 2 fetched: 2 scheduled: 2 executed: 1 is_memory: 1 event: 1842545 current: 2842545
+
+Load Queue Entry
+[LQ] entry: 0 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 1 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 2 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 3 instr_id: 3260112 address: edc51a9acd20 translated: 2 fetched: 0
+[LQ] entry: 4 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 5 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 6 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 7 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 8 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 9 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 10 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 11 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 12 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 13 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 14 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 15 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 16 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 17 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 18 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 19 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 20 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 21 instr_id: 3260138 address: edc51a9acd30 translated: 2 fetched: 0
+[LQ] entry: 22 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 23 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 24 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 25 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 26 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 27 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 28 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 29 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 30 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 31 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 32 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 33 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 34 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 35 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 36 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 37 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 38 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 39 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 40 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 41 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 42 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 43 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 44 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 45 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 46 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 47 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 48 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 49 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 50 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 51 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 52 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 53 instr_id: 3259955 address: edc51a9acd00 translated: 2 fetched: 0
+[LQ] entry: 54 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 55 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 56 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 57 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 58 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 59 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 60 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 61 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 62 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 63 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 64 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 65 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 66 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 67 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 68 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 69 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 70 instr_id: 3259981 address: edc51a9acd10 translated: 2 fetched: 0
+[LQ] entry: 71 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 72 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 73 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 74 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 75 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 76 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 77 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 78 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 79 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 80 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 81 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 82 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 83 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 84 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 85 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 86 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 87 instr_id: 3260007 address: edc51a9acd20 translated: 2 fetched: 0
+[LQ] entry: 88 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 89 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 90 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 91 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 92 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 93 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 94 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 95 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 96 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 97 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 98 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 99 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 100 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 101 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 102 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 103 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 104 instr_id: 3260033 address: edc51a9acd30 translated: 2 fetched: 0
+[LQ] entry: 105 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 106 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 107 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 108 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 109 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 110 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 111 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 112 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 113 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 114 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 115 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 116 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 117 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 118 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 119 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 120 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 121 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 122 instr_id: 3260060 address: edc51a9acd00 translated: 2 fetched: 0
+[LQ] entry: 123 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 124 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 125 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 126 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 127 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 128 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 129 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 130 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 131 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 132 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 133 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 134 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 135 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 136 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 137 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 138 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 139 instr_id: 3260086 address: edc51a9acd10 translated: 2 fetched: 0
+[LQ] entry: 140 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 141 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 142 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 143 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 144 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 145 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 146 instr_id: 0 address: 0 translated: 0 fetched: 0
+[LQ] entry: 147 instr_id: 0 address: 0 translated: 0 fetched: 0
+
+Store Queue Entry
+[SQ] entry: 0 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 1 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 2 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 3 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 4 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 5 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 6 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 7 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 8 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 9 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 10 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 11 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 12 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 13 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 14 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 15 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 16 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 17 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 18 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 19 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 20 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 21 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 22 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 23 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 24 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 25 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 26 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 27 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 28 instr_id: 3259972 address: 26713c3ca900 translated: 2 fetched: 0
+[SQ] entry: 29 instr_id: 3259973 address: 26713c3ca910 translated: 2 fetched: 0
+[SQ] entry: 30 instr_id: 3259974 address: 26713c3ca920 translated: 2 fetched: 0
+[SQ] entry: 31 instr_id: 3259975 address: 26713c3ca930 translated: 2 fetched: 0
+[SQ] entry: 32 instr_id: 3259998 address: 26713c3ca940 translated: 2 fetched: 0
+[SQ] entry: 33 instr_id: 3259999 address: 26713c3ca950 translated: 2 fetched: 0
+[SQ] entry: 34 instr_id: 3260000 address: 26713c3ca960 translated: 2 fetched: 0
+[SQ] entry: 35 instr_id: 3260001 address: 26713c3ca970 translated: 2 fetched: 0
+[SQ] entry: 36 instr_id: 3260024 address: 26713c3ca980 translated: 2 fetched: 0
+[SQ] entry: 37 instr_id: 3260025 address: 26713c3ca990 translated: 2 fetched: 0
+[SQ] entry: 38 instr_id: 3260026 address: 26713c3ca9a0 translated: 2 fetched: 0
+[SQ] entry: 39 instr_id: 3260027 address: 26713c3ca9b0 translated: 2 fetched: 0
+[SQ] entry: 40 instr_id: 3260050 address: 26713c3ca9c0 translated: 2 fetched: 0
+[SQ] entry: 41 instr_id: 3260051 address: 26713c3ca9d0 translated: 2 fetched: 0
+[SQ] entry: 42 instr_id: 3260052 address: 26713c3ca9e0 translated: 2 fetched: 0
+[SQ] entry: 43 instr_id: 3260053 address: 26713c3ca9f0 translated: 2 fetched: 0
+[SQ] entry: 44 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 45 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 46 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 47 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 48 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 49 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 50 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 51 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 52 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 53 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 54 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 55 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 56 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 57 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 58 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 59 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 60 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 61 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 62 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 63 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 64 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 65 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 66 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 67 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 68 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 69 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 70 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 71 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 72 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 73 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 74 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 75 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 76 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 77 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 78 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 79 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 80 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 81 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 82 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 83 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 84 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 85 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 86 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 87 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 88 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 89 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 90 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 91 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 92 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 93 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 94 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 95 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 96 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 97 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 98 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 99 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 100 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 101 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 102 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 103 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 104 instr_id: 0 address: 0 translated: 0 fetched: 0
+[SQ] entry: 105 instr_id: 0 address: 0 translated: 0 fetched: 0
+
+L1D_MSHR Entry
+[L1D_MSHR] entry: 0 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 1 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 2 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 3 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 4 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 5 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 6 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 7 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 8 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 9 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 10 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 11 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 12 instr_id: 3259955 rob_index: 99 address: 3b7146a6b34 full_addr: edc51a9acd00 type: 0 fill_level: 1 lq_index: 53 sq_index: 0
+[L1D_MSHR] entry: 13 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 14 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+[L1D_MSHR] entry: 15 instr_id: 0 rob_index: -1 address: 0 full_addr: 0 type: 0 fill_level: -1 lq_index: 0 sq_index: 0
+perceptron-berti-berti-no-lru-4core: src/main.cc:284: void print_deadlock(uint32_t): Assertion `0' failed.
+     > Finished combination: TraceType=770-tot Sim:27000000 Prefetcher=L2berti L1=berti

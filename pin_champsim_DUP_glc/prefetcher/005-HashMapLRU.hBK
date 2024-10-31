@@ -1,0 +1,104 @@
+#ifndef LRUCACHE_H
+#define LRUCACHE_H
+
+#include <unordered_map>
+#include <list>
+#include <iostream>
+#include <limits>
+#include <iomanip>
+
+#include <vector>
+#include <algorithm>
+
+int topDeltaCountAllowed = 2;
+template <typename KeyType>
+class LRUCache {
+public:
+    using DeltaCountMap = std::unordered_map<int64_t, int>; // Map of delta to its count
+
+    LRUCache(size_t capacity) : capacity(capacity) {}
+
+    // Insert or update a key-delta pair
+    void put(const KeyType& ip, int64_t delta) {
+        auto it = map.find(ip);
+        if (it != map.end()) {
+            // IP already exists, update the count of the delta
+            DeltaCountMap& deltaMap = it->second.first;
+            deltaMap[delta]++;
+            move_to_front(it->second.second);
+        } else {
+            // IP does not exist, insert it
+            if (cache.size() == capacity) {
+                // Cache is full, remove the least recently used item
+                evict_lru();
+            }
+            cache.push_front(ip);
+            DeltaCountMap deltaMap;
+            deltaMap[delta] = 1; // Initialize count to 1 for this delta
+            map[ip] = {deltaMap, cache.begin()};
+        }
+    }
+
+    // Retrieve the most frequent delta for a given IP
+std::vector<std::pair<int64_t, int>> get(const KeyType& ip) {
+    auto it = map.find(ip);
+    if (it == map.end()) {
+        // Return an empty vector if IP is not found
+        return {};
+    }
+    // Move the accessed IP to the front of the list
+    move_to_front(it->second.second);
+
+    // Retrieve the DeltaCountMap for this IP
+    const DeltaCountMap& deltaMap = it->second.first;
+
+    // Create a vector of pairs (delta, count) to sort them
+    std::vector<std::pair<int64_t, int>> sortedDeltas(deltaMap.begin(), deltaMap.end());
+
+    // Sort the vector by count in ascending order
+    std::sort(sortedDeltas.begin(), sortedDeltas.end(),
+                [](const std::pair<int64_t, int>& a, const std::pair<int64_t, int>& b) {
+                    return a.second < b.second;
+                });
+
+    // Prepare the result vector with the top 5 deltas
+    std::vector<std::pair<int64_t, int>> topDeltas;
+    for (size_t i = 0; i < std::min(sortedDeltas.size(), size_t(5)); ++i) {
+        topDeltas.push_back(sortedDeltas[i]);
+    }
+
+    return topDeltas;
+}
+    // Print the current cache state (for debugging)
+    void print() const {
+        int i = 1;
+        for (const auto& ip : cache) {
+            std::cout << "i:" << i << " IP:" << ip << ": ";
+            const auto& deltaMap = map.at(ip).first;
+            for (const auto& deltaCount : deltaMap) {
+                std::cout << "Δ" << std::setw(14) << deltaCount.first << ": Count: " << deltaCount.second << " ";
+            }
+            std::cout << std::endl;
+            i++;
+        }
+    }
+
+private:
+    size_t capacity;
+    std::list<KeyType> cache; // Doubly linked list to maintain the order of elements
+    std::unordered_map<KeyType, std::pair<DeltaCountMap, typename std::list<KeyType>::iterator>> map;
+
+    // Move the accessed node to the front of the list
+    void move_to_front(typename std::list<KeyType>::iterator it) {
+        cache.splice(cache.begin(), cache, it);
+    }
+
+    // Evict the least recently used (LRU) element
+    void evict_lru() {
+        auto lru = cache.back();
+        map.erase(lru); // Remove from hashmap
+        cache.pop_back(); // Remove from linked list
+    }
+};
+
+#endif // LRUCACHE_H

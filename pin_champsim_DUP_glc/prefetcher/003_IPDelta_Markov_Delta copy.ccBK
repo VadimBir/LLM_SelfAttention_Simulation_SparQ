@@ -1,0 +1,171 @@
+// IPDeltaMarkovDelta.cc
+//#include "003_IPDelta_Markov_Delta.h"
+
+// Constructor definition
+IPDeltaMarkovDelta::IPDeltaMarkovDelta(int markov_lru_size, double markov_prediction_percentthreshold)
+    : MARKOV_LRU_SIZE(markov_lru_size),
+      MARKOV_PREDICTION_PERCENTTHRESHOLD(markov_prediction_percentthreshold),
+      markov_LRU_front(0),
+      addr(0),
+      previous_addr(0),
+      pre_previous_addr(0),
+      ip(0),
+      pre_ip(0)
+{
+    markov_LRU.fill(std::unordered_map<int64_t, int>::iterator());
+    // No need to reserve as std::array has fixed size
+}
+
+// Initialize the prefetcher (prints info)
+void IPDeltaMarkovDelta::initialize() {
+    std::cout << "Markov Table Size: " << MARKOV_LRU_SIZE 
+              << " Markov Confidence: " << MARKOV_PREDICTION_PERCENTTHRESHOLD 
+              << "%" << std::endl;
+}
+
+// Combine two hashes into one
+int64_t IPDeltaMarkovDelta::combine_hashes(int64_t pre_key_delta, int64_t key_delta) {
+    std::hash<int64_t> hasher;
+    int64_t hash1 = hasher(pre_key_delta);
+    int64_t hash2 = hasher(key_delta);
+    return hash1 ^ (hash2 << 1); 
+}
+
+// Evict the least recently used entry from LRU
+std::unordered_map<int64_t, int>::iterator IPDeltaMarkovDelta::evict_lru() {
+    if (markov_LRU_front == 0) {
+        // Handle underflow if needed
+        throw std::out_of_range("LRU is empty, cannot evict");
+    }
+    std::unordered_map<int64_t, int>::iterator val_it = markov_LRU[0];
+    for (int i = 1; i < markov_LRU_front; i++) {
+        markov_LRU[i - 1] = markov_LRU[i];
+    }
+    
+    return val_it;
+}
+
+// Update the LRU after accessing an entry
+void IPDeltaMarkovDelta::update_lru(int index) {
+    if (index < 0 || index >= markov_LRU_front) return; // Out of bounds check
+    auto tmpVal = markov_LRU[index];
+    for (int i = index; i < markov_LRU_front - 1; i++) {
+        markov_LRU[i] = markov_LRU[i + 1];
+    }
+    markov_LRU[markov_LRU_front - 1] = tmpVal;
+}
+
+// Main prefetching logic
+std::vector<std::pair<int64_t, int>> IPDeltaMarkovDelta::prefetcher(uint64_t addr, uint64_t ip, std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator key_it, std::unordered_map<int64_t, int>::iterator val_it) {
+    std::vector<std::pair<int64_t, int>> top_predictions;
+    int64_t doubleDeltaKey = combine_hashes(ip, static_cast<int64_t>(previous_addr) - static_cast<int64_t>(addr));
+    auto it = markov_table.find(doubleDeltaKey);
+    if (it != markov_table.end()) {
+        auto &next_blocks = it->second;
+        std::vector<std::pair<int64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+        std::sort(predictions.begin(), predictions.end(),
+                  [](std::pair<int64_t, int> &a, std::pair<int64_t, int> &b) {
+                      return a.second > b.second;
+                  });
+        int total_count = std::accumulate(predictions.begin(), predictions.end(), 0,
+        [](int sum, std::pair<int64_t, int>& p) {
+            return sum + p.second;
+        });
+        for (auto &prediction: predictions) {
+            if (((double)prediction.second)*100/total_count >= MARKOV_PREDICTION_PERCENTTHRESHOLD) {
+                int64_t pf_addr = prediction.first;
+                top_predictions.push_back(std::pair<int64_t, int>(pf_addr, prediction.second));
+                // Uncomment for debugging
+                // std::cout << "Markov Prediction: " << prediction.second 
+                //           << " total: " <<  total_count 
+                //           << " percent: " << (((double)prediction.second)*100/total_count) 
+                //           << std::endl;
+            } else {
+                break;
+            }
+        }
+    }
+    auto lru_it = std::find(markov_LRU.begin(), markov_LRU.begin() + markov_LRU_front, val_it);
+    if (lru_it != markov_LRU.begin() + markov_LRU_front) {
+        int index = std::distance(markov_LRU.begin(), lru_it);
+        update_lru(index);
+    } else {
+        if (markov_LRU_front != MARKOV_LRU_SIZE - 1) {
+            markov_LRU[markov_LRU_front] = val_it;
+            markov_LRU_front++;
+        } else {
+            try {
+                auto toDel = evict_lru();
+                for (auto &outer_pair: markov_table) {
+                    auto &inner_map = outer_pair.second;
+                    for (auto it_inner = inner_map.begin(); it_inner != inner_map.end();) {
+                        if (it_inner == toDel) {
+                            it_inner = inner_map.erase(it_inner);
+                            break;
+                        } else {
+                            ++it_inner;
+                        }
+                    }
+                }
+                for (auto it_outer = markov_table.begin(); it_outer != markov_table.end();) {
+                    if (it_outer->second.empty()) {
+                        it_outer = markov_table.erase(it_outer);
+                    } else {
+                        ++it_outer;
+                    }
+                }
+                markov_LRU[markov_LRU_front - 1] = val_it;
+            } catch (const std::exception &e) {
+                std::cerr << "Exception during LRU eviction: " << e.what() << std::endl;
+            }
+        }
+    }
+    return top_predictions;
+}
+
+// Operate method which integrates the prefetching logic
+std::vector<std::pair<int64_t, int>> IPDeltaMarkovDelta::operate(uint64_t pre_ip, uint64_t ip, uint64_t pre_previous_addr, uint64_t previous_addr, uint64_t addr) {
+    try {
+        // Set member variables
+        this->addr = static_cast<int64_t>(addr);
+        this->previous_addr = static_cast<int64_t>(previous_addr);
+        this->pre_previous_addr = static_cast<int64_t>(pre_previous_addr);
+
+        int64_t key_delta = 0;
+        int64_t val_delta = 0;
+
+        if (pre_previous_addr != 0) {
+            key_delta = (int64_t)(pre_previous_addr) - (int64_t)(previous_addr);
+            val_delta = static_cast<int64_t>(previous_addr) - (int64_t)(addr);
+        }
+
+        std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator key_it;
+        std::unordered_map<int64_t, int>::iterator val_it;
+
+        if (pre_previous_addr != 0) {
+            int64_t final_hash_value = combine_hashes(this->pre_ip, key_delta);
+            key_delta = final_hash_value;
+            markov_table[key_delta][val_delta]++;
+            key_it = markov_table.find(key_delta);
+            val_it = key_it->second.find(val_delta);
+        }
+
+        return prefetcher(addr, ip, key_it, val_it);
+    } catch (const std::exception &e) {
+        std::cerr << "An exception occurred: " << e.what() << std::endl;
+        return std::vector<std::pair<int64_t, int>>();
+    }
+}
+
+// Handle cache fill (if necessary)
+void IPDeltaMarkovDelta::cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in) {
+    // Implement cache fill logic if necessary
+    // Currently empty as per reference code
+}
+
+// Final stats and cleanup
+void IPDeltaMarkovDelta::final_stats() {
+    std::cout << "Markov Prefetcher Final Stats" << std::endl;
+    // Implement any final statistics or cleanup if necessary
+}
+

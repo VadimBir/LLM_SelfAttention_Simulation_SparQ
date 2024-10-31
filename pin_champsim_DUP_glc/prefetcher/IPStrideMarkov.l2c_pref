@@ -1,0 +1,289 @@
+//
+// From Data Prefetching Championship Simulator 2
+// Seth Pugsley, seth.h.pugsley@intel.com
+//
+
+/*
+
+  This file describes an Instruction Pointer-based (Program Counter-based) stride prefetcher.  
+  The prefetcher detects stride patterns coming from the same IP, and then 
+  prefetches additional cache lines.
+
+  Prefetches are issued into the L2 or LLC depending on L2 MSHR occupancy.
+
+ */
+
+#include "cache.h"
+
+
+// L2 Max PF Allowed
+#define MAX_PF_L2 8
+
+// MARKOV
+#define MK_SIZE 64 
+#define MK_TMAX 64
+#define MK_TMIN 32
+#define PTHRESH 13
+
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <utility>
+#include <algorithm>
+// #include <array>
+// #include <iostream>
+#include <numeric>
+
+std::vector<int> popular_prefetch_offset = {};
+
+uint64_t pre_previous_addr = 0;
+uint64_t previous_addr = 0;
+uint64_t pf_addr = 0;
+int64_t cnt = 0;
+
+// prefetcher pf count 
+std::vector<std::pair<int, double>> prefetcher_pf_count;
+
+// hashmap to store the prefetcher count
+std::unordered_map<int, int> prefetcher_count;
+
+
+class IPStrideMarkov {
+public:
+    static const int MARKOV_LRU_SIZE = MK_SIZE;
+    static const int MAX_PREDICTIONS = 9999;
+    static constexpr double MARKOV_PREDICTION_PERCENTTHRESHOLD = PTHRESH;
+
+    // Outlier thresholds
+    static const int32_t OUTLIERS_THRESHOLD_Max = MK_TMAX; 
+    static const int32_t OUTLIERS_THRESHOLD_Min = MK_TMIN;
+
+    IPStrideMarkov() : markov_LRU_front(0), pre_previous_addr(0), previous_addr(0), pf_addr(0), pre_ip(0) {}
+
+    // Operate function to process each cache access
+    std::vector<std::pair<int64_t, int>> operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type) {
+        // Markov Prefetcher Logic
+
+        // Calculate deltas
+        int64_t key_delta = 0;
+        int64_t val_delta = 0;
+
+        if (pre_previous_addr != 0) {
+            key_delta = static_cast<int64_t>(pre_previous_addr) - static_cast<int64_t>(previous_addr);
+            val_delta = static_cast<int64_t>(previous_addr) - static_cast<int64_t>(addr);
+        }
+
+        IteratorType key_it;
+        std::unordered_map<int64_t, int>::iterator val_it;
+
+        // Update Markov table with hashed keys
+        if (pre_previous_addr != 0) {
+            int64_t final_hash_value = combine_hashes(pre_ip, key_delta);
+            key_delta = final_hash_value;
+
+            if (std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
+                markov_table[key_delta][val_delta]++;
+            }
+
+
+            final_hash_value = combine_hashes(ip, val_delta);
+            key_it = markov_table.find(key_delta);
+            if (std::abs(val_delta) >= OUTLIERS_THRESHOLD_Min && std::abs(val_delta) <= OUTLIERS_THRESHOLD_Max) {
+                val_it = key_it->second.find(val_delta);
+            }
+        }
+
+        // Generate prefetch predictions
+        std::vector<std::pair<int64_t, int>> pf_topP = markov_prefetcher(addr, ip, key_it, val_it);
+
+        // Update address and IP history
+        pre_previous_addr = previous_addr;
+        previous_addr = addr;
+        pre_ip = ip;
+
+        return pf_topP;
+    }
+
+private:
+    // Markov table and LRU management
+    std::unordered_map<int64_t, std::unordered_map<int64_t, int>> markov_table;
+    using IteratorType = std::unordered_map<int64_t, std::unordered_map<int64_t, int>>::iterator;
+    std::array<std::unordered_map<int64_t, int>::iterator, MARKOV_LRU_SIZE> markov_LRU{};
+    int markov_LRU_front;
+
+    // Address and IP tracking
+    uint64_t pre_previous_addr;
+    uint64_t previous_addr;
+    uint64_t pf_addr;
+    uint64_t pre_ip;
+
+    // Helper method to combine two hashes
+    int64_t combine_hashes(int64_t pre_key_delta, int64_t key_delta) {
+        std::hash<int64_t> hasher;
+        int64_t hash1 = hasher(pre_key_delta);
+        int64_t hash2 = hasher(key_delta);
+        return hash1 ^ (hash2 << 1);
+    }
+
+    // LRU eviction for Markov table
+    std::unordered_map<int64_t, int>::iterator markov_evict_lru() {
+        std::unordered_map<int64_t, int>::iterator val_it = markov_LRU[0];
+        for (int i = 1; i < markov_LRU_front; i++) {
+            markov_LRU[i - 1] = markov_LRU[i];
+        }
+        return val_it;
+    }
+
+    // Update LRU on access
+    void markov_update_lru(int index) {
+        auto tmpVal = markov_LRU[index];
+        for (int i = 0; i < markov_LRU_front; i++) {
+            if (i < index) {
+                continue;
+            }
+            markov_LRU[i] = markov_LRU[i + 1];
+        }
+        markov_LRU[markov_LRU_front - 1] = tmpVal;
+    }
+
+    // Prefetcher logic to generate predictions
+    std::vector<std::pair<int64_t, int>> markov_prefetcher(uint64_t addr, uint64_t ip, IteratorType key_it, std::unordered_map<int64_t, int>::iterator val_it) {
+        //std::vector<int64_t> top_predictions;
+        // vector with a pair of offset and count
+        std::vector<std::pair<int64_t, int>> top_predictions;
+        
+        int64_t doubleDeltaKey = combine_hashes(ip, static_cast<int64_t>(previous_addr) - static_cast<int64_t>(addr));
+
+        auto it = markov_table.find(doubleDeltaKey);
+
+        if (it != markov_table.end()) {
+            auto &next_blocks = it->second;
+            std::vector<std::pair<int64_t, int>> predictions(next_blocks.begin(), next_blocks.end());
+            std::sort(predictions.begin(), predictions.end(),
+                      [](std::pair<int64_t, int> &a, std::pair<int64_t, int> &b) {
+                          return a.second > b.second;
+                      });
+            int total_count = std::accumulate(predictions.begin(), predictions.end(), 0,
+                [](int sum, std::pair<int64_t, int>& p) {
+                    return sum + p.second;
+                });
+            for (auto &prediction : predictions) {
+                if ((static_cast<double>(prediction.second) * 100 / total_count) >= MARKOV_PREDICTION_PERCENTTHRESHOLD) {
+                    pf_addr = prediction.first;
+                    top_predictions.push_back(std::make_pair(pf_addr, prediction.second));
+                    //top_predictions.push_back(pf_addr);
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // Update LRU with the current access
+        auto lru_it = std::find(markov_LRU.begin(), markov_LRU.end(), val_it);
+        if (lru_it != markov_LRU.end()) {
+            int index = static_cast<int>(lru_it - markov_LRU.begin());
+            markov_update_lru(index);
+        } else {
+            if (markov_LRU_front != MARKOV_LRU_SIZE - 1) {
+                markov_LRU[markov_LRU_front] = val_it;
+                markov_LRU_front++;
+            } else {
+                auto toDel = markov_evict_lru();
+                for (auto &outer_pair : markov_table) {
+                    auto &inner_map = outer_pair.second;
+                    for (auto it_inner = inner_map.begin(); it_inner != inner_map.end();) {
+                        if (it_inner == toDel) {
+                            it_inner = inner_map.erase(it_inner);
+                            break;
+                        } else {
+                            ++it_inner;
+                        }
+                    }
+                }
+                for (auto it_outer = markov_table.begin(); it_outer != markov_table.end();) {
+                    if (it_outer->second.empty()) {
+                        it_outer = markov_table.erase(it_outer);
+                    } else {
+                        ++it_outer;
+                    }
+                }
+                markov_LRU[markov_LRU_front - 1] = val_it;
+            }
+        }
+        return top_predictions;
+    }
+
+};
+
+IPStrideMarkov markov_prefetcher;
+// END IPStride-based Markov Prefetcher Class ----------------------------------------------------------------------------------------------
+
+
+
+void CACHE::l2c_prefetcher_initialize() 
+{
+    cout << "CPU " << cpu << " L2C stride prefetcher" << endl;
+
+    prefetcher_count[1]=0;
+}
+
+
+
+uint32_t CACHE::l2c_prefetcher_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+{
+    uint64_t aligned_addr = addr >> LOG2_BLOCK_SIZE;
+    std::vector<std::pair<int64_t, int>> markov_predictions = markov_prefetcher.operate(aligned_addr, ip, cache_hit, type);
+
+    std::sort(markov_predictions.begin(), markov_predictions.end(), 
+              [](const std::pair<int64_t, int>& a, const std::pair<int64_t, int>& b) {
+                  return a.second > b.second; // Compare counts for sorting
+              });
+
+    // Iterate over the sorted markov_predictions to prefetch
+    for (const auto& offset_count : markov_predictions) {
+        int64_t offset = offset_count.first;
+        uint64_t pf_addr = (aligned_addr - offset) << LOG2_BLOCK_SIZE;
+
+        // Check if the prefetch address is in the same page as the original address
+        if ((pf_addr >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE))
+            continue; // Skip prefetching if not in the same page
+
+        prefetch_line(ip, addr, pf_addr, FILL_L2, metadata_in);
+        prefetcher_count[1]++;
+    }
+
+    // for (auto offset : markov_predictions) {
+    //     pf_addr = ((aligned_addr - offset) << LOG2_BLOCK_SIZE);
+        
+    //     // Check page
+    //     if ((pf_addr >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE))
+    //         continue;
+    //     prefetch_line(ip, addr, pf_addr, FILL_L2, metadata_in);
+    // }
+
+    // Update the variables for the next iteration
+    pre_previous_addr = previous_addr;
+    previous_addr = addr;
+    cnt++;
+    return metadata_in;
+}
+
+uint32_t CACHE::l2c_prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+{
+  return metadata_in;
+}
+
+void CACHE::l2c_prefetcher_final_stats()
+{
+    cout << "CPU " << cpu << " L2C PC-based stride prefetcher final stats" << endl;
+
+    cout << "  MARKOV_LRU_SIZE: " << IPStrideMarkov::MARKOV_LRU_SIZE << endl;
+
+    // PTHreash 
+    cout << "  MARKOV_PREDICTION_PERCENTTHRESHOLD: " << IPStrideMarkov::MARKOV_PREDICTION_PERCENTTHRESHOLD << endl;
+    //min and max 
+    cout << "  OUTLIERS_THRESHOLD_Max: " << IPStrideMarkov::OUTLIERS_THRESHOLD_Max << endl;
+    cout << "  OUTLIERS_THRESHOLD_Min: " << IPStrideMarkov::OUTLIERS_THRESHOLD_Min << endl;    
+    cout << "  Degree/Access Ratio: " << (double)prefetcher_count[1]/(double)cnt << endl;
+    
+}

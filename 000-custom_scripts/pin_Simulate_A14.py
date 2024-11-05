@@ -9,7 +9,7 @@ import time
 #base_Stats_Dir = "./000-simstats/comparisons"
 S_LEN=4096 
 # MUST DUPE THE CHAMPSIM DIR FOR A14 SIMULATION
-base_Stats_Dir = f"770-tot_simstats_v3_HMS_conf_1core-A14_v2"
+base_Stats_Dir = f"740-tot_simStats_v4_MultiConf/A14"
 base_Trace_Dir = f"770-tot_memTraces_v5"
 tracesPath_logger = base_Trace_Dir+"/050-collectedTracesPath_v2_QK.log"
 

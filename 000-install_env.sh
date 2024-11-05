@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Stop script on error
+#set -e  # Stop script on error
 
 
 # Update and upgrade system packages
@@ -22,7 +22,7 @@ set -e  # Stop script on error
 #echo "alias python=python3" >> ~/.bashrc
 #source ~/.bashrc
 #python3 -m venv ./venv
-source ../venv/bin/activate
+#source ../venv/bin/activate
 #pip install -r ./requirements.txt
 # chmod +x ./000-install_env.sh && ./000-install_env.sh
 
@@ -48,14 +48,19 @@ cd ..
 
 # Build ChampSim simulator
 echo "Building ChampSim simulator"
-chmod +x 500-SOTA_PrefetcherSim_Runner.sh
-chmod +x 500-SOTA_PrefetcherSim_Runner_A14.sh
-chmod +x 500-SOTA_PrefetcherSim_Runner_glc.sh
-chmod +x pin_champsim/build_champsim.sh
-chmod +x pin_champsim_DUP_glc/build_champsim.sh
-./build_champsim.sh no no no
+
+chmod +x ../500-SOTA_PrefetcherSim_Runner_A14.sh
+chmod +x ../500-SOTA_PrefetcherSim_Runner_glc.sh
+chmod +x ./build_champsim.sh
+chmod +x ../pin_champsim_DUP_glc/build_champsim.sh
+./build_champsim.sh no no no 1
 
 # Set permissions on the project directory
 sudo chmod -R +x ~/LLM_SelfAttention_Simulation_SparQ/
 
 echo "Setup complete! You can now run Pin tool trace capturing and ChampSim simulations."
+
+
+mkdir /dev/shm/outputs/200-1core
+mkdir /dev/shm/outputs/200-4core 
+mkdir /dev/shm/outputs/200-8core 

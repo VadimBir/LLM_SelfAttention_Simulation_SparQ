@@ -7,12 +7,12 @@ if [ "$#" -lt 2 ]; then
     exit 1
 fi
 
-MAX_PROCESSES=225
-NUM_CORES_ARR=(8 4 1)
+MAX_PROCESSES=64
+NUM_CORES_ARR=(1)
 BASE=$(pwd)
 SKIP_RUNS_TILL=0
 
-TRACE_PERCENT=15
+TRACE_PERCENT=20
 
 
 OUT_STAT_DIR="$2"
@@ -20,7 +20,7 @@ TRACE_BASE_DIR="$1"
 RAM_TRACE_DIR="/dev/shm/traces"
 mkdir -p "$RAM_TRACE_DIR"
 echo "cp -r $TRACE_BASE_DIR/* $RAM_TRACE_DIR/"
-rm -rf "$RAM_TRACE_DIR/"*
+#rm -rf "$RAM_TRACE_DIR/"*
 cp -r "$TRACE_BASE_DIR"/* "$RAM_TRACE_DIR/"
 echo "Traces copied to RAM: $RAM_TRACE_DIR"
 
@@ -33,7 +33,7 @@ TMP_RAM_OUTPUT_DIR="/dev/shm/outputs" # Prevent IO bottleneck
 FINAL_STORAGE_OUTPUT_DIR="$OUTPUT_BASE_dir"
 mkdir -p "$TMP_RAM_OUTPUT_DIR"
 # clean the output dir
-rm -rf "$TMP_RAM_OUTPUT_DIR/"*
+# rm -rf "$TMP_RAM_OUTPUT_DIR/"*
 
 OUTPUT_BASE_dir=$TMP_RAM_OUTPUT_DIR
 
@@ -155,12 +155,10 @@ prefetcher_designs=(
     "bingo_dpc3 bingo_dpc3"
     "isb_ideal isb_ideal"
     "ipcp ipcp"
-    #"bingo_dpc3_PHT1k bingo_dpc3_PHT1k"
-    #"berti berti"
     "next_line 000-Multi-IPMarkovDelta_IPStr"
-    "next_line 000-Multi-IPMarkovDelta_IPStr_v2"
+    #"next_line 000-Multi-IPMarkovDelta_IPStr_v2"
     "next_line 000-SingularIPMarkovDelta_IPStr"
-    "next_line 000-SingularIPMarkovDelta_IPStr_v2"
+    #"next_line 000-SingularIPMarkovDelta_IPStr_v2"
 
     "no spp_berti_src"
     "no no"
@@ -191,6 +189,7 @@ for trace in "${TRACES_FILE[@]}"; do
             # check a Xcore folder in stats base dir if not exit create
             if [ ! -d "$FINAL_STORAGE_OUTPUT_DIR/200-${NUM_CORES}core" ]; then
                 mkdir -p "$FINAL_STORAGE_OUTPUT_DIR/200-${NUM_CORES}core"
+                mkdir -p "$OUTPUT_BASE_dir/200-${NUM_CORES}core"
             fi
 
             # Increase the counter for each combination
@@ -207,7 +206,6 @@ echo "> Total runs: $total_runs"
 EPOCH_START_SECONDS=$(date +%s)
 
 
-exit 0
 # Iterate over all MAX and MIN threshold combinations
 for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
     for trace_file in "${TRACES_FILE[@]}"; do
@@ -246,7 +244,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
             ((current_run++))
             CURRENT_DATE=$(date +"%A %Y-%m-%d %H:%M:%S")
             
-            echo -e "${YELLOW}## Actual Simulations:${RESET} ${LIGHT_PURPLE}$CURRENT_DATE${RESET}"
+            echo -e "${YELLOW}## Actual glc.conf Simulations:${RESET} ${LIGHT_PURPLE}$CURRENT_DATE${RESET}"
 
             traceConfig=$(basename "${trace_file}" | sed 's/memTraces//' | sed 's/\..*//')
 
@@ -263,7 +261,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
             # Create or truncate the output file
             
             > "$OUTPUT_FILE"
-            echo " > Run: ${current_run} of ${total_runs} Sim: ${simTraces_num} Percent: ${traceBoundround_up} TConfig: ${traceConfig} ..." >> $OUTPUT_FILE
+            echo " > glc sim Run: ${current_run} of ${total_runs} Sim: ${simTraces_num} Percent: ${traceBoundround_up} TConfig: ${traceConfig} ..." >> $OUTPUT_FILE
 
             
             BINARY_FILE="./pin_champsim_DUP_glc/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core"

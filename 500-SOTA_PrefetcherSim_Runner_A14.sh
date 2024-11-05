@@ -7,14 +7,36 @@ if [ "$#" -lt 2 ]; then
     exit 1
 fi
 
-MAX_PROCESSES=44
-NUM_CORES=1
+MAX_PROCESSES=64
+NUM_CORES_ARR=(1)
 BASE=$(pwd)
 SKIP_RUNS_TILL=0
 
+TRACE_PERCENT=20
+
+
 OUT_STAT_DIR="$2"
 TRACE_BASE_DIR="$1"
+RAM_TRACE_DIR="/dev/shm/traces"
+mkdir -p "$RAM_TRACE_DIR"
+echo "cp -r $TRACE_BASE_DIR/* $RAM_TRACE_DIR/"
+#rm -rf "$RAM_TRACE_DIR/"*
+cp -r "$TRACE_BASE_DIR"/* "$RAM_TRACE_DIR/"
+echo "Traces copied to RAM: $RAM_TRACE_DIR"
+
+TRACE_BASE_DIR="$RAM_TRACE_DIR/"
+
 OUTPUT_BASE_dir="$BASE/$OUT_STAT_DIR"
+
+TMP_RAM_OUTPUT_DIR="/dev/shm/outputs" # Prevent IO bottleneck
+
+FINAL_STORAGE_OUTPUT_DIR="$OUTPUT_BASE_dir"
+mkdir -p "$TMP_RAM_OUTPUT_DIR"
+# clean the output dir
+# rm -rf "$TMP_RAM_OUTPUT_DIR/"*
+
+OUTPUT_BASE_dir=$TMP_RAM_OUTPUT_DIR
+
 echo "TRACE_BASE_DIR: $TRACE_BASE_DIR"
 echo "OUTPUT_BASE_dir: $OUTPUT_BASE_dir"
 # The arguments are the trace file paths
@@ -35,7 +57,26 @@ if [ ${#TRACES_FILE[@]} -eq 0 ]; then
     exit 1
 fi
 
-# Print out the array of trace files for verification (optional)
+# Print warout the array of trace files for verification (optional)
+
+
+# Regular colors
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+BLUE='\e[34m'
+
+# Light colors
+LIGHT_RED='\e[91m'
+LIGHT_GREEN='\e[92m'
+LIGHT_BLUE='\e[94m'
+DOUBLE_LIGHT_BLUE='\e[94;1m'  # Light blue, slightly brighter with bold
+LIGHT_YELLOW='\e[93m'
+LIGHT_PURPLE='\033[1;35m'
+
+# Reset color
+RESET='\e[0m'
+
 
 echo "Processing trace files:"
 declare -A file_trace_map
@@ -105,24 +146,27 @@ done
 
 # Set the maximum number of concurrent processes
 
-# MUST CHANGE TO A14 DUP DIR 
+
 # Define the prefetcher's configuration file path
 FILE_PATH="$BASE/pin_champsim/prefetcher/ZeroMarkovDelta_OutlierMinMax.l2c_pref"
 BASE_Pf_PATH="$BASE/pin_champsim/prefetcher"
 prefetcher_designs=(
     "berti_concurso berti_concurso"
     "bingo_dpc3 bingo_dpc3"
+    "isb_ideal isb_ideal"
     "ipcp ipcp"
-    #"bingo_dpc3_PHT1k bingo_dpc3_PHT1k"
-    #"berti berti"
-    "next_line 029-SecTOP-L2-MultiMarkovDelta_ip_stride_v4-IPStrS256"
+    "next_line 000-Multi-IPMarkovDelta_IPStr"
+    #"next_line 000-Multi-IPMarkovDelta_IPStr_v2"
+    "next_line 000-SingularIPMarkovDelta_IPStr"
+    #"next_line 000-SingularIPMarkovDelta_IPStr_v2"
+
+    "no spp_berti_src"
+    "no no"
+    
     # "next_line 030-L2-MultiMarkovDelta_ip_stride_L1-nextLine-1-2-4_vTTT"
     # "next_line 029-SecTOP-L2-MultiMarkovDelta_ip_stride_v4"
     # "next_line 029-SecTOP-L2-MultiMarkovDelta_ip_stride_v4-MK2-P30"
     # "next_line 029-TOPTOP-L2-MultiMarkovDelta_ip_stride_v3"
-    "isb_ideal isb_ideal"
-    "no spp_berti_src"
-    "no no"
     # "next_line no"
     # "no next_line"
 )
@@ -130,43 +174,27 @@ prefetcher_designs=(
 # Define the ChampSim directory
 CHAMPSIM_DIR="$BASE/pin_champsim"
 
-# Define the traces to be used
-# TRACES_FILE=(
-#     "./LLM_Traces/2B_Traces_SelfAttention_Phythia-70M-Seq1024-07-08-0125.champsim.xz"
-#     #"./LLM_Traces/LLM_Traces_v2/Phy70M-b1h8s1024d64r1_Traces331224700_NO_FOLLOWEXEC_SingleProc.champsim.3.xz"
-# )
-# TRACES_FILE=()
-
-
-# Define the MAX and MIN threshold values
-P_Thresh=(0 2 5 10 15 20 25 30 35 40) #FTR 8192 16384 32768 65536 131072 262144 524288 1048576)
-Degree=(12 13 14 15 16)
-D_SKIP_AT=(2 5 8 10 12 15 17 21 23 25)
-D_SKIP_AMOUNT=(1 2 4 6 8 10 12 14 16 18 20)
-
-
-#MIN_THRESHOLDS=(0 4 8 32 64) #FTR 4096 8192)
-# SIZES=(8 16)
 # Initialize the number of running processes
 running=0
 
 # Calculate the total number of valid combinations
 total_runs=0
-# for MAX in "${MAX_THRESHOLDS[@]}"; do
-#     for MIN in "${MIN_THRESHOLDS[@]}"; do
-#         for SIZE in "${SIZES[@]}"; do
-#             if (( MIN < MAX )); then
-#                 ((total_runs++))
-#             fi
-#         done 
-#     done
-# done
-default_Warmup=2000000
+
+
 # Iterate over all trace files and prefetcher designs
 for trace in "${TRACES_FILE[@]}"; do
     for prefetcher in "${prefetcher_designs[@]}"; do
-        # Increase the counter for each combination
-        ((total_runs++))
+        for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
+
+            # check a Xcore folder in stats base dir if not exit create
+            if [ ! -d "$FINAL_STORAGE_OUTPUT_DIR/200-${NUM_CORES}core" ]; then
+                mkdir -p "$FINAL_STORAGE_OUTPUT_DIR/200-${NUM_CORES}core"
+                mkdir -p "$OUTPUT_BASE_dir/200-${NUM_CORES}core"
+            fi
+
+            # Increase the counter for each combination
+            ((total_runs++))
+        done
     done
 done
 
@@ -174,30 +202,35 @@ current_run=0
 echo ""
 echo "> Total runs: $total_runs"
 
-
-# echo "Populated file_trace_map:"
-# for file in "${!file_trace_map[@]}"; do
-#     echo "> File: $file, Value: ${file_trace_map[$file]}"
-# done
+# get poch start time in seconds 
+EPOCH_START_SECONDS=$(date +%s)
 
 
 # Iterate over all MAX and MIN threshold combinations
-for trace_file in "${TRACES_FILE[@]}"; do
-    echo "Processing trace: $trace_file"
-    for prefetcher in "${prefetcher_designs[@]}"; do
-        if (( current_run < SKIP_RUNS_TILL )); then
-            ((current_run++))
-            echo "Skipped $current_run of $SKIP_RUNS_TILL"
-            continue
-        fi    
-        
-        #for file in "${!file_trace_map[@]}"; do
-            #echo "MAP:${file_trace_map[@]}"
-            echo "F:${trace_file}"
+for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
+    for trace_file in "${TRACES_FILE[@]}"; do
+        for prefetcher in "${prefetcher_designs[@]}"; do
+            echo -e "Prefetcher: $prefetcher ${LIGHT_BLUE}Cores: $NUM_CORES ${RESET}Trace: $trace_file "
 
+            if (( current_run < SKIP_RUNS_TILL )); then
+                ((current_run++))
+                echo "Skipped $current_run of $SKIP_RUNS_TILL"
+                continue
+            fi    
+                        
+            #for file in "${!file_trace_map[@]}"; do
+            #echo "MAP:${file_trace_map[@]}"
+            
             # exit 0
             trace=$file
             simTraces_num=$(echo "$trace_file" | grep -oP '\[\K[0-9]+(?=\])')
+            # round up makes 10% for warmup and 10% buffer from the end
+            percent=$(( (simTraces_num + 9) / 10 ))
+            
+            percent=$(( (simTraces_num * $TRACE_PERCENT) / 100 ))
+            traceBoundround_up=$(( (percent / 1000000) * 1000000 ))
+            
+            #traceBoundround_up=$(( ((simTraces_num * 10 + 9999999) / 10 / 1000000) * 1000000 )) # 10% of the trace number 
             eachTraceFile=$trace
             
             # Determine the trace type based on the index
@@ -209,32 +242,34 @@ for trace_file in "${TRACES_FILE[@]}"; do
             
             # DONE PREPROCESSING
             ((current_run++))
-            echo "## Actual Simulations:"
+            CURRENT_DATE=$(date +"%A %Y-%m-%d %H:%M:%S")
+            
+            echo -e "${YELLOW}## Actual A14.conf Simulations:${RESET} ${LIGHT_PURPLE}$CURRENT_DATE${RESET}"
 
             traceConfig=$(basename "${trace_file}" | sed 's/memTraces//' | sed 's/\..*//')
 
-            echo " > Run: ${current_run} of ${total_runs} Sim: ${simTraces_num} Trace: ${traceConfig} ..."
-            echo "  > Config: $traceConfig"
+            echo -e " > Run: ${RED}${current_run} of ${total_runs}${RESET} Sim: ${simTraces_num} Percent: ${traceBoundround_up} TConfig: ${LIGHT_BLUE}${traceConfig}${RESET} ..."
+            #echo "  > Config: $traceConfig"
             # Define the output log file with MIN and MAX in its name
-            OUTPUT_FILE="$OUTPUT_BASE_dir/100-${NUM_CORES}core-${traceConfig}-[L2-${prefetcher_L2}]_[L1-${prefetcher_L1}]-$EPOCHSECONDS.log"
-            
+            OUTPUT_FILE="$OUTPUT_BASE_dir/200-${NUM_CORES}core/050-${NUM_CORES}core-${traceConfig}-[L2-${prefetcher_L2}]_[L1-${prefetcher_L1}]-$EPOCHSECONDS.log"
             last_n_chars="${OUTPUT_FILE: -129}"
             
-            echo "   > Output log file: $last_n_chars"
+            echo -e "   > Output log file: ${LIGHT_GREEN}$last_n_chars${RESET}"
+            
             # Create the directory if it doesn't exist
             chmod +w $OUTPUT_BASE_dir
             # Create or truncate the output file
             
             > "$OUTPUT_FILE"
-
+            echo " > A14 sim Run: ${current_run} of ${total_runs} Sim: ${simTraces_num} Percent: ${traceBoundround_up} TConfig: ${traceConfig} ..." >> $OUTPUT_FILE
 
             
             BINARY_FILE="./pin_champsim/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core"
             actual_trace_name="${TRACES_FILE[-1]}"
             actual_trace_name="${actual_trace_name%.champsim.xz}"
-            echo "TRACE: $traceConfig Warmup: $default_Warmup NumTraces: $simTraces_num"  >> $OUTPUT_FILE
+            echo "TRACE: $traceConfig Warmup: $traceBoundround_up NumTraces: $simTraces_num"  >> $OUTPUT_FILE
             echo "L1:$prefetcher_L1:L2:$prefetcher_L2" >> $OUTPUT_FILE 
-            echo "   > Simulating: L1:$prefetcher_L1:L2:$prefetcher_L2"
+            echo -e "   > Simulating: ${YELLOW}L1:$prefetcher_L1:L2:$prefetcher_L2${RESET}"
             # Run the simulation in the background
 
             (
@@ -242,7 +277,7 @@ for trace_file in "${TRACES_FILE[@]}"; do
                 # Check if the binary file exists
                 #if [ ! -f "$BINARY_FILE" ]; then
                 echo "    > Creating Binary file ..."
-                cd "$CHAMPSIM_DIR" && sudo nice -n -39 ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no > 000-SOTA_build_output.log 2>&1 && cd .. || cd ..
+                cd "$CHAMPSIM_DIR" && sudo nice -n -39 ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no ${NUM_CORES} > 010-SOTA_build_output.log 2>&1 && cd .. || cd ..
                 
                 build_status=$?
                 while [ $build_status -ne 0 ]; do
@@ -263,13 +298,43 @@ for trace_file in "${TRACES_FILE[@]}"; do
                 #fi
                 echo "    > Running simulation... (${current_run})"
                 #Run the binary
-                sudo nice -n -39 \
-                    ./pin_champsim/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
-                        -warmup ${default_Warmup} \
-                        -simulation_instructions $((simTraces_num-default_Warmup-3000000)) \
-                        -traces "$trace_file" >> "$OUTPUT_FILE" 2>&1
+                #trace_repeats=$(printf "%0.s\"$trace_file\" " $(seq 1 "$NUM_CORES"))
+                
+                echo 
+                # if num cores 1 then trace_file once
+                if [ $NUM_CORES -eq 1 ]; then
+                    sudo nice -n -39 \
+                        ./pin_champsim/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
+                            -warmup ${traceBoundround_up} \
+                            -simulation_instructions $((simTraces_num-traceBoundround_up-traceBoundround_up)) \
+                            -traces "$trace_file" >> "$OUTPUT_FILE" 2>&1
 
-                echo "     > Finished combination: TraceType=${output_type} Sim:$((simTraces_num-default_Warmup-3000000)) Prefetcher=L2${prefetcher_L2} L1=${prefetcher_L1}" >> "$OUTPUT_FILE"
+                    echo "     > Finished combination: TraceType=${output_type} Sim:$((simTraces_num-traceBoundround_up-3000000)) Prefetcher=L2${prefetcher_L2} L1=${prefetcher_L1}" >> "$OUTPUT_FILE"
+                fi
+                # if num cores 4 then trace_file four times
+                if [ $NUM_CORES -eq 4 ]; then
+                    sudo nice -n -39 \
+                        ./pin_champsim/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
+                            -warmup ${traceBoundround_up} \
+                            -simulation_instructions $((simTraces_num-traceBoundround_up-traceBoundround_up)) \
+                            -traces "$trace_file" "$trace_file" "$trace_file" "$trace_file" >> "$OUTPUT_FILE" 2>&1
+
+                    echo "     > Finished combination: TraceType=${output_type} Sim:$((simTraces_num-traceBoundround_up-3000000)) Prefetcher=L2${prefetcher_L2} L1=${prefetcher_L1}" >> "$OUTPUT_FILE"
+                fi
+
+                
+                # if num cores 8 then trace_file eight times
+                if [ $NUM_CORES -eq 8 ]; then
+                    sudo nice -n -39 \
+                        ./pin_champsim/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
+                            -warmup ${traceBoundround_up} \
+                            -simulation_instructions $((simTraces_num-traceBoundround_up-traceBoundround_up)) \
+                            -traces "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" >> "$OUTPUT_FILE" 2>&1
+
+                    echo "     > Finished combination: TraceType=${output_type} Sim:$((simTraces_num-traceBoundround_up-3000000)) Prefetcher=L2${prefetcher_L2} L1=${prefetcher_L1}" >> "$OUTPUT_FILE"
+                fi
+
+                #echo " reps: $trace_repeats"
             ) &
 
             # Increment the running process count
@@ -285,9 +350,9 @@ for trace_file in "${TRACES_FILE[@]}"; do
             # Optional: Sleep for a short duration to prevent overwhelming the system
             #sleep 45  # Adjust the sleep duration as needed
         
-            echo "    > DOING: L1-$prefetcher_L1 L2-$prefetcher_L2 Trs-$trace_file RUN:$current_run" of "$total_runs inProg $running"
+            echo -e "    > DOING: L1-$prefetcher_L1 L2-$prefetcher_L2 Trs-$trace_file RUN:${LIGHT_GREEN}$current_run" of "$total_runs${RESET} ${GREEN}inProg $running ${RESET}"
 
-
+            sleep 1
             while true; do
                 # Get the current number of lines in the OUTPUT_FILE
                 line_count=$(wc -l < "$OUTPUT_FILE")
@@ -305,12 +370,37 @@ for trace_file in "${TRACES_FILE[@]}"; do
             done
             
             #done
-        #done
+        done
     done
 done
 
+
 # Wait for all background processes to finish
 wait
+CURRENT_DATE=$(date +"%A %Y-%m-%d %H:%M:%S")
+# get epoch end time in seconds
+EPOCH_END_SECONDS=$(date +%s)
+# calculate the epoch duration in d:h:m:s
+EPOCH_DURATION=$(date -u -d "0 $EPOCH_END_SECONDS seconds - $EPOCH_START_SECONDS seconds" +"%H:%M:%S")
+echo "> All simulations completed. ${LIGHT_PURPLE}DURATION: $CURRENT_DATE${RESET}"
 
-echo "> All simulations completed."
 
+
+echo "COPYING OUTPUTS FROM RAM TO FINAL DIR"
+# Copy the output files from RAM to the final storage directory
+
+# Check if FINAL_STORAGE_OUTPUT_DIR exists; create if not
+if [ ! -d "$FINAL_STORAGE_OUTPUT_DIR" ]; then
+    mkdir -p "$FINAL_STORAGE_OUTPUT_DIR" || { echo "Failed to create directory: $FINAL_STORAGE_OUTPUT_DIR"; exit 1; }
+fi
+
+# Attempt to copy, skipping errors
+cp -r "$TMP_RAM_OUTPUT_DIR"/* "$FINAL_STORAGE_OUTPUT_DIR"  || echo "Error occurred during copy"
+
+
+
+
+# Clean up the RAM
+# rm -rf "$RAM_TRACE_DIR"
+# rm -rf "$TMP_RAM_OUTPUT_DIR"
+echo "DONE"

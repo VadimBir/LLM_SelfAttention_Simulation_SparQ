@@ -13,3 +13,11 @@ DEBUG PREFETCHER
     gdb ./bin/perceptron-no-foo-no-lru-1core
     COMMAND: r -warmup_instructions 2000000 -simulation_instructions 10000000 -traces ./750-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].9.xz
 
+
+
+GITHUB SSH PUSH
+    ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" && echo "SSH key generated at ~/.ssh/id_rsa"
+    git config --global user.name "VadimBir" && git config --global user.email "vasumrus@gmail.com" && git remote set-url origin git@github.com:VadimBir/LLM_SelfAttention_Simulation_SparQ.git
+    git add .
+    git commit -am "<TEXT>"
+    git push

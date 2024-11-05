@@ -64,3 +64,11 @@ echo "Setup complete! You can now run Pin tool trace capturing and ChampSim simu
 mkdir /dev/shm/outputs/200-1core
 mkdir /dev/shm/outputs/200-4core 
 mkdir /dev/shm/outputs/200-8core 
+mkdir ./740-tot_simStats_v4_MultiConf/glc/200-1core
+mkdir ./740-tot_simStats_v4_MultiConf/glc/200-4core
+mkdir ./740-tot_simStats_v4_MultiConf/glc/200-8core
+mkdir ./740-tot_simStats_v4_MultiConf/A14/200-1core
+mkdir ./740-tot_simStats_v4_MultiConf/A14/200-4core
+mkdir ./740-tot_simStats_v4_MultiConf/A14/200-8core
+mkdir /dev/shm/outputs/200-4core 
+mkdir /dev/shm/outputs/200-8core 

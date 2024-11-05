@@ -1,0 +1,15 @@
+RECURSIVE DIRECTORY FAST XZ CHECK FOR END 
+    find . -name "*.xz" -exec sh -c 'tail -c 16 "$1" | hexdump -C | grep -q "59 5a" && echo "$1: True" || echo "$1: False"' _ {} \;
+
+CURRENT DIRECTORY XZ VERYFY INTEGRITY
+ 
+
+CONVERT .xz TO ANOTHER .xz
+    filename="<FILENAME>"
+    xz -dc "${filename}.champsim.xz" | xz -9 -T44 -c > "${filename}.9.xz"
+
+
+DEBUG PREFETCHER
+    gdb ./bin/perceptron-no-foo-no-lru-1core
+    COMMAND: r -warmup_instructions 2000000 -simulation_instructions 10000000 -traces ./750-tot_memTraces_v5/120-subBillion_s2048_LLM_Arch/memTraces[1319000000]_FE_[Pythia-70M]_[h8]_[s2048]_[d64].9.xz
+

@@ -12,9 +12,9 @@
 
 
 // instruction format
-#define ROB_SIZE 632                    // FLAG_CONFIG same as Hermes A14 Firestorm
-#define LQ_SIZE 148                     // FLAG_CONFIG same as Hermes A14 Firestorm
-#define SQ_SIZE 106                      // FLAG_CONFIG same as Hermes
+#define ROB_SIZE 512                   
+#define LQ_SIZE 128                     // FLAG_CONFIG same as Hermes A14 Firestorm
+#define SQ_SIZE 72                      // FLAG_CONFIG same as Hermes
 #define NUM_INSTR_DESTINATIONS_SPARC 4  
 #define NUM_INSTR_DESTINATIONS 2
 #define NUM_INSTR_SOURCES 4

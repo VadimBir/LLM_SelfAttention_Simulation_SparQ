@@ -1,38 +1,10 @@
-Building multi-core ChampSim...
+Building single-core ChampSim...
 
 rm -f -r obj
 Generating dependencies for src/ooo_cpu.cc...
 Compiling src/ooo_cpu.cc...
 Generating dependencies for src/cache.cc...
 Compiling src/cache.cc...
-In file included from inc/instruction.h:22,
-                 from inc/block.h:5,
-                 from inc/memory_class.h:5,
-                 from inc/cache.h:4,
-                 from src/cache.cc:1:
-inc/set.h: In member function ‘void CACHE::handle_read()’:
-inc/set.h:215:42: warning: iteration 8 invokes undefined behavior [-Waggressive-loop-optimizations]
-  215 |   for (int i=0; i<lim; i++) data.bits[i] |= other.data.bits[i];
-      |                             ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
-inc/set.h:215:18: note: within this loop
-  215 |   for (int i=0; i<lim; i++) data.bits[i] |= other.data.bits[i];
-      |                 ~^~~~
-inc/set.h:215:42: warning: array subscript 8 is above array bounds of ‘long long unsigned int [8]’ [-Warray-bounds]
-  215 |   for (int i=0; i<lim; i++) data.bits[i] |= other.data.bits[i];
-      |                             ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
-inc/set.h:215:62: warning: array subscript 8 is above array bounds of ‘long long unsigned int [8]’ [-Warray-bounds]
-  215 |   for (int i=0; i<lim; i++) data.bits[i] |= other.data.bits[i];
-      |                                             ~~~~~~~~~~~~~~~~~^
-inc/set.h:215:42: warning: array subscript 8 is above array bounds of ‘long long unsigned int [8]’ [-Warray-bounds]
-  215 |   for (int i=0; i<lim; i++) data.bits[i] |= other.data.bits[i];
-      |                             ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
-inc/set.h:215:42: warning: array subscript 9 is above array bounds of ‘long long unsigned int [8]’ [-Warray-bounds]
-inc/set.h:215:62: warning: array subscript 9 is above array bounds of ‘long long unsigned int [8]’ [-Warray-bounds]
-  215 |   for (int i=0; i<lim; i++) data.bits[i] |= other.data.bits[i];
-      |                                             ~~~~~~~~~~~~~~~~~^
-inc/set.h:215:42: warning: array subscript 9 is above array bounds of ‘long long unsigned int [8]’ [-Warray-bounds]
-  215 |   for (int i=0; i<lim; i++) data.bits[i] |= other.data.bits[i];
-      |                             ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
 Generating dependencies for src/block.cc...
 Compiling src/block.cc...
 Generating dependencies for src/dram_controller.cc...
@@ -59,10 +31,10 @@ Linking bin/champsim...
 
 [1mChampSim is successfully built
 Branch Predictor: perceptron
-L1D Prefetcher: ipcp
-L2C Prefetcher: ipcp
+L1D Prefetcher: no
+L2C Prefetcher: no
 LLC Prefetcher: no
 LLC Replacement: lru
-Cores: 4
-Binary: bin/perceptron-ipcp-ipcp-no-lru-4core
+Cores: 1
+Binary: bin/perceptron-no-no-no-lru-1core
 

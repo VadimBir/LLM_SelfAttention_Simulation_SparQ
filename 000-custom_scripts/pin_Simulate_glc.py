@@ -7,10 +7,13 @@ import time
 
 
 #base_Stats_Dir = "./000-simstats/comparisons"
-S_LEN=4096 
+S_LEN=512 
       
-base_Stats_Dir = f"770-tot_simstats_v3_HMS_conf_4core-glc_v2"
-base_Trace_Dir = f"770-tot_memTraces_v4_2048"
+base_Stats_Dir = f"740-tot_simStats_v4_MultiConf/glc"
+#base_Trace_Dir = f"750-tot_memTraces_v5_256"
+#base_Trace_Dir = f"750-tot_memTraces_v5/140-subBillion_s512_LLM_Arch"
+base_Trace_Dir = f"750-tot_memTraces_v5"
+
 tracesPath_logger = base_Trace_Dir+"/050-collectedTracesPath_v2_QK.log"
 
 # ORDER: MY DESIGN, THEN SOTA DESIGNS: IPCP, ISB, BERTI, BINGO, SPP
@@ -40,8 +43,8 @@ L2C_Design = [
 
 LLM_Architecture_Design = [
     #{"model_name": "Pythia-70M", "n_head": 8, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
-    # {"model_name": "GPT-Neo-125M", "n_head": 12, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
-    {"model_name": "OPT-350M", "n_head": 16, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
+    {"model_name": "GPT-Neo-125M", "n_head": 12, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
+    #{"model_name": "OPT-350M", "n_head": 16, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
     # {"model_name": "Pythia-70M", "n_head": 8, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
     # {"model_name": "GPT-Neo-125M", "n_head": 12, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
     # {"model_name": "OPT-350M", "n_head": 16, "sequence_length": S_LEN, "head_dim": 64 }, #, "num_tokens": 2_000_000},
@@ -176,7 +179,7 @@ def run_benchmark(excluded_steps):
             for i, trace_path in enumerate(traceFileNames):
                 print(f"   > Compressing {trace_path}")
                 #subprocess.run(["xz", "-2", "--verbose", "-k", "-T8" ,trace_path], check=True)
-                subprocess.run(["xz", "-2", "--verbose", "-T2" ,trace_path], check=True)
+                subprocess.run(["xz", "-1", "--verbose", "-T9" ,trace_path], check=True)
                 
                 print(f"    > File {trace_path} compressed.")
         except Exception as e:
@@ -239,6 +242,6 @@ if __name__ == "__main__":
     # 1. Build the prefetchers
     # 2. Capture the traces
     # 3. Simulate the traces
-    excluded_steps = [1,3]
+    excluded_steps = [1,2]
     
     run_benchmark(excluded_steps)

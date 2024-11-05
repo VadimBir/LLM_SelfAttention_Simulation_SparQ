@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 4 ]; then
     echo "Illegal number of parameters"
     #echo "Usage: ./build_champsim.sh [branch_pred] [l1d_pref] [l2c_pref] [llc_pref] [llc_repl] [num_core]"
-    echo "Usage: ./build_champsim.sh [l2c_pref]"
+    echo "Usage: ./build_champsim.sh [l1d_pref] [l2c_pref] [llc_pref] [num_core]"
     exit 1
 fi
 
@@ -25,7 +25,7 @@ BRANCH=perceptron
 #L1D_PREFETCHER=no
 #LLC_PREFETCHER=no
 LLC_REPLACEMENT=lru
-NUM_CORE=4
+NUM_CORE=$4
 #################################################
 
 # Sanity check

@@ -107,20 +107,20 @@ void print_sim_stats(uint32_t cpu, CACHE *cache)
     }
 
     cout<< "Core_" << cpu << "_" << cache->NAME << "_total_access " << TOTAL_ACCESS << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_total_hit " << TOTAL_HIT << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_total_miss " << TOTAL_MISS << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_loads " << cache->sim_access[cpu][0] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_load_hit " << cache->sim_hit[cpu][0] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_load_miss " << cache->sim_miss[cpu][0] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_RFOs " << cache->sim_access[cpu][1] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_RFO_hit " << cache->sim_hit[cpu][1] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_RFO_miss " << cache->sim_miss[cpu][1] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_prefetches " << cache->sim_access[cpu][2] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_hit " << cache->sim_hit[cpu][2] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_miss " << cache->sim_miss[cpu][2] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_writebacks " << cache->sim_access[cpu][3] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_writeback_hit " << cache->sim_hit[cpu][3] << endl
-        << "Core_" << cpu << "_" << cache->NAME << "_writeback_miss " << cache->sim_miss[cpu][3] << endl
+        << "Core_" << cpu << "_" << cache->NAME << "_total_hit :" << TOTAL_HIT <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_total_miss :" << TOTAL_MISS <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_loads :" << cache->sim_access[cpu][0] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_load_hit :" << cache->sim_hit[cpu][0] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_load_miss :" << cache->sim_miss[cpu][0] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_RFOs :" << cache->sim_access[cpu][1] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_RFO_hit :" << cache->sim_hit[cpu][1] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_RFO_miss :" << cache->sim_miss[cpu][1] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_prefetches :" << cache->sim_access[cpu][2] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_hit :" << cache->sim_hit[cpu][2] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_prefetch_miss :" << cache->sim_miss[cpu][2] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_writebacks :" << cache->sim_access[cpu][3] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_writeback_hit :" << cache->sim_hit[cpu][3] <<":"<< endl
+        << "Core_" << cpu << "_" << cache->NAME << "_writeback_miss :" << cache->sim_miss[cpu][3] <<":"<< endl
         << endl;
 }
 
@@ -157,6 +157,7 @@ void print_dram_stats()
             cout << "avg_congested_cycle " << (total_congested_cycle / uncore.DRAM.dbus_congested[NUM_TYPES][NUM_TYPES]) <<endl<< endl;
             for (int i=0; i<NUM_CPUS; i++) {
                 cout << "EzSearch AVG IPC :" << ((float) ooo_cpu[i].finish_sim_instr / ooo_cpu[i].finish_sim_cycle)<<":" << " L2-Pf-HR :" << (double)ooo_cpu[i].L2C.roi_hit[i][2]/(double)ooo_cpu[i].L2C.roi_access[i][2] << " : L2-HR :" <<print_L2_hitRatio(i,&ooo_cpu[i].L2C) << " Uful:"<< print_L2_usefulRatio(i,&ooo_cpu[i].L2C)<<endl;
+
             }
         }
     else{

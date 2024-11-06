@@ -151,17 +151,20 @@ done
 FILE_PATH="$BASE/pin_champsim_DUP_glc/prefetcher/ZeroMarkovDelta_OutlierMinMax.l2c_pref"
 BASE_Pf_PATH="$BASE/pin_champsim_DUP_glc/prefetcher"
 prefetcher_designs=(
+    "ipcp ipcp" 
     "berti_concurso berti_concurso"
     "bingo_dpc3 bingo_dpc3"
     "isb_ideal isb_ideal"
-    "ipcp ipcp"
-    "next_line 000-Multi-IPMarkovDelta_IPStr"
-    #"next_line 000-Multi-IPMarkovDelta_IPStr_v2"
-    "next_line 000-SingularIPMarkovDelta_IPStr"
-    #"next_line 000-SingularIPMarkovDelta_IPStr_v2"
-
+    "next_line 000-Multi-IPMarkovDelta_IPStr_v2"
+    "next_line 000-SingularIPMarkovDelta_IPStr_v2"
     "no spp_berti_src"
     "no no"
+
+
+
+    # "next_line 000-Multi-IPMarkovDelta_IPStr"
+    # "next_line 000-SingularIPMarkovDelta_IPStr"
+
     
     # "next_line 030-L2-MultiMarkovDelta_ip_stride_L1-nextLine-1-2-4_vTTT"
     # "next_line 029-SecTOP-L2-MultiMarkovDelta_ip_stride_v4"
@@ -211,7 +214,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
     for trace_file in "${TRACES_FILE[@]}"; do
         for prefetcher in "${prefetcher_designs[@]}"; do
             echo -e "Prefetcher: $prefetcher ${LIGHT_BLUE}Cores: $NUM_CORES ${RESET}Trace: $trace_file "
-
+            sleep 13
             if (( current_run < SKIP_RUNS_TILL )); then
                 ((current_run++))
                 echo "Skipped $current_run of $SKIP_RUNS_TILL"
@@ -277,7 +280,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
                 # Check if the binary file exists
                 #if [ ! -f "$BINARY_FILE" ]; then
                 echo "    > Creating Binary file ..."
-                cd "$CHAMPSIM_DIR" && sudo nice -n -39 ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no ${NUM_CORES} > 010-SOTA_build_output.log 2>&1 && cd .. || cd ..
+                cd "$CHAMPSIM_DIR" && ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no ${NUM_CORES} 2>&1 && cd .. || cd ..
                 
                 build_status=$?
                 while [ $build_status -ne 0 ]; do
@@ -288,7 +291,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
                     read -r  # Pause for user confirmation
 
                     # Retry with output shown to terminal
-                    cd "$CHAMPSIM_DIR" && sudo nice -n -39 ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no && cd .. || cd ..
+                    cd "$CHAMPSIM_DIR" && ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no && cd .. || cd ..
                     build_status=$?  # Update build status after retry
                 done
 
@@ -303,8 +306,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
                 echo 
                 # if num cores 1 then trace_file once
                 if [ $NUM_CORES -eq 1 ]; then
-                    sudo nice -n -39 \
-                        ./pin_champsim_DUP_glc/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
+                    ./pin_champsim_DUP_glc/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
                             -warmup ${traceBoundround_up} \
                             -simulation_instructions $((simTraces_num-traceBoundround_up-traceBoundround_up)) \
                             -traces "$trace_file" >> "$OUTPUT_FILE" 2>&1
@@ -313,8 +315,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
                 fi
                 # if num cores 4 then trace_file four times
                 if [ $NUM_CORES -eq 4 ]; then
-                    sudo nice -n -39 \
-                        ./pin_champsim_DUP_glc/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
+                    ./pin_champsim_DUP_glc/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
                             -warmup ${traceBoundround_up} \
                             -simulation_instructions $((simTraces_num-traceBoundround_up-traceBoundround_up)) \
                             -traces "$trace_file" "$trace_file" "$trace_file" "$trace_file" >> "$OUTPUT_FILE" 2>&1
@@ -325,8 +326,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
                 
                 # if num cores 8 then trace_file eight times
                 if [ $NUM_CORES -eq 8 ]; then
-                    sudo nice -n -39 \
-                        ./pin_champsim_DUP_glc/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
+                    ./pin_champsim_DUP_glc/bin/perceptron-${prefetcher_L1}-${prefetcher_L2}-no-lru-${NUM_CORES}core \
                             -warmup ${traceBoundround_up} \
                             -simulation_instructions $((simTraces_num-traceBoundround_up-traceBoundround_up)) \
                             -traces "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" "$trace_file" >> "$OUTPUT_FILE" 2>&1
@@ -339,7 +339,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
 
             # Increment the running process count
             ((running++))
-
+            
             # If the number of running processes reaches MAX_PROCESSES, wait for any to finish
             if (( running >= MAX_PROCESSES )); then
                 echo " > Waiting for running processes to finish..."
@@ -352,7 +352,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
         
             echo -e "    > DOING: L1-$prefetcher_L1 L2-$prefetcher_L2 Trs-$trace_file RUN:${LIGHT_GREEN}$current_run" of "$total_runs${RESET} ${GREEN}inProg $running ${RESET}"
 
-            sleep 1
+            
             while true; do
                 # Get the current number of lines in the OUTPUT_FILE
                 line_count=$(wc -l < "$OUTPUT_FILE")

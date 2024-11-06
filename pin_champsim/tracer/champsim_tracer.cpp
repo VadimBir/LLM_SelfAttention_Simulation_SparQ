@@ -15,7 +15,9 @@ using namespace std;
 using namespace std;
 using namespace std;
 using namespace std;
+using namespace std;
 #include <iostream>
+using namespace std;
 using namespace std;
 using namespace std;
 using namespace std;
@@ -37,7 +39,9 @@ using namespace std;
 using namespace std;
 using namespace std;
 using namespace std;
+using namespace std;
 #include <stdlib.h>
+using namespace std;
 using namespace std;
 using namespace std;
 using namespace std;
@@ -59,7 +63,9 @@ using namespace std;
 using namespace std;
 using namespace std;
 using namespace std;
+using namespace std;
 #include <string>
+using namespace std;
 using namespace std;
 using namespace std;
 using namespace std;

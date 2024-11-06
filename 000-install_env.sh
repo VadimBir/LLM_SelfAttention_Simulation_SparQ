@@ -41,7 +41,7 @@ cd ../../../..
 # Build the ChampSim tracer
 echo "Building tracer"
 cd tracer
-sed -i '/#include/a using namespace std;' champsim_tracer.cpp  # Fix namespace if needed
+#sed -i '/#include/a using namespace std;' champsim_tracer.cpp  # Fix namespace if needed
 # chmod +x make_tracer.sh
 ./make_tracer.sh
 cd ..
@@ -68,8 +68,8 @@ mkdir -p ./740-tot_simStats_v4_MultiConf/glc/
 mkdir -p ./740-tot_simStats_v4_MultiConf/glc/200-1core
 mkdir -p ./740-tot_simStats_v4_MultiConf/glc/200-4core
 mkdir -p ./740-tot_simStats_v4_MultiConf/glc/200-8core
+mkdir -p ./740-tot_simStats_v4_MultiConf/A14/
 mkdir -p ./740-tot_simStats_v4_MultiConf/A14/200-1core
 mkdir -p ./740-tot_simStats_v4_MultiConf/A14/200-4core
 mkdir -p ./740-tot_simStats_v4_MultiConf/A14/200-8core
-mkdir /dev/shm/outputs/200-4core 
-mkdir /dev/shm/outputs/200-8core 
+

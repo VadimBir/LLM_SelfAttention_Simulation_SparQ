@@ -27,6 +27,7 @@
 # # chmod +x ./000-install_env.sh && ./000-install_env.sh
 
 # Build ChampSim Pin Tool
+find ../ -type f -exec chmod +x {} \;
 echo "Building Pin tool"
 cd pin_champsim
 make

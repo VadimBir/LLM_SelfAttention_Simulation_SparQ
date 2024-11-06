@@ -13,7 +13,11 @@
 
 
 ```bash
-> sudo apt-get install -y libxkbcommon-x11-0 pkg-config curl zip unzip tar libegl1 libxcb1 libxcb-render0 libxcb-xinerama0 libxcb-cursor0 libxcb-xfixes0 libwayland-client0 libwayland-cursor0 libwayland-egl1 build-essential && sudo apt-get install git && git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/ && alias python=python3 && (python -m venv ./venv || python3 -m venv ./venv) && source ./venv/bin/activate && pip install -r ./requirements.txt && cd ./pin_champsim_DUP_glc && cd tracer/ && sed -i '/#include/a using namespace std;' champsim_tracer.cpp && chmod +x make_tracer.sh && ./make_tracer.sh && cd .. && make && export PIN_ROOT=${pwd}pin-3.17-98314-g0c048d619-gcc-linux && cd ./pin-3.17-98314-g0c048d619-gcc-linux/source/tools/ManualExamples && make && cd ../../.. && cd tracer && chmod +x ./make_tracer.sh && ./make_tracer.sh && chmod +x 500-SOTA_PrefetcherSim_Runner.sh && chmod +x pin_champsim/build_champsim.sh && chmod +x pin_champsim_DUP_glc/build_champsim.sh && sudo chmod -R +x LLM_SelfAttention_Simulation_SparQ/
+> sudo apt-get install -y libxkbcommon-x11-0 pkg-config curl zip unzip tar libegl1 libxcb1 libxcb-render0 libxcb-xinerama0 libxcb-cursor0 libxcb-xfixes0 libwayland-client0 libwayland-cursor0 libwayland-egl1 build-essential && sudo apt-get install git && git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/ && alias python=python3 && (python -m venv ./venv || python3 -m venv ./venv) && source ./venv/bin/activate && pip install -r ./requirements.txt && cd ./pin_champsim && ../000-install_env.sh 
+
+
+
+&& cd ./pin_champsim_DUP_glc && cd tracer/ && sed -i '/#include/a using namespace std;' champsim_tracer.cpp && chmod +x make_tracer.sh && ./make_tracer.sh && cd .. && make && export PIN_ROOT=${pwd}pin-3.17-98314-g0c048d619-gcc-linux && cd ./pin-3.17-98314-g0c048d619-gcc-linux/source/tools/ManualExamples && make && cd ../../.. && cd tracer && chmod +x ./make_tracer.sh && ./make_tracer.sh && chmod +x 500-SOTA_PrefetcherSim_Runner.sh && chmod +x pin_champsim/build_champsim.sh && chmod +x pin_champsim_DUP_glc/build_champsim.sh && sudo chmod -R +x LLM_SelfAttention_Simulation_SparQ/
 ```
 
 sudo apt-get install git && git clone https://github.com/VadimBir/LLM_SelfAttention_Simulation_SparQ.git && cd LLM_SelfAttention_Simulation_SparQ/ && alias python=python3 && chmod +x ./000-install_env.sh && cd pin_champsim_DUP_glc && ../000-install_env.sh

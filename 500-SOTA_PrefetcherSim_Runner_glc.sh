@@ -8,7 +8,7 @@ if [ "$#" -lt 2 ]; then
 fi
 
 MAX_PROCESSES=64
-NUM_CORES_ARR=(1)
+NUM_CORES_ARR=(8 4 1)
 BASE=$(pwd)
 SKIP_RUNS_TILL=0
 
@@ -152,13 +152,13 @@ FILE_PATH="$BASE/pin_champsim_DUP_glc/prefetcher/ZeroMarkovDelta_OutlierMinMax.l
 BASE_Pf_PATH="$BASE/pin_champsim_DUP_glc/prefetcher"
 prefetcher_designs=(
     "ipcp ipcp" 
-    "berti_concurso berti_concurso"
-    "bingo_dpc3 bingo_dpc3"
-    "isb_ideal isb_ideal"
-    "next_line 000-Multi-IPMarkovDelta_IPStr_v2"
-    "next_line 000-SingularIPMarkovDelta_IPStr_v2"
-    "no spp_berti_src"
-    "no no"
+    # "berti_concurso berti_concurso"
+    # "bingo_dpc3 bingo_dpc3"
+    # "isb_ideal isb_ideal"
+    # "next_line 000-Multi-IPMarkovDelta_IPStr_v2"
+    # "next_line 000-SingularIPMarkovDelta_IPStr_v2"
+    # "no spp_berti_src"
+    # "no no"
 
 
 
@@ -246,7 +246,7 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
             # DONE PREPROCESSING
             ((current_run++))
             CURRENT_DATE=$(date +"%A %Y-%m-%d %H:%M:%S")
-            
+             
             echo -e "${YELLOW}## Actual glc.conf Simulations:${RESET} ${LIGHT_PURPLE}$CURRENT_DATE${RESET}"
 
             traceConfig=$(basename "${trace_file}" | sed 's/memTraces//' | sed 's/\..*//')
@@ -278,9 +278,9 @@ for NUM_CORES in "${NUM_CORES_ARR[@]}"; do
             (
                 
                 # Check if the binary file exists
-                #if [ ! -f "$BINARY_FILE" ]; then
+                #if [ ! -f "$BINARY_FILE" ]; then 
                 echo "    > Creating Binary file ..."
-                cd "$CHAMPSIM_DIR" && ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no ${NUM_CORES} 2>&1 && cd .. || cd ..
+                cd "$CHAMPSIM_DIR" && ./build_champsim.sh ${prefetcher_L1} ${prefetcher_L2} no ${NUM_CORES} > 010-SOTA_build_output.log 2>&1 && cd .. || cd ..
                 
                 build_status=$?
                 while [ $build_status -ne 0 ]; do
